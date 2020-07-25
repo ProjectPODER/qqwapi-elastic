@@ -1,0 +1,24 @@
+{
+  "name": "qqwapi-elastic",
+  "version": "0.1.0",
+  "description": "APIv3 for QuienEsQuien.wiki based in ElasticSearch database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "gitlab.rindecuentas.org/equipo-qqw/qqwapi-elastic"
+  },
+  "keywords": [
+    "api",
+    "opendata",
+    "opencontracting"
+  ],
+  "author": "Martín Szyszlican",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.8.0"
+  }
+}
