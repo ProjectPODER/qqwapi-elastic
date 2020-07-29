@@ -1,0 +1,1650 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "QuienEsQuien.Wiki APIv3. [DOCS](https://QuienEsQuienApi.readthedocs.io).  [Source](https://github.com/ProjectPODER/QuienEsQuienApi).",
+        "title": "API de QuienEsQuien",
+        "version": "3.0.0-beta",
+        "contact": {
+            "name": "Programa de Tecnologías para la Transparencia (PODER)",
+            "url": "https://www.quienesquien.wiki/contacto",
+            "email": "info@quienesquien.wiki"
+        },
+        "license": {
+            "name": "GPL-3.0",
+            "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
+        }
+    },
+    "paths": {
+        "/spec.json": {
+            "x-swagger-pipe": "swagger_raw"
+        },
+        "/autocomplete": {
+            "x-exegesis-controller": "autocomplete",
+            "get": {
+                "description": "Find persons, contracts and organizations by a part of their name",
+                "summary": "Find persons, contracts and organizations by a part of their name",
+                "operationId": "autocomplete",
+                "tags": [
+                    "Autocomplete"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/name"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Autocomplete"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/autocomplete/{name}": {
+            "x-exegesis-controller": "autocomplete",
+            "get": {
+                "description": "Find persons, contracts and organizations by a part of their name",
+                "summary": "Find persons, contracts and organizations by a part of their name",
+                "operationId": "autocomplete",
+                "tags": [
+                    "Autocomplete"
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "name to search",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Autocomplete"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/persons": {
+            "x-exegesis-controller": "persons",
+            "get": {
+                "description": "Retrieve array of Person Documents",
+                "summary": "Retrieve array of Person Documents",
+                "operationId": "allPersons",
+                "tags": [
+                    "Persons"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_count_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_count_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contracted_amount_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contracted_amount_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "name": "gender",
+                        "in": "query",
+                        "description": "gender",
+                        "allowEmptyValue": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "male",
+                                "female",
+                                "other",
+                                "all"
+                            ]
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/omit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Person"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/persons/{id}": {
+            "x-exegesis-controller": "persons",
+            "get": {
+                "description": "Retrieve Person Document by id",
+                "summary": "Retrieve Person Document by id",
+                "operationId": "singlePerson",
+                "tags": [
+                    "Persons"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Internal ID of person",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Person"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/persons/distinct/{field}": {
+            "x-exegesis-controller": "persons",
+            "get": {
+                "summary": "Retrieve unique values for field",
+                "description": "Retrieve uniq values for field",
+                "operationId": "distinctPerson",
+                "tags": [
+                    "Persons"
+                ],
+                "parameters": [
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "description": "Field to describe",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Distinct"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companies": {
+            "x-exegesis-controller": "organizations",
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Retrieve array of Organization Documents",
+                "description": "Retrieve array of Organization Documents",
+                "operationId": "allOrganizations",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_count_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_count_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/omit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of organizations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organization"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/societies/{id}": {
+            "x-exegesis-controller": "organizations",
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Retrieve Organization Document by id",
+                "description": "Retrieve Organization Document by id",
+                "operationId": "singleOrganization",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Internal ID of organization",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of organizations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organization"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companies/distinct/{field}": {
+            "x-exegesis-controller": "organizations",
+            "get": {
+                "summary": "Retrieve unique values for field",
+                "description": "Retrieve uniq values for field",
+                "operationId": "distinctOrganization",
+                "tags": [
+                    "Organizations"
+                ],
+                "parameters": [
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "description": "Field to describe",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Distinct"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions": {
+            "x-exegesis-controller": "organizations",
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Retrieve array of Organization Documents",
+                "description": "Retrieve array of Organization Documents",
+                "operationId": "allOrganizations",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref": "#/components/parameters/name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_count_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_count_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/omit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of organizations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organization"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}": {
+            "x-exegesis-controller": "organizations",
+            "get": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Retrieve Organization Document by id",
+                "description": "Retrieve Organization Document by id",
+                "operationId": "singleOrganization",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Internal ID of organization",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of organizations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organization"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/distinct/{field}": {
+            "x-exegesis-controller": "organizations",
+            "get": {
+                "summary": "Retrieve unique values for field",
+                "description": "Retrieve uniq values for field",
+                "operationId": "distinctOrganization",
+                "tags": [
+                    "Organizations"
+                ],
+                "parameters": [
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "description": "Field to describe",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Distinct"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/contracts": {
+            "x-exegesis-controller": "contracts",
+            "get": {
+                "operationId": "allContracts",
+                "summary": "Retrieve array of Contract Documents",
+                "description": "Retrieve array of Contract Documents",
+                "tags": [
+                    "Contracts"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "records_compiledRelease_ocid",
+                        "description": "Open Contracting Identifier",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/records_compiledRelease_awards_title"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/party_type"
+                    },
+                    {
+                        "$ref": "#/components/parameters/party_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/currency"
+                    },
+                    {
+                        "$ref": "#/components/parameters/amount_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/amount_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/procurement_method"
+                    },
+                    {
+                        "$ref": "#/components/parameters/start_date_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/start_date_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/omit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Contract"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/contracts/{records_compiledRelease_ocid}": {
+            "x-exegesis-controller": "contracts",
+            "get": {
+                "tags": [
+                    "Contracts"
+                ],
+                "description": "Retrieve Contract Document by id",
+                "summary": "Retrieve Contract Document by id",
+                "operationId": "singleContract",
+                "parameters": [
+                    {
+                        "name": "records_compiledRelease_ocid",
+                        "in": "path",
+                        "description": "Internal ID of contract",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of contracts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contract"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/contracts/distinct/{field}": {
+            "x-exegesis-controller": "contracts",
+            "get": {
+                "summary": "Retrieve unique values for field",
+                "description": "Retrieve unique values for field",
+                "operationId": "distinctContract",
+                "tags": [
+                    "Contracts"
+                ],
+                "parameters": [
+                    {
+                        "name": "field",
+                        "in": "path",
+                        "description": "Field to describe",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Distinct"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sources": {
+            "x-exegesis-controller": "sources",
+            "get": {
+                "operationId": "allSources",
+                "summary": "Retrieve array of Source Documents",
+                "description": "Retrieve array of Source Documents",
+                "tags": [
+                    "Sources"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "description": "Name of source.",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Source"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/countries": {
+            "x-exegesis-controller": "countries",
+            "get": {
+                "operationId": "allCountries",
+                "summary": "Retrieve data of a specific country",
+                "description": "Retrieve data of a specific country",
+                "tags": [
+                    "Countries"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "description": "Name of country",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "Two-letter id of country",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Area"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/countries/{id}": {
+            "x-exegesis-controller": "countries",
+            "get": {
+                "operationId": "singleCountry",
+                "summary": "Retrieve array of countries and states",
+                "description": "Retrieve array of countries and states",
+                "tags": [
+                    "Countries"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Alpha2 code of country",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{2}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Area"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "/v3"
+        }
+    ],
+    "components": {
+        "parameters": {
+            "fields": {
+                "in": "query",
+                "name": "fields",
+                "description": "fields to return in results",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "omit": {
+                "in": "query",
+                "name": "omit",
+                "description": "fields to omit from results",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "sort": {
+                "in": "query",
+                "name": "sort",
+                "description": "Sort by given field.",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "embed": {
+                "in": "query",
+                "name": "embed",
+                "description": "Embed related documents",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "limit": {
+                "name": "limit",
+                "in": "query",
+                "description": "Number of returned documents",
+                "schema": {
+                    "type": "integer",
+                    "default": 25
+                }
+            },
+            "offset": {
+                "name": "offset",
+                "in": "query",
+                "description": "Number of returned documents",
+                "schema": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                }
+            },
+            "name": {
+                "name": "name",
+                "in": "query",
+                "description": "Partial or complete name of the entity.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "id": {
+                "in": "query",
+                "name": "id",
+                "description": "Unique identifier for entity.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "country": {
+                "in": "query",
+                "name": "country",
+                "description": "Country name or ISO 3166-1 alpha-2 code of the entity.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "source": {
+                "in": "query",
+                "name": "source",
+                "description": "The name of the source from which the entity was imported.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "contract_count_min": {
+                "in": "query",
+                "name": "contract_count_min",
+                "description": "Minimum number of contracts in which the entity is involved (as either buyer, seller or founder).",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "integer",
+                    "default": 0
+                }
+            },
+            "contract_count_max": {
+                "in": "query",
+                "name": "contract_count_max",
+                "description": "Maximum number of contracts in which the entity is involved (as either buyer, seller or founder).",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "integer",
+                    "default": 0
+                }
+            },
+            "contracted_amount_min": {
+                "in": "query",
+                "name": "contracted_amount_min",
+                "description": "Minimum amount sum of contracts in which the entity is involved (as either buyer, seller or founder).",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "number",
+                    "format": "float",
+                    "default": 0
+                }
+            },
+            "contracted_amount_max": {
+                "in": "query",
+                "name": "contracted_amount_max",
+                "description": "Maximum amount sum of contracts in which the entity is involved (as either buyer, seller or founder).",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "number",
+                    "format": "float",
+                    "default": 0
+                }
+            },
+            "records_compiledRelease_awards_title": {
+                "in": "query",
+                "name": "records_compiledRelease_awards_title",
+                "description": "Contract title",
+                "required": false,
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "amount_min": {
+                "in": "query",
+                "name": "amount_min",
+                "description": "Minimum nominal amount of the contract.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "number",
+                    "format": "float",
+                    "default": 0
+                }
+            },
+            "amount_max": {
+                "in": "query",
+                "name": "amount_max",
+                "description": "Maximum nominal amount of the contract.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "number",
+                    "format": "float",
+                    "default": 0
+                }
+            },
+            "currency": {
+                "name": "currency",
+                "in": "query",
+                "description": "Currency specified in contract",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "start_date_min": {
+                "in": "query",
+                "name": "start_date_min",
+                "description": "Mimimum beginning date of contract execution",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string",
+                    "format": "date"
+                }
+            },
+            "start_date_max": {
+                "in": "query",
+                "name": "start_date_max",
+                "description": "Maximum beginning date of contract execution",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string",
+                    "format": "date"
+                }
+            },
+            "party_name": {
+                "in": "query",
+                "name": "party_name",
+                "description": "Name of a company, institution or person participating in a contracting process.",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "party_type": {
+                "in": "query",
+                "name": "party_type",
+                "description": "Together with party_name, specifies it's role in the contracting process. Possible values buyer, supplier, funder, all.",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "procurement_method": {
+                "in": "query",
+                "name": "procurement_method",
+                "description": "Together with party_name, specifies it's role in the contracting process. Possible values direct, open, selective, all.",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "ErrorResponse": {
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Distinct": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Address": {
+                "properties": {
+                    "street": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "zone": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "city": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "state": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "postal_code": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "phones": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 50
+                        }
+                    },
+                    "emails": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "email",
+                            "pattern": "/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/"
+                        }
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "url",
+                        "maxLength": 50
+                    },
+                    "ocdid": {
+                        "type": "string",
+                        "maxLength": 110
+                    }
+                }
+            },
+            "Company": {
+                "properties": {
+                    "sector": {
+                        "type": "string"
+                    },
+                    "classification": {
+                        "type": "string"
+                    },
+                    "tickers": {
+                        "type": "string"
+                    },
+                    "employees": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "assets": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "current_assets": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "liabilities": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "current_ratio": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "quick_ratio": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "revenue": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "c_o_g_s": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "gross_profit": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "grossprofit_margin": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "market_cap": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "total_dept": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                }
+            },
+            "Reference": {
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "publication_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "publication_place": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Membership": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "person": {
+                        "type": "string"
+                    },
+                    "personid": {
+                        "type": "string"
+                    },
+                    "org": {
+                        "type": "string"
+                    },
+                    "orgid": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "salary": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "shares": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                }
+            },
+            "Autocomplete": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "collection": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            },
+            "Person": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                    },
+                    "simple": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "names": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "family_name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "prefix": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "suffix": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date",
+                        "minLength": 1
+                    },
+                    "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "enum": [
+                            "BMV",
+                            "NAICM",
+                            "compranet"
+                        ]
+                    },
+                    "contract_count": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Reference"
+                        }
+                    },
+                    "board": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Membership"
+                        }
+                    },
+                    "shares": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Membership"
+                        }
+                    },
+                    "suppliesContract": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Contract"
+                        }
+                    }
+                }
+            },
+            "Organization": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                    },
+                    "simple": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "public",
+                            "private",
+                            "party"
+                        ]
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "company": {
+                        "$ref": "#/components/schemas/Company"
+                    },
+                    "initials": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date",
+                        "minLength": 1
+                    },
+                    "source": {
+                        "type": "string",
+                        "minLength": 1,
+                        "enum": [
+                            "BMV",
+                            "NAICM",
+                            "compranet"
+                        ]
+                    },
+                    "contract_count": {
+                        "type": "integer"
+                    },
+                    "memberships": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/Membership"
+                        }
+                    },
+                    "board": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/Membership"
+                        }
+                    },
+                    "shares": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/Membership"
+                        }
+                    },
+                    "shareholders": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/Membership"
+                        }
+                    },
+                    "contracts": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/components/schemas/Contract"
+                        }
+                    }
+                }
+            },
+            "Contract": {
+                "description": "A contracting process in an OCDS recordPackage",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                    },
+                    "type": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "account_admin": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "records_compiledRelease_ocid": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "procedure_type": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "suppliers_org": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "suppliers_person": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "references": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Reference"
+                        }
+                    },
+                    "department": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "clave_uc": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "character": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "dependency": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Source": {
+                "description": "A Source",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                    }
+                }
+            },
+            "Area": {
+                "description": "An area",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$"
+                    },
+                    "states": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Area"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

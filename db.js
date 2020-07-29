@@ -1,6 +1,14 @@
 
-const { Client } = require('@elastic/elasticsearch')
-const client = new Client({ node: 'http://localhost:9200' })
+const { Client } = require('@elastic/elasticsearch');
+const client = new Client({ node: 'http://localhost:9200' });
+
+client.get = function() {
+  return {}
+}
+
+module.exports = client;
+
+// export { client };
 
 async function run () {
 
@@ -21,4 +29,4 @@ async function run () {
     console.log(body.hits.hits[0])
   }
   
-  run().catch(console.log)
+  // run().catch(console.log)

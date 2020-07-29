@@ -1,12 +1,9 @@
 {
   "name": "qqwapi-elastic",
-  "version": "0.1.0",
-  "description": "APIv3 for QuienEsQuien.wiki based in ElasticSearch database",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
-  },
+  "version": "0.0.1",
+  "private": true,
+  "description": "APIv3 for QuienEsQuien.wiki based swagger-node, integrated with ElasticSearch database",
+  "main": "app.js",
   "repository": {
     "type": "git",
     "url": "gitlab.rindecuentas.org/equipo-qqw/qqwapi-elastic"
@@ -19,6 +16,19 @@
   "author": "Martín Szyszlican",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.8.0"
+    "@elastic/elasticsearch": "^7.8.0",
+    "exegesis-express": "^2.0.0",
+    "exegesis-plugin-swagger-ui-express": "^1.0.7",
+    "express": "^4.17.1",
+    "i18n-iso-countries": "^6.0.0",
+    "swagger-express-mw": "^0.7.0"
+  },
+  "devDependencies": {
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test"
   }
 }
