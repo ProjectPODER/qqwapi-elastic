@@ -238,7 +238,7 @@
                 ],
                 "summary": "Retrieve array of Organization Documents",
                 "description": "Retrieve array of Organization Documents",
-                "operationId": "allOrganizations",
+                "operationId": "allCompanies",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
@@ -318,7 +318,7 @@
                 ],
                 "summary": "Retrieve array of Organization Documents",
                 "description": "Retrieve array of Organization Documents",
-                "operationId": "allOrganizations",
+                "operationId": "allInstitutions",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/id"
