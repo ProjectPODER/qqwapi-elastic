@@ -8,16 +8,32 @@ client.get = function() {
 
 module.exports = client;
 
-function paramsToMatch(params) {
-  let result={}; 
+const query_definitions = {
+  "country": {
+    context: "filter",
+    type: "term"
+  }
+}
+
+function paramsToBody(params) {
+  const body={query: { bool: { filter: [] }}}; 
   Object.keys(params).forEach( param => { 
-    if (params[param]) { 
-      if (param != "limit") {
-        result[param] = params[param]; 
+    if (params[param]) {
+      let qdp = query_definitions[param];
+      if (qdp) {
+        if (qdp.context == "filter") {
+          if (qdp.type == "term") {
+            body.query.bool.filter.push({term: { adquisicion_por: params[param]}}); 
+          }
+        }
+  
+      }
+      else {
+        console.error("Unexpected query param",param);
       }
     } 
   })
-  return result; 
+  return body; 
 }
 
 
@@ -27,16 +43,16 @@ async function search (index,params) {
 
   const searchDocument = {
     index: index,
-    body:
-     {
-      // query: {
-      //   match: paramsToMatch(params) 
-      // },
-      // limit: params.limit
-    }
+    body: paramsToBody(params)
+    //  {
+    //   // query: {
+    //   //   match: paramsToMatch(params) 
+    //   // },
+    //   // limit: params.limit
+    // }
   }
 
-  console.log("search searchDocument",JSON.stringify(searchDocument));
+  console.log("search searchDocument body",JSON.stringify(searchDocument.body));
 
   // here we are forcing an index refresh, otherwise we will not
   // get any result in the consequent search
