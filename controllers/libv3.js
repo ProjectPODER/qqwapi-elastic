@@ -8,7 +8,35 @@ client.get = function() {
 
 module.exports = client;
 
-async function search (index,body) {
+function paramsToMatch(params) {
+  let result={}; 
+  Object.keys(params).forEach( param => { 
+    if (params[param]) { 
+      if (param != "limit") {
+        result[param] = params[param]; 
+      }
+    } 
+  })
+  return result; 
+}
+
+
+
+async function search (index,params) {
+  // console.log("search",params,typeof params);
+
+  const searchDocument = {
+    index: index,
+    body:
+     {
+      // query: {
+      //   match: paramsToMatch(params) 
+      // },
+      // limit: params.limit
+    }
+  }
+
+  console.log("search searchDocument",JSON.stringify(searchDocument));
 
   // here we are forcing an index refresh, otherwise we will not
   // get any result in the consequent search
@@ -17,49 +45,41 @@ async function search (index,body) {
   // Let's search!
   try {
 
-    const { result } = await client.search({
-      index: index,
-      body: body
-      //  {
-      //   query: {
-      //     match: { quote: 'winter' }
-      //   }
-      // }
-    })
+    const result = await client.search(searchDocument)
 
+    return result.body.hits;
   }  
   catch(e) {
     return {error: e}
   }
 //   return {}
-  return result.hits;
   // console.log(body.hits.hits[0])
 }
 
-function prepareOutput(array, offset, limit, embed, objectFormat, debug) {
-    let data = array[1];
+function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
+    let data = {};
     let status = "success";
     let size = 0;
-
+    let count = 0;
+    // console.log("prepareOutput",bodyhits);
+    
     // Contracts have a different structure and their length comes in the third item in the array
-    // console.log("dataReturn",array);
-    if (array[2] || (array[1] && typeof array[1] == "object")) {
-        size = array[2] || array[1].length;
-        if (embed) {
-        data = array[1].map(o => (objectFormat(o)));
-        }
+    if (!bodyhits.error) {
+      count = bodyhits.total.value;
+      data = bodyhits.hits.map(o => o._source);
+      size = data.length;
     }
     else {
-        console.error("dataReturn error",array);
+        console.error("prepareOutput error",bodyhits.error);
         status = "error";
     }
 
     if (debug) {
-        console.log("dataReturn",size);
+        console.log("prepareOutput",size);
     }
 
     const pageSize = limit || size;
-    const pagesNum = Math.ceil((array[0] / pageSize));
+    const pagesNum = Math.ceil((count / pageSize));
 
 
     return {
@@ -68,7 +88,7 @@ function prepareOutput(array, offset, limit, embed, objectFormat, debug) {
         limit,
         offset,
         pages: pagesNum,
-        count: array[0],
+        count: count,
         data,
     };
 }

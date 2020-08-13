@@ -69,9 +69,8 @@ function orgDataMap(o) {
   // return omitEmpty(o);
   return o;
 }
-function allInstitutions(context) {
-  // console.log(context.res);
-  return search("imss",{}).then(results => { return prepareOutput(results) } )
+function allInstitutions(context) {;
+  return search("imss",context.params.query).then(results => { return prepareOutput(results) } )
 }
 
 
