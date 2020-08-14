@@ -16,11 +16,13 @@
     },
     "paths": {
         "/record": {
+            "x-exegesis-controller": "record",
             "get": {
                 "description": "Get a full OCDS contracting process, including releases.",
                 "parameters": [ 
                     {"$ref":  "#/components/parameters/id"}
                 ],
+                "operationId": "allRecords",
 
                 "responses": {
                     "200": {
@@ -30,8 +32,11 @@
             }
         },
         "/search": {
+            "x-exegesis-controller": "search",
+
             "get": {
                 "description": "Search by filters in all collections",
+                "operationId": "searchOperation",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/name"

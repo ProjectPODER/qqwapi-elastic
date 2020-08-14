@@ -21,6 +21,7 @@
     "exegesis-plugin-swagger-ui-express": "^1.0.7",
     "express": "^4.17.1",
     "i18n-iso-countries": "^6.0.0",
+    "monk": "^7.3.1",
     "swagger-express-mw": "^0.7.0"
   },
   "devDependencies": {
