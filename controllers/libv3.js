@@ -5,40 +5,40 @@ module.exports = client;
 
 const query_definitions = {
   // apiFilterName: "country",
-  // apiFieldNames:["compiledRelease.area.id"],
+  // apiFieldNames:["area.id"],
   "country": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.area.id"
+    field: "area.id"
   },
   // apiFilterName: "name",
-  // apiFieldNames:["compiledRelease.name"],
+  // apiFieldNames:["name"],
   "name": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.name"
+    field: "name"
   },
   // apiFilterName: "identifier",
-  // apiFieldNames:["compiledRelease.identifiers.id"],
+  // apiFieldNames:["identifiers.id"],
   "identifier": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.identifiers.id"
+    field: "identifiers.id"
   },
   // apiFilterName: {
   //   min: "contract_amount_supplier_min",
   //   max: "contract_amount_supplier_max",
   // },        
-  // apiFieldNames:["compiledRelease.contract_amount.supplier"],
+  // apiFieldNames:["contract_amount.supplier"],
   "contract_amount_supplier_min": {
     context: "query",
     type: "range-gt",
-    field: "compiledRelease.contract_amount.supplier"
+    field: "contract_amount.supplier"
   },
   "contract_amount_supplier_max": {
     context: "query",
     type: "range-lt",
-    field: "compiledRelease.contract_amount.supplier"
+    field: "contract_amount.supplier"
   },
 
 
@@ -46,48 +46,48 @@ const query_definitions = {
   //   min: "contract_count_supplier_min",
   //   max: "contract_count_supplier_max",
   // },
-  // apiFieldNames:["compiledRelease.contract_count.supplier"],
+  // apiFieldNames:["contract_count.supplier"],
   "contract_count_supplier_min": {
     context: "query",
     type: "range-gt",
-    field: "compiledRelease.contract_count.supplier"
+    field: "contract_count.supplier"
   },
   "contract_count_supplier_max": {
     context: "query",
     type: "range-lt",
-    field: "compiledRelease.contract_count.supplier"
+    field: "contract_count.supplier"
   },
 
   // apiFilterName: {
   //   min: "contract_amount_buyer_min",
   //   max: "contract_amount_buyer_max",
   // },    
-  // apiFieldNames:["compiledRelease.contract_amount.buyer"],
+  // apiFieldNames:["contract_amount.buyer"],
   "contract_amount_buyer_min": {
     context: "query",
     type: "range-gt",
-    field: "compiledRelease.contract_amount.buyer"
+    field: "contract_amount.buyer"
   },
   "contract_amount_buyer_max": {
     context: "query",
     type: "range-lt",
-    field: "compiledRelease.contract_amount.buyer"
+    field: "contract_amount.buyer"
   },
 
   // apiFilterName: {
   //   min: "contract_count_buyer_min",
   //   max: "contract_count_buyer_max",
   // },    
-  // apiFieldNames:["compiledRelease.contract_count.buyer"],
+  // apiFieldNames:["contract_count.buyer"],
   "contract_count_buyer_min": {
     context: "query",
     type: "range-gt",
-    field: "compiledRelease.contract_count.buyer"
+    field: "contract_count.buyer"
   },
   "contract_count_buyer_max": {
     context: "query",
     type: "range-lt",
-    field: "compiledRelease.contract_count.buyer"
+    field: "contract_count.buyer"
   },
 
 
@@ -95,16 +95,16 @@ const query_definitions = {
   //   min: "start_date_min",
   //   max: "start_date_max"
   // },
-  // apiFieldNames:["compiledRelease.contracts.period.startDate"],
+  // apiFieldNames:["contracts.period.startDate"],
   "start_date_min": {
     context: "query",
     type: "range-gt",
-    field: "compiledRelease.contracts.period.startDate"
+    field: "contracts.period.startDate"
   },
   "start_date_max": {
     context: "query",
     type: "range-lt",
-    field: "compiledRelease.contracts.period.startDate"
+    field: "contracts.period.startDate"
   },
 
 
@@ -112,48 +112,48 @@ const query_definitions = {
   //   min: "amount_min",
   //   max: "amount_max"
   // },    
-  // apiFieldNames:["compiledRelease.total_amount"],
+  // apiFieldNames:["total_amount"],
   "amount_min": {
     context: "query",
     type: "range-gt",
-    field: "compiledRelease.total_amount"
+    field: "contracts.value.amount"
   },
   "amount_max": {
     context: "query",
     type: "range-lt",
-    field: "compiledRelease.total_amount"
+    field: "contracts.value.amount"
   },
 
   // apiFilterName: "classification",
-  // apiFieldNames:["compiledRelease.classification"],
+  // apiFieldNames:["classification"],
   "classification": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.classification"
+    field: "classification"
   },
   // apiFilterName: "title",
-  // apiFieldNames:["compiledRelease.contracts.title"],
+  // apiFieldNames:["contracts.title"],
   "title": {
     context: "must",
     type: "match",
-    field: "compiledRelease.contracts.title"
+    field: "contracts.title"
   },
 
 
   // apiFilterName: "supplier_name",
-  // apiFieldNames:["compiledRelease.awards.suppliers.name"],
+  // apiFieldNames:["awards.suppliers.name"],
   "supplier_name": {
     context: "must",
     type: "match",
-    field: "compiledRelease.awards.suppliers.name"
+    field: "awards.suppliers.name"
   },
 
   // apiFilterName: "buyer_name",
-  // apiFieldNames:["compiledRelease.parties.memberOf.name"],
+  // apiFieldNames:["parties.memberOf.name"],
   "buyer_name": {
     context: "must",
     type: "match",
-    field: "compiledRelease.parties.memberOf.name"
+    field: "parties.memberOf.name"
   },
 
   // apiFilterName: "funder_name",
@@ -162,59 +162,52 @@ const query_definitions = {
   "funder_name": {
     context: "must",
     type: "match",
-    field: "compiledRelease.parties.name"
+    field: "parties.name"
   },
 
   // apiFilterName: "subclassification",
-  // apiFieldNames:["compiledRelease.subclassification"],
+  // apiFieldNames:["subclassification"],
   "subclassification": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.subclassification"
+    field: "subclassification"
   },
   // apiFilterName: "id",
-  // apiFieldNames:["compiledRelease.contracts.id"],
+  // apiFieldNames:["contracts.id"],
   "id": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.contracts.id"
+    field: "contracts.id"
   },
 
-  // apiFilterName: "country",
-  // apiFieldNames:["compiledRelease.area.id"],
-  "country": {
-    context: "query",
-    type: "match_phrase",
-    field: "compiledRelease.area.id"
-  },
   // apiFilterName: "buyer_id",
-  // apiFieldNames:["compiledRelease.buyer.id"],
+  // apiFieldNames:["buyer.id"],
   "buyer_id": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.buyer.id"
+    field: "buyer.id"
   },
   // apiFilterName: "contact_point_name",
-  // apiFieldNames:["compiledRelease.parties.contactPoint.name"],
+  // apiFieldNames:["parties.contactPoint.name"],
   "contact_point_name": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.parties.contactPoint.name"
+    field: "parties.contactPoint.name"
   },
 
   // apiFilterName: "procurement_method",
-  // apiFieldNames:["compiledRelease.tender.procurementMethod"],
+  // apiFieldNames:["tender.procurementMethod"],
   "procurement_method": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.tender.procurementMethod"
+    field: "tender.procurementMethod"
   },
   // apiFilterName: "source",
-  // apiFieldNames: ["compiledRelease.source.id"],
+  // apiFieldNames: ["source.id"],
   "source": {
     context: "query",
     type: "match_phrase",
-    field: "compiledRelease.source.id"
+    field: "source.id"
   },
 
   // OK apiFilterName: "sort",
@@ -378,6 +371,7 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
     // Contracts have a different structure and their length comes in the third item in the array
     if (!bodyhits.error) {
       count = bodyhits.total.value;
+      count_precission = bodyhits.total.relation;
       data = bodyhits.hits.map(o => o._source);
       size = data.length;
     }
@@ -401,6 +395,7 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
         offset,
         pages: pagesNum,
         count: count,
+        count_precission: count_precission,
         data,
     };
 }
