@@ -15,12 +15,47 @@
         }
     },
     "paths": {
+        "/summaries": {
+            "x-exegesis-controller": "summaries",
+            "get": {
+                "description": "Get a summary of contracts for a specific set of filters",
+                "parameters": [ 
+                    {"$ref":  "#/components/parameters/id"}
+                ],
+                "operationId": "summaries",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/record": {
             "x-exegesis-controller": "record",
             "get": {
                 "description": "Get a full OCDS contracting process, including releases.",
-                "parameters": [ 
-                    {"$ref":  "#/components/parameters/id"}
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_direction"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    }                                                                         
                 ],
                 "operationId": "allRecords",
 
@@ -552,6 +587,12 @@
                     },
                     {
                         "$ref": "#/components/parameters/classification"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
                     }
                 ],
                 "responses": {
