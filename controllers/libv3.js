@@ -1,4 +1,5 @@
 const { Client } = require('@elastic/elasticsearch');
+const { id } = require('monk');
 const client = new Client({ node: 'http://localhost:9200' });
 
 module.exports = client;
@@ -6,22 +7,26 @@ module.exports = client;
 const query_definitions = {
   // apiFilterName: "country",
   // apiFieldNames:["area.id"],
+  "embed": {
+    context: "skip"
+  },
   "country": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "area.id"
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
   "name": {
-    context: "query",
+    context: "should",
     type: "match_phrase",
-    field: "name"
+    field: "name",
+    secondField: "contracts.title"
   },
   // apiFilterName: "identifier",
   // apiFieldNames:["identifiers.id"],
   "identifier": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "identifiers.id"
   },
@@ -127,7 +132,7 @@ const query_definitions = {
   // apiFilterName: "classification",
   // apiFieldNames:["classification"],
   "classification": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "classification"
   },
@@ -168,14 +173,14 @@ const query_definitions = {
   // apiFilterName: "subclassification",
   // apiFieldNames:["subclassification"],
   "subclassification": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "subclassification"
   },
   // apiFilterName: "id",
   // apiFieldNames:["contracts.id"],
   "id": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "contracts.id"
   },
@@ -183,14 +188,14 @@ const query_definitions = {
   // apiFilterName: "buyer_id",
   // apiFieldNames:["buyer.id"],
   "buyer_id": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "buyer.id"
   },
   // apiFilterName: "contact_point_name",
   // apiFieldNames:["parties.contactPoint.name"],
   "contact_point_name": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "parties.contactPoint.name"
   },
@@ -198,14 +203,14 @@ const query_definitions = {
   // apiFilterName: "procurement_method",
   // apiFieldNames:["tender.procurementMethod"],
   "procurement_method": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "tender.procurementMethod"
   },
   // apiFilterName: "source",
   // apiFieldNames: ["source.id"],
   "source": {
-    context: "query",
+    context: "must",
     type: "match_phrase",
     field: "source.id"
   },
@@ -242,12 +247,18 @@ const query_definitions = {
 }
 
 
-function paramsToBody(params) {
+function paramsToBody(paramsObject) {
+  const params = Object.assign({}, paramsObject.query, paramsObject.path);
   const body={ sort: []}; 
+
   Object.keys(params).forEach( param => { 
     if (params[param]) {
       let qdp = query_definitions[param];
+      // console.log(param,query_definitions[param]);
       if (qdp) {
+        if (qdp.context == "skip") {
+          //Skip
+        }
         if (qdp.context == "filter") {
           if (qdp.type == "term") {
             if (!body.query) {
@@ -262,26 +273,42 @@ function paramsToBody(params) {
             body.query.bool.filter.push({term: { [qdp.field]: params[param]}}); 
           }
         }
+        if (qdp.context == "should") {
+          if (!body.query) {
+            body.query={}
+          }
+          if (!body.query.bool) {
+            body.query.bool={}
+          }
+          if (!body.query.bool.should) {
+            body.query.bool.should=[]
+          }
+
+          if (qdp.type == "match" || qdp.type == "match_phrase") {
+            body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+            if (qdp.secondField) {
+              body.query.bool.should.push({[qdp.type]: { [qdp.secondField]: params[param]}});             
+            }
+          }
+        }
         if (qdp.context == "must") {
-          if (qdp.type == "match") {
-            if (!body.query) {
-              body.query={}
-            }
-            if (!body.query.bool) {
-              body.query.bool={}
-            }
-            if (!body.query.bool.must) {
-              body.query.bool.must=[]
-            }
-            body.query.bool.must.push({match: { [qdp.field]: params[param]}}); 
+          if (!body.query) {
+            body.query={}
+          }
+          if (!body.query.bool) {
+            body.query.bool={}
+          }
+          if (!body.query.bool.must) {
+            body.query.bool.must=[]
+          }
+
+          if (qdp.type == "match" || qdp.type == "match_phrase") {
+            body.query.bool.must.push({[qdp.type]: { [qdp.field]: params[param]}});             
           }
         }
         if (qdp.context == "query") {
           if (!body.query) {
             body.query={}
-          }
-          if (qdp.type == "match_phrase") {
-            body.query[qdp.type] = { [qdp.field]: params[param]}; 
           }
           if (qdp.type == "range-lt") {
             if (!body.query.range) {
@@ -330,6 +357,70 @@ function paramsToBody(params) {
   return body; 
 }
 
+const embed_definitions = {
+  organizations: [
+    {
+      id: "id",
+      foreign_key: "parent_id",
+      index: "memberhips",
+      location: "memberships.child"
+    },
+    {
+      id: "id",
+      foreign_key: "organization_id",
+      index: "memberhips",
+      location: "memberships.parent"
+    }
+  ]
+}
+
+async function embed(index,params,results) {
+  const edis = embed_definitions[index];
+  if (!params.query.embed) {
+    return results;
+  }
+  else {
+    if (edis) {
+      await edis.forEach(async edi => {
+        let body = {query: {bool: {should: []}}}
+
+        //collect ids
+        //query other collections
+        //merge
+        // console.log("embed",results);
+        results.hits.forEach(result => {
+          body.query.bool.should.push({match_phrase: {[edi.foreign_key]: result._source[edi.id]}})
+        })
+  
+        const searchDocument = {
+          index: edi.index,
+          body: body
+        }
+      
+        // console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
+      
+        try {
+          console.log("embed");
+          const embedResult = await client.search(searchDocument);
+      
+          console.log("embed results",embedResult.body.hits);
+          for (r in result.hits) {
+            result.hits._source[edi.location] = embedResult.hits.find(result.hits._source[edi.id]._source);
+          }
+        }  
+        catch(e) {
+          return {error: e}
+        }
+      })
+
+      return results;
+
+    }
+    else {
+      console.error("No embed definitions for",index)
+    }
+  }
+}
 
 
 async function search (index,params) {
@@ -338,19 +429,12 @@ async function search (index,params) {
   const searchDocument = {
     index: index,
     body: paramsToBody(params)
-    //  {
-    //   // query: {
-    //   //   match: paramsToMatch(params) 
-    //   // },
-    //   // limit: params.limit
-    // }
   }
 
-  console.log("search searchDocument body",JSON.stringify(searchDocument.body));
+  console.log("search searchDocument body",index,JSON.stringify(searchDocument.body));
 
   // Let's search!
   try {
-
     const result = await client.search(searchDocument)
 
     return result.body.hits;
@@ -366,18 +450,25 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
     let status = "success";
     let size = 0;
     let count = 0;
+    let count_precission = "unknown";
     // console.log("prepareOutput",bodyhits);
     
     // Contracts have a different structure and their length comes in the third item in the array
-    if (!bodyhits.error) {
+    if (bodyhits && !bodyhits.error) {
       count = bodyhits.total.value;
       count_precission = bodyhits.total.relation;
       data = bodyhits.hits.map(o => o._source);
       size = data.length;
     }
     else {
+      status = "error";
+      if (bodyhits) {
         console.error("prepareOutput error",bodyhits.error);
-        status = "error";
+      }
+      else {
+        console.error("prepareOutput error, empty bodyhits");
+
+      }
     }
 
     if (debug) {
@@ -402,5 +493,6 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
 
 module.exports = {
     prepareOutput,
-    search
+    search,
+    embed
 }

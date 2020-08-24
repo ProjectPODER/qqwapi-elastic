@@ -1,8 +1,12 @@
-const prepareOutput = require('./libv3').prepareOutput;
-const search = require('./libv3').search;
+const lib = require('./libv3');
+const controllerIndex = "areas"
 
-function allAreas(context) {;
-  return search("areas",context.params.query).then(results => { return prepareOutput(results) } )
+function allAreas(context) {
+  return search(controllerIndex,context.params)
+    .then(results => { 
+      return lib.embed(controllerIndex,context.params,results) 
+    })
+    .then(lib.prepareOutput)
 }
 
 module.exports = {allAreas}

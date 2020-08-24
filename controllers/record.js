@@ -11,7 +11,7 @@ db.catch(err => {
 
   //We should exit if no connection is made. I'm excluding production to test this.
   if (process.env.NODE_ENV !== "production") {
-    process.exit();
+    // process.exit();
   }
 })
 
