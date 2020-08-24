@@ -362,13 +362,13 @@ const embed_definitions = {
     {
       id: "id",
       foreign_key: "parent_id",
-      index: "memberhips",
+      index: "memberships",
       location: "memberships.child"
     },
     {
       id: "id",
       foreign_key: "organization_id",
-      index: "memberhips",
+      index: "memberships",
       location: "memberships.parent"
     }
   ]
@@ -376,12 +376,14 @@ const embed_definitions = {
 
 async function embed(index,params,results) {
   const edis = embed_definitions[index];
+  const localResults = results;
+
   if (!params.query.embed) {
     return results;
   }
   else {
     if (edis) {
-      await edis.forEach(async edi => {
+      edis.forEach(async edi => {
         let body = {query: {bool: {should: []}}}
 
         //collect ids
@@ -400,20 +402,31 @@ async function embed(index,params,results) {
         // console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
       
         try {
-          console.log("embed");
+          // console.log("embed");
           const embedResult = await client.search(searchDocument);
       
-          console.log("embed results",embedResult.body.hits);
-          for (r in result.hits) {
-            result.hits._source[edi.location] = embedResult.hits.find(result.hits._source[edi.id]._source);
+          console.log("embed results",embedResult.body.hits.hits);
+          for (r in results.hits) {
+            for (h in embedResult.body.hits.hits) {
+              if (embedResult.body.hits.hits[h]._source[edi.foreign_key] == results.hits[r]._source[edi.id]) {
+                // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
+                if (!results.hits[r]._source[edi.location]) { 
+                  localResults.hits[r]._source[edi.location] = [];
+                }
+                localResults.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
+                console.log("embed one result expanded",results.hits[r]._source);
+              }
+            }
           }
         }  
         catch(e) {
-          return {error: e}
+          console.error("embed error",e)
         }
+        // console.log("embed results expanded",results.hits);
+        return results;
       })
 
-      return results;
+      return localResults;
 
     }
     else {
