@@ -20,8 +20,7 @@ const query_definitions = {
   "name": {
     context: "should",
     type: "match_phrase",
-    field: "name",
-    secondField: "contracts.title"
+    fields: ["name","contracts.title","other_names.name"]
   },
   // apiFilterName: "identifier",
   // apiFieldNames:["identifiers.id"],
@@ -243,6 +242,11 @@ const query_definitions = {
   "limit": {
     context: "body",
     field: "size"
+  },
+  //OK 
+  "offset": {
+    context: "body",
+    field: "from"
   }
 }
 
@@ -285,9 +289,13 @@ function paramsToBody(paramsObject) {
           }
 
           if (qdp.type == "match" || qdp.type == "match_phrase") {
-            body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
-            if (qdp.secondField) {
-              body.query.bool.should.push({[qdp.type]: { [qdp.secondField]: params[param]}});             
+            if (qdp.field) {
+              body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+            }
+            if (qdp.fields) {
+              qdp.fields.forEach((field) => {
+                body.query.bool.should.push({[qdp.type]: { [field]: params[param]}});             
+              })
             }
           }
         }
@@ -363,13 +371,16 @@ const embed_definitions = {
       id: "id",
       foreign_key: "parent_id",
       index: "memberships",
-      location: "memberships.child"
+      location: "memberships",
+      add: {direction: "child" }
     },
     {
       id: "id",
       foreign_key: "organization_id",
       index: "memberships",
-      location: "memberships.parent"
+      location: "memberships",
+      add: {direction: "parent" }
+
     }
   ]
 }
@@ -383,7 +394,8 @@ async function embed(index,params,results) {
   }
   else {
     if (edis) {
-      edis.forEach(async edi => {
+      for (e in edis) {
+        let edi = edis[e];
         let body = {query: {bool: {should: []}}}
 
         //collect ids
@@ -402,19 +414,22 @@ async function embed(index,params,results) {
         // console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
       
         try {
-          // console.log("embed");
+          console.log("embed",edi.location);
           const embedResult = await client.search(searchDocument);
       
-          console.log("embed results",embedResult.body.hits.hits);
+          // console.log("embed results",embedResult.body.hits.hits);
           for (r in results.hits) {
             for (h in embedResult.body.hits.hits) {
               if (embedResult.body.hits.hits[h]._source[edi.foreign_key] == results.hits[r]._source[edi.id]) {
                 // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
                 if (!results.hits[r]._source[edi.location]) { 
-                  localResults.hits[r]._source[edi.location] = [];
+                  results.hits[r]._source[edi.location] = [];
                 }
-                localResults.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
-                console.log("embed one result expanded",results.hits[r]._source);
+                if (edi.add) {
+                  embedResult.body.hits.hits[h]._source = Object.assign({},embedResult.body.hits.hits[h]._source,edi.add);
+                }
+                results.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
+                // console.log("embed one result expanded",results.hits[r]._source);
               }
             }
           }
@@ -422,11 +437,11 @@ async function embed(index,params,results) {
         catch(e) {
           console.error("embed error",e)
         }
-        // console.log("embed results expanded",results.hits);
-        return results;
-      })
+        // console.log("embed results expanded",edi.location,results);
+      }
 
-      return localResults;
+      // console.log("embed results returned",results);
+      return results;
 
     }
     else {
