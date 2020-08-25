@@ -2,11 +2,59 @@ const lib = require('./libv3');
 const controllerIndex = "sources"
 
 function allSources(context) {
-  return lib.search(controllerIndex,context.params)
-    .then(results => { 
-      return lib.embed(controllerIndex,context.params,results) 
-    })
-    .then(lib.prepareOutput)
+  const searchDocument = {
+    index: "areas,contracts,persons,organizations",
+    body: {  
+      "aggs": {
+        "source": {
+          "terms": {
+            "field": "source.id.keyword",
+            "order": {
+              "_key": "asc"
+            },
+            "size": 100
+          },
+          "aggs": {
+            "classification": {
+              "terms": {
+                "field": "classification.keyword",
+                "order": {
+                  "_key": "asc"
+                },
+                "size": 100
+              },
+              "aggs": {
+                "date": {
+                  "max": {
+                    "field": "date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+    }
+  };
+  // console.log ("allSources searchDocument",JSON.stringify(searchDocument.body))
+  return lib.client.search(searchDocument)
+  .then(returnAggregations)
+}
+
+function returnAggregations(response) {
+  // console.log("parseAggregations",response.body.aggregations.source.buckets);
+  // return response.body.aggregations;
+  return {
+    status: "success",
+    size: response.body.aggregations.source.buckets.length,
+    limit: null,
+    offset: null,
+    pages: null,
+    count: response.body.aggregations.source.buckets.length,
+    count_precission: "eq",
+    data: response.body.aggregations.source.buckets,
+};
+
 }
 
 module.exports = {allSources}
