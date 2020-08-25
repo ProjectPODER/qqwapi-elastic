@@ -12,7 +12,8 @@
         "license": {
             "name": "GPL-3.0",
             "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
-        }
+        },
+        "termsOfService": "https://quienesquien.wiki/es/licencia"
     },
     "paths": {
         "/summaries": {
@@ -20,7 +21,8 @@
             "get": {
                 "description": "Get a summary of contracts for a specific set of filters",
                 "parameters": [ 
-                    {"$ref":  "#/components/parameters/id"}
+                    {"$ref":  "#/components/parameters/id"},
+                    {"$ref":  "#/components/parameters/type"}
                 ],
                 "operationId": "summaries",
                 "responses": {
@@ -36,26 +38,8 @@
                 "description": "Get a full OCDS contracting process, including releases.",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/sort"
-                    },
-                    {
-                        "$ref": "#/components/parameters/sort_direction"
-                    },
-                    {
-                        "$ref": "#/components/parameters/source"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/country"
-                    }                                                                         
+                        "$ref": "#/components/parameters/ocid"
+                    }                                  
                 ],
                 "operationId": "allRecords",
 
@@ -450,6 +434,9 @@
                         "$ref": "#/components/parameters/id"
                     },
                     {
+                        "$ref": "#/components/parameters/ocid"
+                    },
+                    {
                         "$ref": "#/components/parameters/source"
                     },
                     {
@@ -630,6 +617,17 @@
     ],
     "components": {
         "parameters": {
+            "type": {
+                "in": "query",
+                "name": "type",
+                "description": "Entity type (index) for summaries",
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "areas", "organizations", "persons", "contracts"
+                    ]                    
+                }
+            },
             "sort": {
                 "in": "query",
                 "name": "sort",
@@ -689,7 +687,16 @@
             "id": {
                 "in": "query",
                 "name": "id",
-                "description": "Unique identifier for entity. Format depends on endpoint: areas is ISO 3166 (for countries and states, and slug for municipalities), contracts is OCID or procedure number, record is OCID, companies, institutions, persons and sources is slug.",
+                "description": "Unique identifier for entity. Format depends on endpoint: areas is ISO 3166 (for countries and states, and slug for municipalities), contracts is procedure number in source, companies, institutions, persons and sources is slug.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "ocid": {
+                "in": "query",
+                "name": "id",
+                "description": "Unique identifier for contract or record.",
                 "allowEmptyValue": true,
                 "schema": {
                     "type": "string"
