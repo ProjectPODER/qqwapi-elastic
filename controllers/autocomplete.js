@@ -9,5 +9,9 @@ function autocomplete(context) {
     .then(lib.prepareOutput)
 }
 
+function autocompleteEmptyResponse(context) {
+  context.res.json({});
+  return true;
+}
 
-module.exports = {autocomplete}
+module.exports = {autocomplete,autocompleteEmptyResponse}

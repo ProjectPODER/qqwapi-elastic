@@ -94,7 +94,7 @@
             "get": {
                 "description": "Find persons, contracts and organizations by a part of their name",
                 "summary": "Find persons, contracts and organizations by a part of their name",
-                "operationId": "autocomplete",
+                "operationId": "autocompleteEmptyResponse",
                 "tags": [
                     "Autocomplete"
                 ],
