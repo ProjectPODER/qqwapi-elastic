@@ -104,35 +104,6 @@
                 "tags": [
                     "Autocomplete"
                 ],
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/name"
-                    },
-                    {
-                        "$ref": "#/components/parameters/classification"
-                    },
-                    {
-                        "$ref": "#/components/parameters/subclassification"
-                    },
-                    {
-                        "$ref": "#/components/parameters/sort"
-                    },
-                    {
-                        "$ref": "#/components/parameters/sort_direction"
-                    },
-                    {
-                        "$ref": "#/components/parameters/source"
-                    },
-                    {
-                        "$ref": "#/components/parameters/offset"
-                    },
-                    {
-                        "$ref": "#/components/parameters/limit"
-                    },
-                    {
-                        "$ref": "#/components/parameters/country"
-                    }                                                                         
-                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -175,7 +146,32 @@
                         "schema": {
                             "type": "string"
                         }
-                    }
+                    },
+                    {
+                        "$ref": "#/components/parameters/classification"
+                    },
+                    {
+                        "$ref": "#/components/parameters/subclassification"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_direction"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    }                                                                         
+
                 ],
                 "responses": {
                     "200": {

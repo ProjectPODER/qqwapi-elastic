@@ -1,5 +1,5 @@
 const lib = require('./libv3');
-const controllerIndex = "areas,contracts,organizations,persons"
+const controllerIndex = "areas,organizations,persons,contracts"
 
 function autocomplete(context) {
   return lib.search(controllerIndex,context.params)
