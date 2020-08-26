@@ -1,6 +1,6 @@
 {
   "name": "qqwapi-elastic",
-  "version": "0.0.1",
+  "version": "3.0.0-beta",
   "private": true,
   "description": "APIv3 for QuienEsQuien.wiki based swagger-node, integrated with ElasticSearch database",
   "main": "app.js",
