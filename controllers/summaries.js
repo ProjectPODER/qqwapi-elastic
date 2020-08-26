@@ -1,4 +1,6 @@
 const lib = require('./libv3');
+const find = require('lodash/find');
+
 
 function summaries(context) {
   const entity_id = context.params.query.id;
@@ -13,75 +15,48 @@ function summaries(context) {
             "filters": {
               "buyer": {
                 "bool": {
-                  "must": [],
-                  "filter": [
+                  "should": [
                     {
-                      "bool": {
-                        "should": [
-                          {
-                            "match_phrase": {
-                              "buyer.id.keyword": entity_id
-                            }
-                          },
-                          {
-                            "match_phrase": {
-                              "parties.memberOf.id.keyword": entity_id
-                            }
-                          }                          
-                        ],
-                        "minimum_should_match": 1
+                      "match_phrase": {
+                        "buyer.id.keyword": entity_id
                       }
-                    }
+                    },
+                    {
+                      "match_phrase": {
+                        "parties.memberOf.id.keyword": entity_id
+                      }
+                    }                          
                   ],
-                  "should": [],
-                  "must_not": []
+                  "minimum_should_match": 1
                 }
               },
               "supplier": {
                 "bool": {
-                  "must": [],
-                  "filter": [
+                  "should": [
                     {
-                      "bool": {
-                        "should": [
-                          {
-                            "match_phrase": {
-                              "awards.suppliers.id.keyword": entity_id
-                            }
-                          }
-                        ],
-                        "minimum_should_match": 1
+                      "match_phrase": {
+                        "awards.suppliers.id.keyword": entity_id
                       }
                     }
                   ],
-                  "should": [],
-                  "must_not": []
+                  "minimum_should_match": 1
                 }
               },
               "funder": {
                 "bool": {
-                  "must": [],
-                  "filter": [
+                  "must": [
                     {
-                      "bool": {
-                        "must": [
-                          {
-                            "match_phrase": {
-                              "party.id.keyword": entity_id
-                            }
-                          },
-                          {
-                            "match_phrase": {
-                              "party.role": "funder"
-                            }
-                          }
-                        ],
-                        "minimum_should_match": 1
+                      "match_phrase": {
+                        "party.id.keyword": entity_id
+                      }
+                    },
+                    {
+                      "match_phrase": {
+                        "party.role": "funder"
                       }
                     }
                   ],
-                  "should": [],
-                  "must_not": []
+                  "minimum_should_match": 1
                 }
               },
             },
@@ -136,11 +111,12 @@ function summaries(context) {
                 "size": 3
               }
             },
-            "top_entities": {
+
+            "top_entities_buyer": {
               "terms": {
-                "field": "parties.id.keyword",
+                "field": "buyer.id.keyword",
                 "order": {
-                  "_count": "desc"
+                  "amount": "desc"
                 },
                 "size": 3
               },
@@ -149,9 +125,35 @@ function summaries(context) {
                   "sum": {
                     "field": "contracts.value.amount"
                   }
+                },
+                "entity": {
+                  "top_hits": {
+                    "size": 1
+                  }
                 }
-              }              
-            }
+              }
+            },
+            "top_entities_supplier": {
+              "terms": {
+                "field": "awards.suppliers.id.keyword",
+                "order": {
+                  "amount": "desc"
+                },
+                "size": 3
+              },
+              "aggs": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                },
+                "entity": {
+                  "top_hits": {
+                    "size": 1
+                  }
+                }
+              }
+            },
           }
         },     
       },
@@ -218,7 +220,7 @@ function summaries(context) {
     }
   }
 
-  // console.log("summaries searchDocument body",JSON.stringify(searchDocument.body))
+  console.log("summaries searchDocument body",JSON.stringify(searchDocument.body))
 
   return lib.client.search(searchDocument).then(formatSummaries)
   
@@ -264,10 +266,11 @@ function formatSummaries(result) {
     relation: {}
   };
 
-  for (b in result.body.aggregations.role.buckets) {
-    const thisBucket = result.body.aggregations.role.buckets[b];
+  for (role in result.body.aggregations.role.buckets) {
+    const thisBucket = result.body.aggregations.role.buckets[role];
     const yearObject = {};
     const typeObject = {};
+    let entitiesObject = [];
 
     const yearBucket = thisBucket.year.buckets;
     for (y in yearBucket) {
@@ -286,9 +289,30 @@ function formatSummaries(result) {
         count: yearBucket[y].doc_count
       }
     }
+
+    let entityBucket = {}
+      // console.log("formatSummaries role",role);
+    if (role == "funder") {
+      entityBucket = thisBucket.top_entities_buyer.buckets;
+    }
+    if (role == "supplier") {
+      entityBucket = thisBucket.top_entities_buyer.buckets;
+    }
+    if (role == "buyer") {
+      entityBucket = thisBucket.top_entities_supplier.buckets;
+    }
+    for (e in entityBucket) {
+      const thisEntity = entityBucket[e];
+      console.log("formatSummaries entityBucket",thisEntity.entity.hits.hits[0]._source.parties,thisEntity.key)
+      const entityObject = find(thisEntity.entity.hits.hits[0]._source.parties,{id: thisEntity.key});
+      entityObject.contract_amount = { [entityObject.roles[0]]: thisEntity.amount.value};
+      entityObject.contract_count = { [entityObject.roles[0]]: thisEntity.doc_count};
+
+      entitiesObject.push(entityObject)
+    }
     // console.log(b,thisBucket);
 
-    summaries[b] = {
+    summaries[role] = {
       total: {
         value: thisBucket.amount.value,
         count: thisBucket.doc_count
@@ -296,7 +320,7 @@ function formatSummaries(result) {
       year: yearObject,
       type: typeObject,
       top_contracts: thisBucket.top_contracts.hits.hits.map(o => o._source),
-      top_entities: thisBucket.top_entities.buckets
+      top_entities: entitiesObject
     }
   }
   return summaries;
