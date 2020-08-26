@@ -9,12 +9,7 @@ db.then(() => {
   process.stdout.write(`Connected to mongod server: ${dbConnect}\n`);
 });
 db.catch(err => {
-  console.error("Mongo Error: ",err);
-
-  //We should exit if no connection is made. I'm excluding production to test this.
-  if (process.env.NODE_ENV !== "production") {
-    process.exit();
-  }
+  console.error("Error connecting to mongod server: ",dbConnect,err);
 })
 
 const collection = db.get('records', { castIds: false });

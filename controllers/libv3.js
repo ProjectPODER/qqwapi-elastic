@@ -5,8 +5,21 @@ const orderBy = require('lodash/fp/orderBy');
 const slice = require('lodash/fp/slice');
 const find = require('lodash/find');
 
+let client = {};
 
-const client = new Client({ node: 'http://localhost:9200' });
+const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
+
+try {
+
+  client = new Client({ node: elasticNode });
+}
+catch(e) {
+  console.error("Error connecting to elastic node:",elasticNode,e);
+
+}
+finally {
+  console.log("Connected to elastic node:",elasticNode);
+}
 
 const query_definitions = {
   // apiFilterName: "country",
