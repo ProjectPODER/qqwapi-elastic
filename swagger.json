@@ -20,6 +20,9 @@
             "x-exegesis-controller": "summaries",
             "get": {
                 "description": "Get a summary of contracts for a specific set of filters",
+                "tags": [
+                    "Summaries"
+                ],                
                 "parameters": [ 
                     {"$ref":  "#/components/parameters/id"},
                     {"$ref":  "#/components/parameters/type"}
@@ -34,6 +37,7 @@
         },
         "/record": {
             "x-exegesis-controller": "record",
+            
             "get": {
                 "description": "Get a full OCDS contracting process, including releases.",
                 "parameters": [
@@ -42,7 +46,9 @@
                     }                                  
                 ],
                 "operationId": "allRecords",
-
+                "tags": [
+                    "Contracts"
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -85,6 +91,9 @@
                         "$ref": "#/components/parameters/country"
                     }                                                                         
                 ],
+                "tags": [
+                    "Search"
+                ],                
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -102,7 +111,7 @@
                 "summary": "Find persons, contracts and organizations by a part of their name",
                 "operationId": "autocompleteEmptyResponse",
                 "tags": [
-                    "Autocomplete"
+                    "Search"
                 ],
                 "responses": {
                     "200": {
@@ -135,7 +144,7 @@
                 "summary": "Find persons, contracts and organizations by a part of their name",
                 "operationId": "autocomplete",
                 "tags": [
-                    "Autocomplete"
+                    "Search"
                 ],
                 "parameters": [
                     {
