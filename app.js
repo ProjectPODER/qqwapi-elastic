@@ -47,8 +47,13 @@ async function createServer() {
     });
 
     const server = http.createServer(app);
-    server.listen(10010);
-    console.info("Listening on http://localhost:10010");
+
+    
+    const port = process.env.PORT || 10010;
+
+    const l = server.listen(port, () => {
+        process.stdout.write(`Listening on port ${l.address().port}`);
+    });
 }
 
 createServer();
