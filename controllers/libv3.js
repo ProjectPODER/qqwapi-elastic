@@ -385,24 +385,33 @@ function paramsToBody(paramsObject) {
   return body; 
 }
 
-const embed_definitions = {
-  organizations: [
-    {
-      id: "id",
-      foreign_key: "parent_id",
-      index: "memberships",
-      location: "memberships",
-      add: {direction: "child" }
-    },
-    {
-      id: "id",
-      foreign_key: "organization_id",
-      index: "memberships",
-      location: "memberships",
-      add: {direction: "parent" }
+const membership_embed = [{
+  id: "id",
+  foreign_key: "parent_id",
+  index: "memberships",
+  location: "memberships",
+  add: {direction: "child" }
+},
+{
+  id: "id",
+  foreign_key: "organization_id",
+  index: "memberships",
+  location: "memberships",
+  add: {direction: "parent" }
 
-    }
-  ],
+}];
+
+const party_flags_embed = {
+  id: "id",
+  foreign_key: "id",
+  index: "party_flags",
+  location: "flags"
+}
+
+const embed_definitions = { 
+  areas: membership_embed,
+  persons: [... membership_embed, party_flags_embed ],
+  organizations: [ ... membership_embed, party_flags_embed ],
   contracts: [
     {
       id: "id",
@@ -416,12 +425,12 @@ const embed_definitions = {
 
 async function embed(index,params,results) {
   const edis = embed_definitions[index];
-  const localResults = results;
 
   if (!params.query.embed) {
     return results;
   }
   else {
+    console.log("embed original results",results);
     if (edis) {
       for (e in edis) {
         let edi = edis[e];
@@ -430,7 +439,6 @@ async function embed(index,params,results) {
         //collect ids
         //query other collections
         //merge
-        // console.log("embed",results);
         results.hits.forEach(result => {
           body.query.bool.should.push({match_phrase: {[edi.foreign_key]: result._source[edi.id]}})
         })
@@ -443,7 +451,7 @@ async function embed(index,params,results) {
         // console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
       
         try {
-          console.log("embed",edi.location);
+          // console.log("embed",edi);
           const embedResult = await client.search(searchDocument);
       
           // console.log("embed results",embedResult.body.hits.hits);
@@ -466,7 +474,7 @@ async function embed(index,params,results) {
         catch(e) {
           console.error("embed error",e)
         }
-        // console.log("embed results expanded",edi.location,results);
+        // console.log("embed results expanded",edi.location,results.hits);
       }
 
       // console.log("embed results returned",results);

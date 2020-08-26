@@ -58,7 +58,7 @@ function addRecordPackage(object, debug) {
 
 async function allRecords(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
-  const query = {ocid: context.params.query.id };
+  const query = {ocid: context.params.query.ocid };
   const offset = 0;
   // console.log("allContracts debug",debug,context.params.query);
 

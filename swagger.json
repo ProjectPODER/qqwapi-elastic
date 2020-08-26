@@ -679,7 +679,7 @@
                 "description": "Embed related documents",
                 "allowEmptyValue": true,
                 "schema": {
-                    "type": "string"
+                    "type": "boolean"
                 }
             },
             "limit": {
@@ -721,7 +721,7 @@
             },
             "ocid": {
                 "in": "query",
-                "name": "id",
+                "name": "ocid",
                 "description": "Unique identifier for contract or record.",
                 "allowEmptyValue": true,
                 "schema": {

@@ -5,6 +5,7 @@ function allSources(context) {
   const searchDocument = {
     index: "areas,contracts,persons,organizations",
     body: {  
+      "size": 0,
       "aggs": {
         "source": {
           "terms": {
@@ -36,7 +37,7 @@ function allSources(context) {
       },
     }
   };
-  // console.log ("allSources searchDocument",JSON.stringify(searchDocument.body))
+  // console.log ("allSources searchocument",JSON.stringify(searchDocument.body))
   return lib.client.search(searchDocument)
   .then(returnAggregations)
 }
