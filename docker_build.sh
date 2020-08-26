@@ -5,10 +5,10 @@
 source $HOME/allvars
 APP_VERSION=$(cat package.json | jq -r .version)
 APP_REVISION=$(git rev-list --count HEAD)
-REPO=${DOCKER_REPO}/${WEB_ORG_NAME}:{$APP_VERSION}.${APP_REVISION}
+REPO=${DOCKER_REPO}/${WEB_ORG_NAME}:${APP_VERSION}.${APP_REVISION}
 
 #I think this is useless
-APP_PORT={$API3_PORT}:{$API3_CONTAINER_PORT}
+APP_PORT=${API3_PORT}:${API3_CONTAINER_PORT}
 MONGODB="MONGODB_URI=localhost:27017/dbname"
 
 build() {
