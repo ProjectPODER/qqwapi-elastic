@@ -250,6 +250,18 @@
                         "$ref": "#/components/parameters/contract_count_buyer_max"
                     },
                     {
+                        "$ref": "#/components/parameters/contract_amount_supplier_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_supplier_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_buyer_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_buyer_max"
+                    },
+                    {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
@@ -329,6 +341,18 @@
                     {
                         "$ref": "#/components/parameters/contract_count_buyer_max"
                     },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_supplier_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_supplier_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_buyer_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_buyer_max"
+                    },                    
                     {
                         "$ref": "#/components/parameters/limit"
                     },
@@ -412,6 +436,18 @@
                     {
                         "$ref": "#/components/parameters/contract_count_buyer_max"
                     },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_supplier_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_supplier_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_buyer_min"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contract_amount_buyer_max"
+                    },                    
                     {
                         "$ref": "#/components/parameters/limit"
                     },

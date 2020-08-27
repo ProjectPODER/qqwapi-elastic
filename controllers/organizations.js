@@ -11,7 +11,7 @@ function allInstitutions(context) {
 }
 
 function allCompanies(context) {
-  context.params.query.classification = "companies";
+  context.params.query.classification = "company";
   return lib.search(controllerIndex,context.params)
     .then(results => { 
       return lib.embed(controllerIndex,context.params,results) 

@@ -39,14 +39,14 @@ const query_definitions = {
   // apiFieldNames:["name"],
   "name": {
     context: "should",
-    type: "fuzzy",
+    type: "match",
     fields: ["name","contracts.title","other_names.name"]
   },
   // apiFilterName: "identifier",
   // apiFieldNames:["identifiers.id"],
   "identifier": {
-    context: "filter",
-    type: "term",
+    context: "should",
+    type: "match",
     field: "identifiers.id"
   },
   // apiFilterName: {
@@ -55,12 +55,12 @@ const query_definitions = {
   // },        
   // apiFieldNames:["contract_amount.supplier"],
   "contract_amount_supplier_min": {
-    context: "query",
+    context: "must",
     type: "range-gt",
     field: "contract_amount.supplier"
   },
   "contract_amount_supplier_max": {
-    context: "query",
+    context: "must",
     type: "range-lt",
     field: "contract_amount.supplier"
   },
@@ -72,12 +72,12 @@ const query_definitions = {
   // },
   // apiFieldNames:["contract_count.supplier"],
   "contract_count_supplier_min": {
-    context: "query",
+    context: "must",
     type: "range-gt",
     field: "contract_count.supplier"
   },
   "contract_count_supplier_max": {
-    context: "query",
+    context: "must",
     type: "range-lt",
     field: "contract_count.supplier"
   },
@@ -88,12 +88,12 @@ const query_definitions = {
   // },    
   // apiFieldNames:["contract_amount.buyer"],
   "contract_amount_buyer_min": {
-    context: "query",
+    context: "must",
     type: "range-gt",
     field: "contract_amount.buyer"
   },
   "contract_amount_buyer_max": {
-    context: "query",
+    context: "must",
     type: "range-lt",
     field: "contract_amount.buyer"
   },
@@ -104,12 +104,12 @@ const query_definitions = {
   // },    
   // apiFieldNames:["contract_count.buyer"],
   "contract_count_buyer_min": {
-    context: "query",
+    context: "must",
     type: "range-gt",
     field: "contract_count.buyer"
   },
   "contract_count_buyer_max": {
-    context: "query",
+    context: "must",
     type: "range-lt",
     field: "contract_count.buyer"
   },
@@ -121,12 +121,12 @@ const query_definitions = {
   // },
   // apiFieldNames:["contracts.period.startDate"],
   "start_date_min": {
-    context: "query",
+    context: "must",
     type: "range-gt",
     field: "contracts.period.startDate"
   },
   "start_date_max": {
-    context: "query",
+    context: "must",
     type: "range-lt",
     field: "contracts.period.startDate"
   },
@@ -138,12 +138,12 @@ const query_definitions = {
   // },    
   // apiFieldNames:["total_amount"],
   "amount_min": {
-    context: "query",
+    context: "must",
     type: "range-gt",
     field: "contracts.value.amount"
   },
   "amount_max": {
-    context: "query",
+    context: "must",
     type: "range-lt",
     field: "contracts.value.amount"
   },
@@ -151,8 +151,8 @@ const query_definitions = {
   // apiFilterName: "classification",
   // apiFieldNames:["classification"],
   "classification": {
-    context: "filter",
-    type: "term",
+    context: "must",
+    type: "match_phrase",
     field: "classification"
   },
   // apiFilterName: "title",
@@ -199,8 +199,8 @@ const query_definitions = {
   // apiFilterName: "id",
   // apiFieldNames:["contracts.id"],
   "id": {
-    context: "filter",
-    type: "term",
+    context: "must",
+    type: "match_phrase",
     field: "id"
   },
   "ocid": {
@@ -278,7 +278,7 @@ const query_definitions = {
 
 function paramsToBody(paramsObject) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
-  const body={ sort: []}; 
+  const body={ sort: [], query: { bool: { "minimum_should_match": 1, should: [], must: [], filter: []}}}; 
   // console.log("paramsToBody",paramsObject.query);
 
   Object.keys(params).forEach( param => { 
@@ -291,29 +291,10 @@ function paramsToBody(paramsObject) {
         }
         if (qdp.context == "filter") {
           if (qdp.type == "term") {
-            if (!body.query) {
-              body.query={}
-            }
-            if (!body.query.bool) {
-              body.query.bool={}
-            }
-            if (!body.query.bool.filter) {
-              body.query.bool.filter=[]
-            }
             body.query.bool.filter.push({term: { [qdp.field]: params[param]}}); 
           }
         }
         if (qdp.context == "should") {
-          if (!body.query) {
-            body.query={}
-          }
-          if (!body.query.bool) {
-            body.query.bool={}
-          }
-          if (!body.query.bool.should) {
-            body.query.bool.should=[]
-          }
-
           if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
             if (qdp.field) {
               body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
@@ -326,16 +307,6 @@ function paramsToBody(paramsObject) {
           }
         }
         if (qdp.context == "must") {
-          if (!body.query) {
-            body.query={}
-          }
-          if (!body.query.bool) {
-            body.query.bool={}
-          }
-          if (!body.query.bool.must) {
-            body.query.bool.must=[]
-          }
-
           if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
             if (qdp.field) {
               body.query.bool.must.push({[qdp.type]: { [qdp.field]: params[param]}});             
@@ -346,42 +317,22 @@ function paramsToBody(paramsObject) {
               })
             }
           }
-        }
-        if (qdp.context == "query") {
-          if (!body.query) {
-            body.query={}
-          }
           if (qdp.type == "range-lt") {
-            if (!body.query.range) {
-              body.query.range={}
-            }
-            if (!body.query.range[qdp.field]) {
-              body.query.range[qdp.field]={}
-            }
-            body.query.range[qdp.field].lt = params[param]; 
+            body.query.bool.must.push( {range: { [qdp.field]: { lt: params[param] }}} ); 
           }
           if (qdp.type == "range-gt") {
-            if (!body.query.range) {
-              body.query.range={}
-            }
-            if (!body.query.range[qdp.field]) {
-              body.query.range[qdp.field]={}
-            }
-            body.query.range[qdp.field].gt = params[param]; 
+            body.query.bool.must.push( {range: { [qdp.field]: { gt: params[param] }}} ); 
           }
+
         }
         if (qdp.context == "body") {
           if (qdp.type=="sort") {
-            if (!body.sort) {
-              body.sort = [];
-            }
-            body.sort.push({[params[param]]: ""});             
+            body.sort.push({[params[param]]: {order: "desc"}});             
           }
           if (qdp.type=="direction") {
-            if (!body.sort) {
-              body.sort = [];
+            if (params["sort"]) {
+              body.sort[0][params["sort"]] = {order: params[param]};             
             }
-            body.sort[0][params["sort"]] = {order: params[param]};             
           }
           if (!qdp.type) {
             body[qdp.field] = params[param]; 
