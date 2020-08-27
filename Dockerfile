@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:14
+FROM mhart/alpine-node:10
 MAINTAINER Martín Szyszlican <martin@rindecuentas.org>
 
 ENV PORT=${PORT:-8080}
