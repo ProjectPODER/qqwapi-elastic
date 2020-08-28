@@ -12,8 +12,7 @@ function allSources(context) {
             "field": "source.id.keyword",
             "order": {
               "_key": "asc"
-            },
-            "size": 100
+            }
           },
           "aggs": {
             "classification": {
@@ -21,8 +20,7 @@ function allSources(context) {
                 "field": "classification.keyword",
                 "order": {
                   "_key": "asc"
-                },
-                "size": 100
+                }
               },
               "aggs": {
                 "date": {
@@ -33,9 +31,39 @@ function allSources(context) {
               }
             }
           }
+        },
+        "classification": {
+          "terms": {
+            "field": "classification.keyword",
+            "order": {
+              "_key": "asc"
+            }
+          },
+          "aggs": {
+            "date": {
+              "max": {
+                "field": "date"
+              }
+            }
+          }
+        },
+        "index": {
+          "terms": {
+            "field": "_index",
+            "order": {
+              "_key": "asc"
+            }
+          },
+          "aggs": {
+            "date": {
+              "max": {
+                "field": "date"
+              }
+            }
+          }
         }
-      },
-    }
+      }
+    },
   };
   // console.log ("allSources searchocument",JSON.stringify(searchDocument.body))
   return lib.client.search(searchDocument)
@@ -53,9 +81,41 @@ function returnAggregations(response) {
     pages: null,
     count: response.body.aggregations.source.buckets.length,
     count_precission: "eq",
-    data: response.body.aggregations.source.buckets,
+    data: { 
+      index: formatClassifications(response.body.aggregations.index.buckets) ,
+      classification: formatClassifications(response.body.aggregations.classification.buckets),
+      sources: formatSources(response.body.aggregations.source.buckets), 
+    },
 };
 
+}
+
+function formatClassifications(buckets) {
+  return buckets.map(bucket => {
+    return {
+      [bucket.key]: {
+        count: bucket.doc_count,
+        lastModified: bucket.date.value_as_string
+      }
+    }
+  }).reduce(function(result, item, index, array) {
+    firstKey = Object.keys(item)[0];
+    result[firstKey] = item[firstKey]; //a, b, c
+    return result;
+  }, {});
+  
+}
+
+function formatSources(buckets) {
+  return buckets.map(bucket => {
+    return {
+      [bucket.key]: formatClassifications(bucket.classification.buckets)
+    }
+  }).reduce(function(result, item, index, array) {
+    firstKey = Object.keys(item)[0];
+    result[firstKey] = item[firstKey]; //a, b, c
+    return result;
+  }, {});
 }
 
 module.exports = {allSources}
