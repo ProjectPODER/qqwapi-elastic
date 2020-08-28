@@ -278,7 +278,7 @@ const query_definitions = {
 
 function paramsToBody(paramsObject) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
-  const body={ sort: [], query: { bool: { "minimum_should_match": 1, should: [], must: [], filter: []}}}; 
+  const body={ sort: [], query: { bool: { should: [], must: [], filter: []}}}; 
   // console.log("paramsToBody",paramsObject.query);
 
   Object.keys(params).forEach( param => { 
@@ -486,7 +486,7 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
     if (bodyhits && !bodyhits.error) {
       count = bodyhits.total.value;
       count_precission = bodyhits.total.relation;
-      data = bodyhits.hits.map(o => o._source);
+      data = bodyhits.hits.map(o => Object.assign(o._source,{type: o._index}));
       size = data.length;
     }
     else {
