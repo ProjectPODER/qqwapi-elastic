@@ -9,17 +9,15 @@ let client = {};
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 
-try {
-
-  client = new Client({ node: elasticNode });
-}
-catch(e) {
+client = new Client({ node: elasticNode, sniffOnStart: true });
+p = client.xpack.usage().then(
+  () => {
+    console.log("Connected to elastic node:",elasticNode);
+  }
+).catch(e => {
   console.error("Error connecting to elastic node:",elasticNode,e);
-
-}
-finally {
-  console.log("Connected to elastic node:",elasticNode);
-}
+  process.exit(100);
+})
 
 const query_definitions = {
   // apiFilterName: "country",
@@ -278,7 +276,7 @@ const query_definitions = {
 
 function paramsToBody(paramsObject) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
-  const body={ sort: [], query: { bool: { should: [], must: [], filter: []}}}; 
+  const body={ track_total_hits: true, sort: [], query: { bool: { should: [], must: [], filter: []}}}; 
   // console.log("paramsToBody",paramsObject.query);
 
   Object.keys(params).forEach( param => { 
