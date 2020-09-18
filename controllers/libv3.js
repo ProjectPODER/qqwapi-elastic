@@ -1,4 +1,5 @@
 const { Client } = require('@elastic/elasticsearch');
+const laundry = require('company-laundry'); 
 
 let client = {};
 
@@ -35,7 +36,8 @@ const query_definitions = {
   "name": {
     context: "should",
     type: "match",
-    fields: ["name","contracts.title","other_names.name"]
+    fields: ["name","contracts.title","other_names.name"],
+    launder: true,
   },
   // apiFilterName: "identifier",
   // apiFieldNames:["identifiers.id"],
@@ -164,7 +166,8 @@ const query_definitions = {
   "supplier_name": {
     context: "must",
     type: "fuzzy",
-    field: "awards.suppliers.name"
+    field: "awards.suppliers.name",
+    launder: true
   },
 
   // apiFilterName: "buyer_name",
@@ -172,7 +175,8 @@ const query_definitions = {
   "buyer_name": {
     context: "must",
     type: "fuzzy",
-    field: "parties.memberOf.name"
+    field: "parties.memberOf.name",
+    launder: true
   },
 
   // apiFilterName: "funder_name",
@@ -181,7 +185,8 @@ const query_definitions = {
   "funder_name": {
     context: "must",
     type: "fuzzy",
-    field: "parties.name"
+    field: "parties.name",
+    launder: true
   },
 
   // apiFilterName: "subclassification",
@@ -286,6 +291,10 @@ function paramsToBody(paramsObject, debug) {
   Object.keys(params).forEach( param => { 
     if (params[param]) {
       let qdp = query_definitions[param];
+      
+      if (qdp.launder && ! params[param].map) {
+        params[param] = laundry.launder(params[param]);
+      }
       // console.log(param,query_definitions[param]);
       if (qdp) {
         if (qdp.context == "skip") {
@@ -301,6 +310,10 @@ function paramsToBody(paramsObject, debug) {
             if (qdp.field) {
               if (params[param].map) {
                 params[param].map( value => {
+                  if (qdp.launder ) {
+                    value = laundry.launder(value);
+                  }
+            
                   body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
                 })
 
@@ -321,6 +334,10 @@ function paramsToBody(paramsObject, debug) {
             if (qdp.field) {
               if (params[param].map) {
                 params[param].map( value => {
+                  if (qdp.launder ) {
+                    value = laundry.launder(value);
+                  }
+
                   body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
                 })
 
