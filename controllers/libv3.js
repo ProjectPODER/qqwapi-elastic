@@ -1,16 +1,13 @@
 const { Client } = require('@elastic/elasticsearch');
-const { id } = require('monk');
-
-const orderBy = require('lodash/fp/orderBy');
-const slice = require('lodash/fp/slice');
-const find = require('lodash/find');
 
 let client = {};
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 
-client = new Client({ node: elasticNode, sniffOnStart: true });
-p = client.xpack.usage().then(
+client = new Client({ node: elasticNode });
+
+//Simple test query
+client.xpack.usage().then(
   () => {
     console.log("Connected to elastic node:",elasticNode);
   }
@@ -276,7 +273,7 @@ const query_definitions = {
 
 function paramsToBody(paramsObject) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
-  const body={ track_total_hits: true, sort: [], query: { bool: { should: [], must: [], filter: []}}}; 
+  const body={ sort: [], from: 0, query: { bool: { should: [], must: [], filter: []}}}; 
   // console.log("paramsToBody",paramsObject.query);
 
   Object.keys(params).forEach( param => { 
@@ -458,18 +455,21 @@ async function search (index,params) {
     body: paramsToBody(params)
   }
 
-  console.log("search searchDocument body",index,JSON.stringify(searchDocument.body));
-
-  // Let's search!
-  try {
-    const result = await client.search(searchDocument)
-
-    return result.body.hits;
-  }  
-  catch(e) {
-    return {error: e}
+  // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
+  if ((searchDocument.body.from + searchDocument.body.size) < 10000) {
+    // console.log("normal search",searchDocument.body);
+    try {
+      const result = await client.search(searchDocument);
+      return result.body.hits;
+    }
+    catch(e) {
+      return {error: e}
+    }
+      
   }
-  // console.log(body.hits.hits[0])
+  else {
+    return {error: "Search size is bigger than 10000. Elasticsearch does not allow it."}
+  }
 }
 
 function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
