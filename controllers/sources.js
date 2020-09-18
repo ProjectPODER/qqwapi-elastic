@@ -2,6 +2,8 @@ const lib = require('./libv3');
 const controllerIndex = "sources"
 
 function allSources(context) {
+  const debug = context.req.originalUrl.indexOf("debug") > -1;
+
   const searchDocument = {
     index: "areas,contracts,persons,organizations",
     body: {  

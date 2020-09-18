@@ -1027,7 +1027,7 @@
             "classification": {
                 "in": "query",
                 "name": "classification",
-                "description": "Classification for persons and areas",
+                "description": "Classification for persons and areas. And organizations.",
                 "schema":{
                     "type": "string",
                     "enum": [
@@ -1035,7 +1035,9 @@
                         "state",
                         "country",
                         "funcionario",
-                        "proveedor"
+                        "proveedor",
+                        "company",
+                        "institution"
                     ]
                 }
             },

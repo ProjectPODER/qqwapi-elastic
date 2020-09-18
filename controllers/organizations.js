@@ -3,18 +3,22 @@ const controllerIndex = "organizations"
 
 function allInstitutions(context) {
   context.params.query.classification = "institution";
-  return lib.search(controllerIndex,context.params)
+  const debug = context.req.originalUrl.indexOf("debug") > -1;
+
+  return lib.search(controllerIndex,context.params,debug)
     .then(results => { 
-      return lib.embed(controllerIndex,context.params,results) 
+      return lib.embed(controllerIndex,context.params,results,debug) 
     })
     .then(lib.prepareOutput)
 }
 
 function allCompanies(context) {
   context.params.query.classification = "company";
-  return lib.search(controllerIndex,context.params)
+  const debug = context.req.originalUrl.indexOf("debug") > -1;
+
+  return lib.search(controllerIndex,context.params,debug)
     .then(results => { 
-      return lib.embed(controllerIndex,context.params,results) 
+      return lib.embed(controllerIndex,context.params,results,debug) 
     })
     .then(lib.prepareOutput)
 }

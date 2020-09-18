@@ -276,10 +276,12 @@ const query_definitions = {
 }
 
 
-function paramsToBody(paramsObject) {
+function paramsToBody(paramsObject, debug) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
   const body={ sort: [], from: 0, query: { bool: { should: [], must: [], filter: []}}}; 
-  // console.log("paramsToBody",paramsObject.query);
+  if (debug) {
+    console.log("paramsToBody",paramsObject.query);
+  }
 
   Object.keys(params).forEach( param => { 
     if (params[param]) {
@@ -291,7 +293,7 @@ function paramsToBody(paramsObject) {
         }
         if (qdp.context == "filter") {
           if (qdp.type == "term") {
-            body.query.bool.filter.push({term: { [qdp.field]: params[param]}}); 
+            body.query.bool[qdp.context].push({term: { [qdp.field]: params[param]}}); 
           }
         }
         if (qdp.context == "should") {
@@ -299,17 +301,17 @@ function paramsToBody(paramsObject) {
             if (qdp.field) {
               if (params[param].map) {
                 params[param].map( value => {
-                  body.query.bool.should.push({[qdp.type]: { [qdp.field]: value}});             
+                  body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
                 })
 
               }
               else {
-                body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: params[param]}});             
               }
             }
             if (qdp.fields) {
               qdp.fields.forEach((field) => {
-                body.query.bool.should.push({[qdp.type]: { [field]: params[param]}});             
+                body.query.bool[qdp.context].push({[qdp.type]: { [field]: params[param]}});             
               })
             }
           }
@@ -319,25 +321,25 @@ function paramsToBody(paramsObject) {
             if (qdp.field) {
               if (params[param].map) {
                 params[param].map( value => {
-                  body.query.bool.should.push({[qdp.type]: { [qdp.field]: value}});             
+                  body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
                 })
 
               }
               else {
-                body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: params[param]}});             
               }         
             }
             if (qdp.fields) {
               qdp.fields.forEach((field) => {
-                body.query.bool.must.push({[qdp.type]: { [field]: params[param]}});             
+                body.query.bool[qdp.context].push({[qdp.type]: { [field]: params[param]}});             
               })
             }
           }
           if (qdp.type == "range-lt") {
-            body.query.bool.must.push( {range: { [qdp.field]: { lt: params[param] }}} ); 
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lt: params[param] }}} ); 
           }
           if (qdp.type == "range-gt") {
-            body.query.bool.must.push( {range: { [qdp.field]: { gt: params[param] }}} ); 
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gt: params[param] }}} ); 
           }
 
         }
@@ -468,8 +470,8 @@ async function embed(index,params,results) {
 }
 
 
-async function search (index,params) {
-  // console.log("search",params,typeof params);
+async function search (index,params,debug) {
+  console.log("search",params,typeof params);
 
   const searchDocument = {
     index: index,
@@ -478,7 +480,9 @@ async function search (index,params) {
 
   // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
   if ((searchDocument.body.from + searchDocument.body.size) < 10000) {
-    // console.log("normal search",JSON.stringify(searchDocument.body));
+    if (debug) {
+      console.log("normal search",JSON.stringify(searchDocument.body));
+    }
     try {
       const result = await client.search(searchDocument);
       return result.body.hits;
@@ -499,7 +503,10 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
     let size = 0;
     let count = 0;
     let count_precission = "unknown";
-    // console.log("prepareOutput",bodyhits);
+    if (debug) {
+      console.log("prepareOutput",bodyhits);
+    }
+      
     
     // Contracts have a different structure and their length comes in the third item in the array
     if (bodyhits && !bodyhits.error) {
