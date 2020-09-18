@@ -64,6 +64,9 @@
                 "operationId": "searchOperation",
                 "parameters": [
                     {
+                        "$ref":  "#/components/parameters/ids"
+                    },
+                    {
                         "$ref": "#/components/parameters/name"
                     },
                     {
@@ -220,6 +223,9 @@
                         "$ref": "#/components/parameters/id"
                     },
                     {
+                        "$ref":  "#/components/parameters/ids"
+                    },                      
+                    {
                         "$ref": "#/components/parameters/gender"
                     },
                     {
@@ -315,6 +321,9 @@
                         "$ref": "#/components/parameters/id"
                     },
                     {
+                        "$ref":  "#/components/parameters/ids"
+                    },                      
+                    {
                         "$ref": "#/components/parameters/identifier"
                     },
                     {
@@ -406,6 +415,9 @@
                     {
                         "$ref": "#/components/parameters/id"
                     },
+                    {
+                        "$ref":  "#/components/parameters/ids"
+                    },                      
                     {
                         "$ref": "#/components/parameters/identifier"
                     },
@@ -504,6 +516,9 @@
                     {
                         "$ref": "#/components/parameters/id"
                     },
+                    {
+                        "$ref":  "#/components/parameters/ids"
+                    },                    
                     {
                         "$ref": "#/components/parameters/ocid"
                     },
@@ -644,6 +659,9 @@
                         "$ref": "#/components/parameters/id"
                     },
                     {
+                        "$ref":  "#/components/parameters/ids"
+                    },                      
+                    {
                         "$ref": "#/components/parameters/classification"
                     },
                     {
@@ -762,6 +780,16 @@
                 "allowEmptyValue": true,
                 "schema": {
                     "type": "string"
+                }
+            },
+            "ids": {
+                "in": "query",
+                "name": "ids",
+                "explode": false,
+                "description": "Series of unique identifier for entity. Format depends on endpoint: areas is ISO 3166 (for countries and states, and slug for municipalities), contracts is procedure number in source, companies, institutions, persons and sources is slug.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "array"
                 }
             },
             "ocid": {

@@ -198,6 +198,11 @@ const query_definitions = {
     type: "match_phrase",
     field: "id"
   },
+  "ids": {
+    context: "should",
+    type: "match",
+    field: "id"
+  },
   "ocid": {
     context: "filter",
     type: "term",
@@ -292,7 +297,15 @@ function paramsToBody(paramsObject) {
         if (qdp.context == "should") {
           if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
             if (qdp.field) {
-              body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+              if (params[param].map) {
+                params[param].map( value => {
+                  body.query.bool.should.push({[qdp.type]: { [qdp.field]: value}});             
+                })
+
+              }
+              else {
+                body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+              }
             }
             if (qdp.fields) {
               qdp.fields.forEach((field) => {
@@ -304,7 +317,15 @@ function paramsToBody(paramsObject) {
         if (qdp.context == "must") {
           if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
             if (qdp.field) {
-              body.query.bool.must.push({[qdp.type]: { [qdp.field]: params[param]}});             
+              if (params[param].map) {
+                params[param].map( value => {
+                  body.query.bool.should.push({[qdp.type]: { [qdp.field]: value}});             
+                })
+
+              }
+              else {
+                body.query.bool.should.push({[qdp.type]: { [qdp.field]: params[param]}});             
+              }         
             }
             if (qdp.fields) {
               qdp.fields.forEach((field) => {
@@ -457,7 +478,7 @@ async function search (index,params) {
 
   // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
   if ((searchDocument.body.from + searchDocument.body.size) < 10000) {
-    // console.log("normal search",searchDocument.body);
+    // console.log("normal search",JSON.stringify(searchDocument.body));
     try {
       const result = await client.search(searchDocument);
       return result.body.hits;
