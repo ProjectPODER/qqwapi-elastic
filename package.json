@@ -22,7 +22,8 @@
     "exegesis-plugin-swagger-ui-express": "^1.0.7",
     "express": "^4.17.1",
     "i18n-iso-countries": "^6.0.0",
-    "monk": "^7.3.1"
+    "monk": "^7.3.2",
+    "company-laundry": "git+http://git@gitlab.rindecuentas.org/equipo-qqw/company-laundry.git"
   },
   "devDependencies": {
     "should": "^7.1.0",
