@@ -5,11 +5,26 @@ const find = require('lodash/find');
 function summaries(context) {
   const entity_id = context.params.query.id;
 
-  const searchDocument = {
-    index: "contracts",
+  const summaryDocument = {
+    index: "",
     body: {
+      "query": {
+        "bool": {
+          "should": [
+            {
+              "match_phrase": {
+                "parties.id.keyword": entity_id
+              }
+            },
+            {
+              "match_phrase": {
+                "parties.memberOf.id.keyword": entity_id
+              }
+            }
+          ]
+        }
+      },
       "aggs": {
- 
         "role": {
           "filters": {
             "filters": {
@@ -25,7 +40,7 @@ function summaries(context) {
                       "match_phrase": {
                         "parties.memberOf.id.keyword": entity_id
                       }
-                    }                          
+                    }
                   ],
                   "minimum_should_match": 1
                 }
@@ -58,8 +73,8 @@ function summaries(context) {
                   ],
                   "minimum_should_match": 1
                 }
-              },
-            },
+              }
+            }
           },
           "aggs": {
             "amount": {
@@ -79,8 +94,8 @@ function summaries(context) {
                   "sum": {
                     "field": "contracts.value.amount"
                   }
-                },
-              },
+                }
+              }
             },
             "type": {
               "terms": {
@@ -99,19 +114,18 @@ function summaries(context) {
                 }
               }
             },
-            "top_contracts":{
+            "top_contracts": {
               "top_hits": {
                 "sort": [
                   {
                     "contracts.value.amount": {
-                      order: "desc"
+                      "order": "desc"
                     }
                   }
                 ],
                 "size": 3
               }
             },
-
             "top_entities_buyer": {
               "terms": {
                 "field": "buyer.id.keyword",
@@ -153,81 +167,128 @@ function summaries(context) {
                   }
                 }
               }
-            },
+            }
           }
-        },     
+        },
+        "relation_suppliers": {
+          "terms": {
+            "field": "awards.suppliers.id.keyword",
+            "size": 1000
+          },
+          "aggregations": {
+            "uc": {
+              "terms": {
+                "field": "buyer.id.keyword"
+              },
+              "aggs": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                }
+                
+              }
+            }
+          }
+        },
+        "relation_uc": {
+          "terms": {
+            "field": "buyer.id.keyword",
+            "size": 1000
+          },
+          "aggregations": {
+            "amount": {
+              "sum": {
+                "field": "contracts.value.amount"
+              }
+            },
+            "dependencia": {
+              "terms": {
+                "field": "parties.memberOf.id.keyword",
+                "size": 1000
+              },
+              "aggregations": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "relation_funder": {
+          "terms": {
+            "field": "parties.id.keyword",
+            "size": 1000
+          },
+          "aggregations": {
+            "amount": {
+              "sum": {
+                "field": "contracts.value.amount"
+              }
+            },
+            "funders": {
+              "filter": {
+                "term": {
+                  "parties.roles.keyword": "funder"
+                }
+              },
+              "aggs": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                },
+                "role": {
+                  "terms": {
+                    "field": "parties.roles.keyword"
+                  }
+                }
+              }
+            },
+            "dependencia": {
+              "terms": {
+                "field": "parties.memberOf.id.keyword"
+              },
+              "aggs": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                }
+                
+              }
+            },
+            "only_funders": {
+              "bucket_selector": {
+                "buckets_path": {
+                  "all_amount": "amount",
+                  "funder_amount": "funders>amount"
+                },
+                "script": "params.all_amount == params.funder_amount"
+              }
+            }
+          }
+        }
       },
-      "size": 0,
-      // "stored_fields": [
-      //   "*"
-      // ],
-      // "script_fields": {},
-      // "docvalue_fields": [
-      //   {
-      //     "field": "awards.date",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "awards.documents.datePublished",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "contracts.dateSigned",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "contracts.period.endDate",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "contracts.period.startDate",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "date",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "tender.tenderPeriod.endDate",
-      //     "format": "date_time"
-      //   },
-      //   {
-      //     "field": "tender.tenderPeriod.startDate",
-      //     "format": "date_time"
-      //   }
-      // ],
-      // "query": {
-      //   "bool": {
-      //     "must": [],
-      //     "filter": [
-      //       {
-      //         "match_all": {}
-      //       },
-      //       {
-      //         "range": {
-      //           "contracts.period.startDate": {
-      //             "gte": "2005-08-25T23:10:57.890Z",
-      //             "lte": "2020-08-25T23:10:57.891Z",
-      //             "format": "strict_date_optional_time"
-      //           }
-      //         }
-      //       }
-      //     ],
-      //     "should": [],
-      //     "must_not": []
-      //   }
-      // }
+      "size": 0
+
     }
   }
+  
+  console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
 
-  console.log("summaries searchDocument body",JSON.stringify(searchDocument.body))
+  return lib.client.search(summaryDocument).then(formatSummaries)
 
-  return lib.client.search(searchDocument).then(formatSummaries)
   
 
 }
 
 function formatSummaries(result) {
+  // console.log("formatSummaries",result);
+
+  
   // return Object.keys(result.body.aggregations.role.buckets).map((role) => {
   //   thisRole = result.body.aggregations.role.buckets[role];
   //   return {
@@ -263,7 +324,7 @@ function formatSummaries(result) {
   // })
 
   const summaries = {
-    relation: {}
+    relation: formatGraph(result.body.aggregations)
   };
 
   for (role in result.body.aggregations.role.buckets) {
@@ -303,7 +364,7 @@ function formatSummaries(result) {
     }
     for (e in entityBucket) {
       const thisEntity = entityBucket[e];
-      console.log("formatSummaries entityBucket",thisEntity.entity.hits.hits[0]._source.parties,thisEntity.key)
+      // console.log("formatSummaries entityBucket",thisEntity.entity.hits.hits[0]._source.parties,thisEntity.key)
       const entityObject = find(thisEntity.entity.hits.hits[0]._source.parties,{id: thisEntity.key});
       entityObject.contract_amount = { [entityObject.roles[0]]: thisEntity.amount.value};
       entityObject.contract_count = { [entityObject.roles[0]]: thisEntity.doc_count};
@@ -324,6 +385,56 @@ function formatSummaries(result) {
     }
   }
   return summaries;
+}
+
+function formatGraph(graph) {
+  // console.log("formatGraph",graph)
+  const response = {
+    nodes: [],
+    links: []
+  }
+
+  relation_funder = createNodes("funder",graph.relation_funder.buckets);
+  relation_suppliers = createNodes("supplier",graph.relation_suppliers.buckets);
+  relation_uc = createNodes("uc",graph.relation_uc.buckets);
+
+  response.nodes = [... relation_funder.nodes, ... relation_suppliers.nodes, ... relation_uc.nodes]
+  response.links = [... relation_funder.links, ... relation_suppliers.links, ... relation_uc.links]
+
+  return response;
+}
+
+function createNodes(rel,buckets) {
+  const response = {
+    nodes: [],
+    links: []
+  }  
+
+  for(relIndex in buckets) {
+    let entity = buckets[relIndex];
+
+
+    response.nodes.push({id: entity.key });
+
+    if (rel == "uc") {
+      for (index in entity.dependencia.buckets) {
+        response.nodes.push({id: entity.dependencia.buckets[index].key });
+        response.links.push({to_entity: entity.key, from_entity: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].amount.value });  
+      }
+    }
+    if (rel == "funder") {
+      for (index in entity.dependencia.buckets) {
+        response.links.push({from_entity: entity.key, to_entity: entity.dependencia.buckets[index].key, type: rel, weight: entity.dependencia.buckets[index].amount.value });  
+      }
+
+    }
+    if (rel == "supplier") {
+      for (index in entity.uc.buckets) {
+        response.links.push({to_entity: entity.key, from_entity: entity.uc.buckets[index].key, type: rel, weight: entity.uc.buckets[index].amount.value });  
+      }
+    }
+  }
+  return response;
 }
 
 // function summariesOld(context) {
