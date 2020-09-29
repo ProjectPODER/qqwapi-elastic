@@ -178,7 +178,8 @@ function summaries(context) {
           "aggregations": {
             "uc": {
               "terms": {
-                "field": "buyer.id.keyword"
+                "field": "buyer.id.keyword",
+                "size": 1000                
               },
               "aggs": {
                 "amount": {
@@ -232,7 +233,8 @@ function summaries(context) {
               "filter": {
                 "term": {
                   "parties.roles.keyword": "funder"
-                }
+                },
+                "size": 1000               
               },
               "aggs": {
                 "amount": {
@@ -242,14 +244,16 @@ function summaries(context) {
                 },
                 "role": {
                   "terms": {
-                    "field": "parties.roles.keyword"
+                    "field": "parties.roles.keyword",
+                    "size": 1000               
                   }
                 }
               }
             },
             "dependencia": {
               "terms": {
-                "field": "parties.memberOf.id.keyword"
+                "field": "parties.memberOf.id.keyword",
+                "size": 1000               
               },
               "aggs": {
                 "amount": {
@@ -413,25 +417,27 @@ function createNodes(rel,buckets) {
   for(relIndex in buckets) {
     let entity = buckets[relIndex];
 
-    console.log("createNodes",entity);
+    // console.log("createNodes",entity);
+
+    //Todo: fix weights, types and add names
 
     response.nodes.push({id: entity.key, weight: entity.doc_count, type: rel });
 
     if (rel == "uc") {
       for (index in entity.dependencia.buckets) {
         response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count });
-        response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].amount.value });  
+        response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].doc_count });  
       }
     }
     if (rel == "funder") {
       for (index in entity.dependencia.buckets) {
-        response.links.push({surce: entity.key, target: entity.dependencia.buckets[index].key, type: rel, weight: entity.dependencia.buckets[index].amount.value });  
+        response.links.push({surce: entity.key, target: entity.dependencia.buckets[index].key, type: rel, weight: entity.dependencia.buckets[index].doc_count });  
       }
 
     }
     if (rel == "supplier") {
       for (index in entity.uc.buckets) {
-        response.links.push({target: entity.key, source: entity.uc.buckets[index].key, type: rel, weight: entity.uc.buckets[index].amount.value });  
+        response.links.push({target: entity.key, source: entity.uc.buckets[index].key, type: rel, weight: entity.uc.buckets[index].doc_count });  
       }
     }
   }
