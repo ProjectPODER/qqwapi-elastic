@@ -413,24 +413,25 @@ function createNodes(rel,buckets) {
   for(relIndex in buckets) {
     let entity = buckets[relIndex];
 
+    console.log("createNodes",entity);
 
-    response.nodes.push({id: entity.key });
+    response.nodes.push({id: entity.key, weight: entity.doc_count, type: rel });
 
     if (rel == "uc") {
       for (index in entity.dependencia.buckets) {
-        response.nodes.push({id: entity.dependencia.buckets[index].key });
-        response.links.push({to_entity: entity.key, from_entity: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].amount.value });  
+        response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count });
+        response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].amount.value });  
       }
     }
     if (rel == "funder") {
       for (index in entity.dependencia.buckets) {
-        response.links.push({from_entity: entity.key, to_entity: entity.dependencia.buckets[index].key, type: rel, weight: entity.dependencia.buckets[index].amount.value });  
+        response.links.push({surce: entity.key, target: entity.dependencia.buckets[index].key, type: rel, weight: entity.dependencia.buckets[index].amount.value });  
       }
 
     }
     if (rel == "supplier") {
       for (index in entity.uc.buckets) {
-        response.links.push({to_entity: entity.key, from_entity: entity.uc.buckets[index].key, type: rel, weight: entity.uc.buckets[index].amount.value });  
+        response.links.push({target: entity.key, source: entity.uc.buckets[index].key, type: rel, weight: entity.uc.buckets[index].amount.value });  
       }
     }
   }
