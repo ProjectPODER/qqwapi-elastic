@@ -568,6 +568,9 @@
                         "$ref": "#/components/parameters/limit"
                     },
                     {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
                         "$ref": "#/components/parameters/offset"
                     }
                 ],
@@ -668,6 +671,12 @@
                         "$ref": "#/components/parameters/limit"
                     },
                     {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },                                        
+                    {
                         "$ref": "#/components/parameters/offset"
                     }
                 ],
@@ -762,7 +771,8 @@
                     "type": "integer",
                     "minimum": 0,
                     "default": 0
-                }
+                },
+                "x-field": "6"
             },
             "name": {
                 "name": "name",
