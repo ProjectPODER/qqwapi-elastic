@@ -27,9 +27,9 @@ const query_definitions = {
     context: "skip"
   },
   "country": {
-    context: "filter",
-    type: "term",
-    field: "area.id"
+    context: "should",
+    type: "match",
+    fields: ["area.id","parties.address.countryName","parent_id"]
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
