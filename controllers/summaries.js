@@ -234,7 +234,6 @@ function summaries(context) {
                 "term": {
                   "parties.roles.keyword": "funder"
                 },
-                "size": 1000               
               },
               "aggs": {
                 "amount": {
@@ -421,11 +420,11 @@ function createNodes(rel,buckets) {
 
     //Todo: fix weights, types and add names
 
-    response.nodes.push({id: entity.key, weight: entity.doc_count, type: rel });
+    response.nodes.push({id: entity.key, weight: entity.doc_count, type: rel, label: entity.key.replace("-"," ") });
 
     if (rel == "uc") {
       for (index in entity.dependencia.buckets) {
-        response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count });
+        response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count, label: entity.key.replace("-"," ")  });
         response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].doc_count });  
       }
     }
