@@ -225,7 +225,7 @@ const query_definitions = {
   // apiFieldNames:["parties.contactPoint.name"],
   "contact_point_name": {
     context: "must",
-    type: "fuzzy",
+    type: "match",
     field: "parties.contactPoint.name"
   },
 
@@ -292,6 +292,8 @@ function paramsToBody(paramsObject, debug) {
     if (params[param]) {
       let qdp = query_definitions[param];
       
+      params[param] = decodeURIComponent(params[param]);
+
       if (qdp.launder && ! params[param].map) {
         params[param] = laundry.launder(params[param]);
       }
