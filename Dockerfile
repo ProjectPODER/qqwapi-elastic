@@ -19,7 +19,7 @@ RUN chown -R node:node /src
 EXPOSE $PORT
 
 USER node
-RUN npm install --silent
+RUN npm install
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["npm", "start"]
