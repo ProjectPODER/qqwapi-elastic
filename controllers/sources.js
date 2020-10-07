@@ -31,6 +31,21 @@ function allSources(context) {
                   }
                 }
               }
+            },
+            "contracts": {
+              "terms": {
+                "field": "initiationType.keyword",
+                "order": {
+                  "_key": "asc"
+                }
+              },
+              "aggs": {
+                "date": {
+                  "max": {
+                    "field": "date"
+                  }
+                }
+              }
             }
           }
         },
@@ -110,8 +125,13 @@ function formatClassifications(buckets) {
 
 function formatSources(buckets) {
   return buckets.map(bucket => {
+    console.log("formatSources",bucket.key,bucket.contracts);
+    if (bucket.contracts.buckets[0] && bucket.contracts.buckets[0].key == "tender") {
+      bucket.contracts.buckets[0].key = "contracts";
+    }
+    let fullBucket = [... bucket.classification.buckets, ... bucket.contracts.buckets]
     return {
-      [bucket.key]: formatClassifications(bucket.classification.buckets)
+      [bucket.key]: formatClassifications(fullBucket),
     }
   }).reduce(function(result, item, index, array) {
     firstKey = Object.keys(item)[0];
