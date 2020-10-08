@@ -1,5 +1,6 @@
 const { Client } = require('@elastic/elasticsearch');
 const laundry = require('company-laundry'); 
+const pjson = require('../package.json');
 
 let client = {};
 
@@ -561,9 +562,12 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
         pages: pagesNum,
         count: count,
         count_precission: count_precission,
+        version: pjson.version,
+        generated: new Date(),
         data,
     };
 }
+
 
 module.exports = {
     prepareOutput,

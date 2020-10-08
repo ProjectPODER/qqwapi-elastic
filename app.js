@@ -3,7 +3,8 @@ const exegesisExpress = require('exegesis-express');
 const http = require('http');
 const path = require('path');
 const exegesisSwaggerUIPlugin = require( 'exegesis-plugin-swagger-ui-express' );
- 
+const pjson = require('./package.json');
+
 async function createServer() {
     const app = express();
 
@@ -44,7 +45,12 @@ async function createServer() {
     app.use(exegesisMiddleware);
 
     app.use((req, res) => {
-        res.status(404).json({message: `There's nothing here. Please check the docs. QQWAPIv3`});
+        res.status(404).json({
+            en: `There's nothing here. Please check the docs: https://quienesquienapi.readthedocs.io/en/latest/`,
+            es: `Aquí no hay nada. Por favor revisa la documentación: https://quienesquienapi.readthedocs.io/es/latest/`,
+            version: pjson.version,
+            generated: new Date()
+        });
     });
 
     app.use((err, req, res, next) => {
