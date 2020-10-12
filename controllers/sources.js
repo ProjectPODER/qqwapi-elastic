@@ -23,13 +23,11 @@ function allSources(context) {
                 "order": {
                   "_key": "asc"
                 }
-              },
-              "aggs": {
-                "date": {
-                  "max": {
-                    "field": "date"
-                  }
-                }
+              }
+            },
+            "date": {
+              "max": {
+                "field": "date"
               }
             },
             "contracts": {
@@ -37,13 +35,6 @@ function allSources(context) {
                 "field": "initiationType.keyword",
                 "order": {
                   "_key": "asc"
-                }
-              },
-              "aggs": {
-                "date": {
-                  "max": {
-                    "field": "date"
-                  }
                 }
               }
             }
@@ -109,12 +100,15 @@ function returnAggregations(response) {
 
 function formatClassifications(buckets) {
   return buckets.map(bucket => {
-    return {
+    let classification = {
       [bucket.key]: {
-        count: bucket.doc_count,
-        lastModified: bucket.date.value_as_string
+        count: bucket.doc_count
       }
     }
+    if (bucket.date) {
+      classification[bucket.key].lastModified = bucket.date.value_as_string;
+    }
+    return classification;
   }).reduce(function(result, item, index, array) {
     firstKey = Object.keys(item)[0];
     result[firstKey] = item[firstKey]; //a, b, c
@@ -125,14 +119,19 @@ function formatClassifications(buckets) {
 
 function formatSources(buckets) {
   return buckets.map(bucket => {
-    console.log("formatSources",bucket.key,bucket.contracts);
+    // console.log("formatSources",bucket.key,bucket.contracts);
     if (bucket.contracts.buckets[0] && bucket.contracts.buckets[0].key == "tender") {
       bucket.contracts.buckets[0].key = "contracts";
     }
     let fullBucket = [... bucket.classification.buckets, ... bucket.contracts.buckets]
-    return {
-      [bucket.key]: formatClassifications(fullBucket),
+    let source = {
+      [bucket.key]: { classification: formatClassifications(fullBucket) },
     }
+    // console.log("formatSources",bucket);
+    if (bucket.date) {
+      source[bucket.key].lastModified = bucket.date.value_as_string
+    }
+    return source;
   }).reduce(function(result, item, index, array) {
     firstKey = Object.keys(item)[0];
     result[firstKey] = item[firstKey]; //a, b, c
