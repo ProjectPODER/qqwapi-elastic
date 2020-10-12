@@ -55,6 +55,21 @@ function allSources(context) {
             }
           }
         },
+        "classification_contracts": {
+          "terms": {
+            "field": "initiationType.keyword",
+            "order": {
+              "_key": "asc"
+            }
+          },
+          "aggs": {
+            "date": {
+              "max": {
+                "field": "date"
+              }
+            }
+          }
+        },
         "index": {
           "terms": {
             "field": "_index",
@@ -91,7 +106,7 @@ function returnAggregations(response) {
     count_precission: "eq",
     data: { 
       index: formatClassifications(response.body.aggregations.index.buckets) ,
-      classification: formatClassifications(response.body.aggregations.classification.buckets),
+      classification: formatClassifications([... response.body.aggregations.classification.buckets, ... response.body.aggregations.classification_contracts.buckets]),
       sources: formatSources(response.body.aggregations.source.buckets), 
     },
 };
@@ -100,6 +115,9 @@ function returnAggregations(response) {
 
 function formatClassifications(buckets) {
   return buckets.map(bucket => {
+    if (bucket.key == "tender") {
+      bucket.key = "contracts";
+    }    
     let classification = {
       [bucket.key]: {
         count: bucket.doc_count
