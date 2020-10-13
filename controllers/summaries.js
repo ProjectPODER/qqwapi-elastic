@@ -383,7 +383,7 @@ function formatSummaries(result) {
       },
       year: yearObject,
       type: typeObject,
-      top_contracts: thisBucket.top_contracts.hits.hits.map(o => o._source),
+      top_contracts: thisBucket.top_contracts.hits.hits.map(o => Object.assign(o._source,{type: o._index})),
       top_entities: entitiesObject
     }
   }
