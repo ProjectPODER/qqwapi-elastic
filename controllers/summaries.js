@@ -20,6 +20,11 @@ function summaries(context) {
               "match_phrase": {
                 "parties.memberOf.id.keyword": entity_id
               }
+            },
+            {
+              "match_phrase": {
+                "parties.contactPoint.id.keyword": entity_id
+              }
             }
           ]
         }
@@ -51,6 +56,18 @@ function summaries(context) {
                     {
                       "match_phrase": {
                         "awards.suppliers.id.keyword": entity_id
+                      }
+                    }
+                  ],
+                  "minimum_should_match": 1
+                }
+              },
+              "contactPoint": {
+                "bool": {
+                  "should": [
+                    {
+                      "match_phrase": {
+                        "parties.contactPoint.id.keyword": entity_id
                       }
                     }
                   ],
