@@ -273,11 +273,6 @@ const query_definitions = {
   "limit": {
     context: "body",
     field: "size"
-  },
-  //OK 
-  "offset": {
-    context: "body",
-    field: "from"
   }
 }
 
@@ -499,7 +494,7 @@ async function search (index,params,debug) {
   }
 
   // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
-  if ((searchDocument.body.from + searchDocument.body.size) < 10000) {
+  if ((parseInt(searchDocument.body.from) + parseInt(searchDocument.body.size)) < 10000) {
     if (debug) {
       console.log("normal search",JSON.stringify(searchDocument.body));
     }
@@ -563,6 +558,7 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
         count: count,
         count_precission: count_precission,
         version: pjson.version,
+        error: bodyhits.error,
         generated: new Date(),
         data,
     };
