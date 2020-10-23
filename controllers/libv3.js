@@ -463,17 +463,20 @@ const aggs_definitions = {
 }
 
 async function embed(index,params,results) {
+  // console.log("embed",params);
   if (!results.hits) {
     console.error("Embed with no hits",index);
     return results;
   }
-  const edis = embed_definitions[index];
-
+  
   if (!params.query.embed) {
     return results;
   }
   else {
-    console.log("embed original results",index,results);
+    // console.log("embed original results",index,results);
+    
+    const edis = embed_definitions[index];
+
     if (edis) {
       for (e in edis) {
         let edi = edis[e];
@@ -532,7 +535,7 @@ async function embed(index,params,results) {
 
 
 async function search (index,params,debug) {
-  console.log("search",params,typeof params);
+  // console.log("search",params,typeof params);
 
   const searchDocument = {
     index: index,
@@ -580,7 +583,7 @@ function prepareOutput(body, offset, limit, embed, objectFormat, debug) {
     if (bodyhits && !bodyhits.error) {
       count = bodyhits.total.value;
       count_precission = bodyhits.total.relation;
-      data = bodyhits.hits.map(o => Object.assign(o._source,{type: o._index}));
+      data = bodyhits.hits.map(o => o._source);
       size = data.length;
     }
     else {
