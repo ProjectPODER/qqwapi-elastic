@@ -675,7 +675,10 @@
                     },
                     {
                         "$ref": "#/components/parameters/sort"
-                    },                                        
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },                                                            
                     {
                         "$ref": "#/components/parameters/offset"
                     }

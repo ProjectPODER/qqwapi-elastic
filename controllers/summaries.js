@@ -315,7 +315,7 @@ function summaries(context) {
     }
   }
   
-  console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
+  // console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
 
   return lib.client.search(summaryDocument).then(formatSummaries)
 
