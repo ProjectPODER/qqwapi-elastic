@@ -30,7 +30,7 @@ const query_definitions = {
   "country": {
     context: "should",
     type: "match",
-    fields: ["area.id","parties.address.countryName","parent_id"]
+    fields: ["area.id","parent_id"]
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
@@ -166,17 +166,17 @@ const query_definitions = {
   // apiFieldNames:["awards.suppliers.name"],
   "supplier_name": {
     context: "must",
-    type: "fuzzy",
-    field: "awards.suppliers.name",
+    type: "match",
+    field: "parties.suppliers.names",
     launder: true
   },
 
   // apiFilterName: "buyer_name",
   // apiFieldNames:["parties.memberOf.name"],
   "buyer_name": {
-    context: "must",
-    type: "fuzzy",
-    field: "parties.memberOf.name",
+    context: "should",
+    type: "match",
+    fields: ["parties.buyer.name","parties.buyer.memberOf.name","parties.buyer.memberOf.initials"],
     launder: true
   },
 
@@ -184,9 +184,9 @@ const query_definitions = {
   // apiFieldNames:["funder"],
   // TODO: Match party type too
   "funder_name": {
-    context: "must",
-    type: "fuzzy",
-    field: "parties.name",
+    context: "should",
+    type: "match",
+    fields: ["parties.funder_names","parties.funder.details.initials"],
     launder: true
   },
 
@@ -227,7 +227,7 @@ const query_definitions = {
   "contact_point_name": {
     context: "must",
     type: "match",
-    field: "parties.contactPoint.name"
+    field: "parties.buyer.contactPoint.name"
   },
 
   // apiFilterName: "procurement_method",
@@ -279,7 +279,7 @@ const query_definitions = {
 
 function paramsToBody(paramsObject, debug) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
-  const body={ sort: [], from: 0, query: { bool: { should: [], must: [], filter: []}}}; 
+  const body={ sort: [], from: 0, query: { bool: { should: [], must: [], filter: []}}, aggs: {} }; 
   if (debug) {
     console.log("paramsToBody",paramsObject.query);
   }
@@ -420,14 +420,60 @@ const embed_definitions = {
   ]
 }
 
+const aggs_definitions = {
+  contracts: {
+    "amount": {
+      "sum": {
+        "field": "contracts.value.amount"
+      }
+    },
+    "year": {
+      "date_histogram": {
+        "field": "contracts.period.startDate",
+        "calendar_interval": "1y",
+        "time_zone": "America/Mexico_City",
+        "min_doc_count": 1
+      },
+      "aggs": {
+        "amount": {
+          "sum": {
+            "field": "contracts.value.amount"
+          }
+        }
+      }
+    },
+    "type": {
+      "terms": {
+        "field": "tender.procurementMethod.raw",
+        "order": {
+          "_count": "desc"
+        },
+        "missing": "undefined",
+        "size": 10
+      },
+      "aggs": {
+        "amount": {
+          "sum": {
+            "field": "contracts.value.amount"
+          }
+        }
+      }
+    }
+  }
+}
+
 async function embed(index,params,results) {
+  if (!results.hits) {
+    console.error("Embed with no hits",index);
+    return results;
+  }
   const edis = embed_definitions[index];
 
   if (!params.query.embed) {
     return results;
   }
   else {
-    console.log("embed original results",results);
+    console.log("embed original results",index,results);
     if (edis) {
       for (e in edis) {
         let edi = edis[e];
@@ -435,8 +481,7 @@ async function embed(index,params,results) {
 
         //collect ids
         //query other collections
-        //merge
-        results.hits.forEach(result => {
+        results.hits.hits.forEach(result => {
           body.query.bool.should.push({match_phrase: {[edi.foreign_key]: result._source[edi.id]}})
         })
   
@@ -452,17 +497,17 @@ async function embed(index,params,results) {
           const embedResult = await client.search(searchDocument);
       
           // console.log("embed results",embedResult.body.hits.hits);
-          for (r in results.hits) {
+          for (r in results.hits.hits) {
             for (h in embedResult.body.hits.hits) {
-              if (embedResult.body.hits.hits[h]._source[edi.foreign_key] == results.hits[r]._source[edi.id]) {
+              if (embedResult.body.hits.hits[h]._source[edi.foreign_key] == results.hits.hits[r]._source[edi.id]) {
                 // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
-                if (!results.hits[r]._source[edi.location]) { 
-                  results.hits[r]._source[edi.location] = [];
+                if (!results.hits.hits[r]._source[edi.location]) { 
+                  results.hits.hits[r]._source[edi.location] = [];
                 }
                 if (edi.add) {
                   embedResult.body.hits.hits[h]._source = Object.assign({},embedResult.body.hits.hits[h]._source,edi.add);
                 }
-                results.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
+                results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
                 // console.log("embed one result expanded",results.hits[r]._source);
               }
             }
@@ -480,6 +525,7 @@ async function embed(index,params,results) {
     }
     else {
       console.error("No embed definitions for",index)
+      return results;
     }
   }
 }
@@ -493,6 +539,11 @@ async function search (index,params,debug) {
     body: paramsToBody(params)
   }
 
+  //Add aggregations for result summaries
+  if (aggs_definitions[index]) {
+    searchDocument.body.aggs = aggs_definitions[index];
+  }
+
   // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
   if ((parseInt(searchDocument.body.from) + parseInt(searchDocument.body.size)) < 10000) {
     if (debug) {
@@ -500,7 +551,7 @@ async function search (index,params,debug) {
     }
     try {
       const result = await client.search(searchDocument);
-      return result.body.hits;
+      return result.body;
     }
     catch(e) {
       return {error: e}
@@ -512,14 +563,16 @@ async function search (index,params,debug) {
   }
 }
 
-function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
+function prepareOutput(body, offset, limit, embed, objectFormat, debug) {
     let data = {};
     let status = "success";
     let size = 0;
     let count = 0;
     let count_precission = "unknown";
+    let bodyhits = body.hits;
+
     if (debug) {
-      console.log("prepareOutput",bodyhits);
+      console.log("prepareOutput",body);
     }
       
     
@@ -558,12 +611,45 @@ function prepareOutput(bodyhits, offset, limit, embed, objectFormat, debug) {
         count: count,
         count_precission: count_precission,
         version: pjson.version,
-        error: bodyhits.error,
+        error: bodyhits ? bodyhits.error : "Unexpected error",
         generated: new Date(),
+        summary: formatSummary(body.aggregations),
         data,
     };
 }
 
+function formatSummary(aggs) {
+  if (aggs) {
+    return {
+      value: aggs.amount.value,
+      year: formatClassifications(aggs.year.buckets),
+      type: formatClassifications(aggs.type.buckets),
+    }
+  }
+}
+
+
+function formatClassifications(buckets) {
+  return buckets.map(bucket => {
+    if (bucket.key_as_string) {
+      bucket.key = bucket.key_as_string.substr(0,4);
+    }
+    let classification = {
+      [bucket.key]: {
+        count: bucket.doc_count
+      }
+    }
+    if (bucket.date) {
+      classification[bucket.key].lastModified = bucket.date.value_as_string;
+    }
+    return classification;
+  }).reduce(function(result, item, index, array) {
+    firstKey = Object.keys(item)[0];
+    result[firstKey] = item[firstKey]; //a, b, c
+    return result;
+  }, {});
+  
+}
 
 module.exports = {
     prepareOutput,

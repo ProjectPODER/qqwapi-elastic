@@ -6,24 +6,34 @@ function summaries(context) {
   const entity_id = context.params.query.id;
 
   const summaryDocument = {
-    index: "",
+    index: "contracts",
     body: {
       "query": {
         "bool": {
           "should": [
             {
               "match_phrase": {
-                "parties.id.keyword": entity_id
+                "parties.buyer.id.raw": entity_id
               }
             },
             {
               "match_phrase": {
-                "parties.memberOf.id.keyword": entity_id
+                "parties.buyer.memberOf.id.raw": entity_id
               }
             },
             {
               "match_phrase": {
-                "parties.contactPoint.id.keyword": entity_id
+                "parties.suppliers.ids.raw": entity_id
+              }
+            },
+            {
+              "match_phrase": {
+                "parties.funder_ids.raw": entity_id
+              }
+            },
+            {
+              "match": {
+                "parties.buyer.contactPoint.id": entity_id
               }
             }
           ]
@@ -38,12 +48,12 @@ function summaries(context) {
                   "should": [
                     {
                       "match_phrase": {
-                        "buyer.id.keyword": entity_id
+                        "parties.buyer.id.raw": entity_id
                       }
                     },
                     {
                       "match_phrase": {
-                        "parties.memberOf.id.keyword": entity_id
+                        "parties.buyer.memberOf.id.raw": entity_id
                       }
                     }
                   ],
@@ -55,7 +65,7 @@ function summaries(context) {
                   "should": [
                     {
                       "match_phrase": {
-                        "awards.suppliers.id.keyword": entity_id
+                        "parties.suppliers.list.id.raw": entity_id
                       }
                     }
                   ],
@@ -66,8 +76,8 @@ function summaries(context) {
                 "bool": {
                   "should": [
                     {
-                      "match_phrase": {
-                        "parties.contactPoint.id.keyword": entity_id
+                      "match": {
+                        "parties.buyer.contactPoint.id": entity_id
                       }
                     }
                   ],
@@ -79,12 +89,7 @@ function summaries(context) {
                   "must": [
                     {
                       "match_phrase": {
-                        "party.id.keyword": entity_id
-                      }
-                    },
-                    {
-                      "match_phrase": {
-                        "party.role": "funder"
+                        "parties.funder.id.raw": entity_id
                       }
                     }
                   ],
@@ -116,7 +121,7 @@ function summaries(context) {
             },
             "type": {
               "terms": {
-                "field": "tender.procurementMethod.keyword",
+                "field": "tender.procurementMethod.raw",
                 "order": {
                   "_count": "desc"
                 },
@@ -145,7 +150,28 @@ function summaries(context) {
             },
             "top_entities_buyer": {
               "terms": {
-                "field": "buyer.id.keyword",
+                "field": "buyer.id.raw",
+                "order": {
+                  "amount": "desc"
+                },
+                "size": 3
+              },
+              "aggs": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                },
+                "entity": {
+                  "top_hits": {
+                    "size": 1
+                  }
+                }
+              }
+            },            
+            "top_entities_funder": {
+              "terms": {
+                "field": "parties.funder.id.raw",
                 "order": {
                   "amount": "desc"
                 },
@@ -166,7 +192,28 @@ function summaries(context) {
             },
             "top_entities_supplier": {
               "terms": {
-                "field": "awards.suppliers.id.keyword",
+                "field": "awards.suppliers.id.raw",
+                "order": {
+                  "amount": "desc"
+                },
+                "size": 3
+              },
+              "aggs": {
+                "amount": {
+                  "sum": {
+                    "field": "contracts.value.amount"
+                  }
+                },
+                "entity": {
+                  "top_hits": {
+                    "size": 1
+                  }
+                }
+              }
+            },
+            "top_entities_contactPoint": {
+              "terms": {
+                "field": "awards.suppliers.id.raw",
                 "order": {
                   "amount": "desc"
                 },
@@ -185,17 +232,18 @@ function summaries(context) {
                 }
               }
             }
+
           }
         },
         "relation_suppliers": {
           "terms": {
-            "field": "awards.suppliers.id.keyword",
+            "field": "awards.suppliers.id.raw",
             "size": 1000
           },
           "aggregations": {
             "uc": {
               "terms": {
-                "field": "buyer.id.keyword",
+                "field": "buyer.id.raw",
                 "size": 1000                
               },
               "aggs": {
@@ -211,7 +259,7 @@ function summaries(context) {
         },
         "relation_uc": {
           "terms": {
-            "field": "buyer.id.keyword",
+            "field": "buyer.id.raw",
             "size": 1000
           },
           "aggregations": {
@@ -222,7 +270,7 @@ function summaries(context) {
             },
             "dependencia": {
               "terms": {
-                "field": "parties.memberOf.id.keyword",
+                "field": "parties.buyer.memberOf.id.raw",
                 "size": 1000
               },
               "aggregations": {
@@ -237,7 +285,7 @@ function summaries(context) {
         },
         "relation_funder": {
           "terms": {
-            "field": "parties.id.keyword",
+            "field": "parties.funder.id.raw",
             "size": 1000
           },
           "aggregations": {
@@ -246,29 +294,9 @@ function summaries(context) {
                 "field": "contracts.value.amount"
               }
             },
-            "funders": {
-              "filter": {
-                "term": {
-                  "parties.roles.keyword": "funder"
-                },
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                },
-                "role": {
-                  "terms": {
-                    "field": "parties.roles.keyword",
-                    "size": 1000               
-                  }
-                }
-              }
-            },
             "dependencia": {
               "terms": {
-                "field": "parties.memberOf.id.keyword",
+                "field": "parties.buyer.memberOf.id.raw",
                 "size": 1000               
               },
               "aggs": {
@@ -279,21 +307,11 @@ function summaries(context) {
                 }
                 
               }
-            },
-            "only_funders": {
-              "bucket_selector": {
-                "buckets_path": {
-                  "all_amount": "amount",
-                  "funder_amount": "funders>amount"
-                },
-                "script": "params.all_amount == params.funder_amount"
-              }
             }
           }
         }
       },
       "size": 0
-
     }
   }
   
@@ -374,7 +392,7 @@ function formatSummaries(result) {
     let entityBucket = {}
       // console.log("formatSummaries role",role);
     if (role == "funder") {
-      entityBucket = thisBucket.top_entities_buyer.buckets;
+      entityBucket = thisBucket.top_entities_funder.buckets;
     }
     if (role == "supplier") {
       entityBucket = thisBucket.top_entities_buyer.buckets;
@@ -385,7 +403,9 @@ function formatSummaries(result) {
     for (e in entityBucket) {
       const thisEntity = entityBucket[e];
       // console.log("formatSummaries entityBucket",thisEntity.entity.hits.hits[0]._source.parties,thisEntity.key)
-      const entityObject = find(thisEntity.entity.hits.hits[0]._source.parties,{id: thisEntity.key});
+
+      let allParties = [... [thisEntity.entity.hits.hits[0]._source.parties.buyer], ... [thisEntity.entity.hits.hits[0]._source.funder], ...thisEntity.entity.hits.hits[0]._source.parties.suppliers.list]
+      const entityObject = find(allParties,{id: thisEntity.key});
       entityObject.contract_amount = { [entityObject.roles[0]]: thisEntity.amount.value};
       entityObject.contract_count = { [entityObject.roles[0]]: thisEntity.doc_count};
 
