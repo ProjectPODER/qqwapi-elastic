@@ -16,7 +16,7 @@
   "author": "Martín Szyszlican",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.8.0",
+    "@elastic/elasticsearch": "^7.9.0",
     "deep-extend": "^0.6.0",
     "exegesis-express": "^2.0.0",
     "exegesis-plugin-swagger-ui-express": "^1.0.7",

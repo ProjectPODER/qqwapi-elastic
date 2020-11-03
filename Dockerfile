@@ -4,7 +4,7 @@ MAINTAINER Martín Szyszlican <martin@rindecuentas.org>
 ENV PORT=${PORT:-8080}
 ENV NODE_ENV=production
 
-RUN apk --no-cache add tini \
+RUN apk --no-cache add tini git \
   && addgroup -S node \
   && adduser -S -G node node
 
