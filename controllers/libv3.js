@@ -6,7 +6,9 @@ let client = {};
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 
-client = new Client({ node: elasticNode });
+
+//We are using self-signed certificaes for elastic
+client = new Client({ node: elasticNode, ssl: { rejectUnauthorized: false } });
 
 //Simple test query
 client.xpack.usage().then(
@@ -15,6 +17,9 @@ client.xpack.usage().then(
   }
 ).catch(e => {
   console.error("Error connecting to elastic node:",elasticNode,e);
+  if (e.meta && e.meta.body && e.meta.body.error) {
+    console.error("Error body", e.meta.body.error);
+  }
   process.exit(100);
 })
 
