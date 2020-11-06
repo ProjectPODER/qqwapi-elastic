@@ -361,7 +361,10 @@
                     },
                     {
                         "$ref": "#/components/parameters/contract_amount_buyer_max"
-                    },                    
+                    },       
+                    {
+                        "$ref": "#/components/parameters/format"
+                    },                                 
                     {
                         "$ref": "#/components/parameters/limit"
                     },
@@ -524,6 +527,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format"
                     },
                     {
                         "$ref": "#/components/parameters/supplier_name"
@@ -1018,6 +1024,15 @@
                 "description": "Name of a funder participating in a contracting process.",
                 "schema": {
                     "type": "string"
+                }
+            },
+            "format": {
+                "in": "query",
+                "name": "format",
+                "description": "The format in whith results will be returned",
+                "schema": {
+                    "type": "string",
+                    "enum": ["json", "jsonlist", "csv", "xls"]
                 }
             },
             "procurement_method": {

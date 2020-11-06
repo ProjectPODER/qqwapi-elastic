@@ -10,6 +10,35 @@ const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 //We are using self-signed certificaes for elastic
 client = new Client({ node: elasticNode, ssl: { rejectUnauthorized: false } });
 
+client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
+  return function dataformat (params, options) {
+    // build request object
+    const request = {
+      method: params.method || 'GET',
+      path: `/${encodeURIComponent(params.index)}/_data`, //format=${encodeURIComponent(params.querystring.format)}&source_content_type=application/json&source=${encodeURIComponent(JSON.stringify(params.querystring.source))}
+      querystring: {
+        format: params.querystring.format,
+        source_content_type: "application/json",
+        source: JSON.stringify(params.body)
+      },
+      context: params.context
+    }
+
+    // build request options object
+    const requestOptions = {
+      ignore: options.ignore || null,
+      requestTimeout: options.requestTimeout || null,
+      maxRetries: options.maxRetries || null,
+      asStream: options.asStream || false,
+      headers: options.headers || null
+    }
+    console.log("makeRequest", request, requestOptions);
+
+    return makeRequest(request, requestOptions)
+  }
+})
+
+
 //Simple test query
 client.xpack.usage().then(
   () => {
@@ -30,6 +59,9 @@ const query_definitions = {
     context: "skip"
   },
   "type": {
+    context: "skip"
+  },
+  "format": {
     context: "skip"
   },
   "country": {
@@ -547,6 +579,28 @@ async function search (index,params,debug) {
     body: paramsToBody(params)
   }
 
+  //This is the case for CSV with dataformat plugin
+  if (params.query.format) {
+    const searchDocumentDataformat = {
+      index: searchDocument.index,
+      querystring: {
+        format: params.query.format,
+      },
+      body: searchDocument.body,
+      context: params
+    };
+
+    console.log("resultDataformat",searchDocumentDataformat);
+
+    try {
+      const resultDataformat = await client.dataformat(searchDocumentDataformat,{})
+      return resultDataformat;
+    }
+    catch(e) {
+      return {error: e, body: (e.meta && e.meta.body ) ? e.meta.body.error : {} }
+    }
+
+  }
   //Add aggregations for result summaries
   if (aggs_definitions[index]) {
     searchDocument.body.aggs = aggs_definitions[index];
@@ -555,7 +609,7 @@ async function search (index,params,debug) {
   // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
   if ((parseInt(searchDocument.body.from) + parseInt(searchDocument.body.size)) < 10000) {
     if (debug) {
-      console.log("normal search",JSON.stringify(searchDocument.body));
+      console.log("normal search",JSON.stringify(searchDocument));
     }
     try {
       const result = await client.search(searchDocument);
@@ -571,18 +625,47 @@ async function search (index,params,debug) {
   }
 }
 
-function prepareOutput(body, offset, limit, embed, objectFormat, debug) {
+// function prepareOutput(body, offset, limit, embed, objectFormat, debug) {
+function prepareOutput(body, context, debug) {
     let data = {};
     let status = "success";
+    let limit = context.params.query.limit;
+    let offset = context.params.query.offset;
     let size = 0;
     let count = 0;
     let count_precission = "unknown";
     let bodyhits = body.hits;
 
     if (debug) {
-      console.log("prepareOutput",body);
+      console.log("prepareOutput",context.params);
     }
+
+    //This case is for CSV output from dataformat extension
+    if (body.headers) {
+
+      if(body.body.root_cause) {
+        console.log("prepareOutput root_cause",body.body.root_cause);
+      }
+  
+      const headerKeys = Object.keys(body.headers);
+      for (header in headerKeys) {
+        context.res.set(headerKeys[header],body.headers[headerKeys[header]]);
+  
+      }
       
+      // .set('content-type', body.headers['content-type'])
+      // .set('content-length', body.headers['content-length'])
+      // .set('content-disposition', body.headers['content-disposition'])
+  
+  
+      context.res
+        .status(body.statusCode)
+        .setBody(body.body);
+  
+      return;
+    }
+
+
     
     // Contracts have a different structure and their length comes in the third item in the array
     if (bodyhits && !bodyhits.error) {
@@ -598,6 +681,10 @@ function prepareOutput(body, offset, limit, embed, objectFormat, debug) {
       }
       else {
         console.error("prepareOutput error, empty bodyhits");
+        if (body.error&& body.error.meta && body.error.meta.body.error) {
+          console.error("prepareOutput error",body.error.meta.body.error);
+
+        }
 
       }
     }
