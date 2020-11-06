@@ -66,7 +66,7 @@ async function createServer() {
     const port = process.env.PORT || 10010;
 
     const l = server.listen(port, () => {
-        process.stdout.write(`Listening on port ${l.address().port}`);
+        process.stdout.write(`Listening on http://localhost:${l.address().port}/\n`);
     });
 }
 
