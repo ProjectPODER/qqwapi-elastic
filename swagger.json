@@ -82,6 +82,9 @@
                         "$ref": "#/components/parameters/sort_direction"
                     },
                     {
+                        "$ref": "#/components/parameters/format"
+                    },
+                    {
                         "$ref": "#/components/parameters/source"
                     },
                     {
@@ -266,6 +269,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/contract_amount_buyer_max"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format"
                     },
                     {
                         "$ref": "#/components/parameters/limit"
@@ -462,7 +468,10 @@
                     },
                     {
                         "$ref": "#/components/parameters/contract_amount_buyer_max"
-                    },                    
+                    },                
+                    {
+                        "$ref": "#/components/parameters/format"
+                    },
                     {
                         "$ref": "#/components/parameters/limit"
                     },
@@ -673,6 +682,10 @@
                     {
                         "$ref": "#/components/parameters/classification"
                     },
+                    {
+                        "$ref": "#/components/parameters/format"
+                    },
+
                     {
                         "$ref": "#/components/parameters/limit"
                     },
