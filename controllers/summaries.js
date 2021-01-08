@@ -241,6 +241,17 @@ function summaries(context) {
             "size": 1000
           },
           "aggregations": {
+            "type": {
+              "terms": {
+                "field": "tender.procurementMethod.raw",
+                "order": {
+                  "_count": "desc"
+                },
+                "missing": "undefined",
+                "size": 10,
+              },
+
+            },
             "uc": {
               "terms": {
                 "field": "buyer.id.raw",
@@ -263,6 +274,17 @@ function summaries(context) {
             "size": 1000
           },
           "aggregations": {
+            "type": {
+              "terms": {
+                "field": "tender.procurementMethod.raw",
+                "order": {
+                  "_count": "desc"
+                },
+                "missing": "undefined",
+                "size": 10,
+              },
+
+            },
             "amount": {
               "sum": {
                 "field": "contracts.value.amount"
@@ -289,6 +311,17 @@ function summaries(context) {
             "size": 1000
           },
           "aggregations": {
+            "type": {
+              "terms": {
+                "field": "tender.procurementMethod.raw",
+                "order": {
+                  "_count": "desc"
+                },
+                "missing": "undefined",
+                "size": 10,
+              },
+
+            },
             "amount": {
               "sum": {
                 "field": "contracts.value.amount"
@@ -453,7 +486,7 @@ function createNodes(rel,buckets) {
   for(relIndex in buckets) {
     let entity = buckets[relIndex];
 
-    // console.log("createNodes",entity);
+    console.log("createNodes",entity);
 
     //Todo: fix weights, types and add names
 
@@ -462,18 +495,18 @@ function createNodes(rel,buckets) {
     if (rel == "uc") {
       for (index in entity.dependencia.buckets) {
         response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count, label: entity.key.replace("-"," ")  });
-        response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type: "dependencia", weight: entity.dependencia.buckets[index].doc_count });  
+        response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type:entity.type.buckets[0].key, classification: "dependencia", weight: entity.dependencia.buckets[index].doc_count });  
       }
     }
     if (rel == "funder") {
       for (index in entity.dependencia.buckets) {
-        response.links.push({surce: entity.key, target: entity.dependencia.buckets[index].key, type: rel, weight: entity.dependencia.buckets[index].doc_count });  
+        response.links.push({surce: entity.key, target: entity.dependencia.buckets[index].key, classification: rel, type:entity.type.buckets[0].key, weight: entity.dependencia.buckets[index].doc_count });  
       }
 
     }
     if (rel == "supplier") {
       for (index in entity.uc.buckets) {
-        response.links.push({target: entity.key, source: entity.uc.buckets[index].key, type: rel, weight: entity.uc.buckets[index].doc_count });  
+        response.links.push({target: entity.key, source: entity.uc.buckets[index].key, classification: rel, type:entity.type.buckets[0].key, weight: entity.uc.buckets[index].doc_count });  
       }
     }
   }
