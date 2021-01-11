@@ -241,6 +241,13 @@ function summaries(context) {
             "size": 1000
           },
           "aggregations": {
+            "name": {
+              "terms": {
+                "field": "buyer.name.raw",
+                "size": 1 
+              }
+            },
+
             "type": {
               "terms": {
                 "field": "tender.procurementMethod.raw",
@@ -274,6 +281,12 @@ function summaries(context) {
             "size": 1000
           },
           "aggregations": {
+            "name": {
+              "terms": {
+                "field": "buyer.name.raw",
+                "size": 1 
+              }
+            },
             "type": {
               "terms": {
                 "field": "tender.procurementMethod.raw",
@@ -311,6 +324,12 @@ function summaries(context) {
             "size": 1000
           },
           "aggregations": {
+            "name": {
+              "terms": {
+                "field": "buyer.name.raw",
+                "size": 1 
+              }
+            },
             "type": {
               "terms": {
                 "field": "tender.procurementMethod.raw",
@@ -486,15 +505,13 @@ function createNodes(rel,buckets) {
   for(relIndex in buckets) {
     let entity = buckets[relIndex];
 
-    console.log("createNodes",entity);
+    // console.log("createNodes",entity);
 
-    //Todo: fix weights, types and add names
-
-    response.nodes.push({id: entity.key, weight: entity.doc_count, type: rel, label: entity.key.replace("-"," ") });
+    response.nodes.push({id: entity.key, weight: entity.doc_count, type: rel, label: entity.name.buckets[0].key });
 
     if (rel == "uc") {
       for (index in entity.dependencia.buckets) {
-        response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count, label: entity.key.replace("-"," ")  });
+        response.nodes.push({id: entity.dependencia.buckets[index].key, "type": "dependencia", weight: entity.doc_count, label: entity.name.buckets[0].key  });
         response.links.push({source: entity.key, target: entity.dependencia.buckets[index].key, type:entity.type.buckets[0].key, classification: "dependencia", weight: entity.dependencia.buckets[index].doc_count });  
       }
     }
