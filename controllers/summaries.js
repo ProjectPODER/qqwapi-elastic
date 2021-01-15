@@ -1,9 +1,10 @@
 const lib = require('./libv3');
 const find = require('lodash/find');
-
+let debug = false;
 
 function summaries(context) {
   const entity_id = context.params.query.id;
+  debug = context.req.query.debug;
 
   const summaryDocument = {
     index: "contracts",
@@ -13,27 +14,27 @@ function summaries(context) {
           "should": [
             {
               "match_phrase": {
-                "parties.buyer.id.raw": entity_id
+                "parties.buyer.id.keyword": entity_id
               }
             },
             {
               "match_phrase": {
-                "parties.buyer.memberOf.id.raw": entity_id
+                "parties.buyer.memberOf.id.keyword": entity_id
               }
             },
             {
               "match_phrase": {
-                "parties.suppliers.ids.raw": entity_id
+                "parties.suppliers.ids.keyword": entity_id
               }
             },
             {
               "match_phrase": {
-                "parties.funder_ids.raw": entity_id
+                "parties.funder_ids.keyword": entity_id
               }
             },
             {
               "match": {
-                "parties.buyer.contactPoint.id": entity_id
+                "parties.buyer.contactPoint.id.keyword": entity_id
               }
             }
           ]
@@ -48,12 +49,12 @@ function summaries(context) {
                   "should": [
                     {
                       "match_phrase": {
-                        "parties.buyer.id.raw": entity_id
+                        "parties.buyer.id.keyword": entity_id
                       }
                     },
                     {
                       "match_phrase": {
-                        "parties.buyer.memberOf.id.raw": entity_id
+                        "parties.buyer.memberOf.id.keyword": entity_id
                       }
                     }
                   ],
@@ -65,7 +66,7 @@ function summaries(context) {
                   "should": [
                     {
                       "match_phrase": {
-                        "parties.suppliers.list.id.raw": entity_id
+                        "parties.suppliers.list.id.keyword": entity_id
                       }
                     }
                   ],
@@ -77,7 +78,7 @@ function summaries(context) {
                   "should": [
                     {
                       "match": {
-                        "parties.buyer.contactPoint.id": entity_id
+                        "parties.buyer.contactPoint.id.keyword": entity_id
                       }
                     }
                   ],
@@ -89,7 +90,7 @@ function summaries(context) {
                   "must": [
                     {
                       "match_phrase": {
-                        "parties.funder.id.raw": entity_id
+                        "parties.funder.id.keyword": entity_id
                       }
                     }
                   ],
@@ -121,7 +122,7 @@ function summaries(context) {
             },
             "type": {
               "terms": {
-                "field": "tender.procurementMethod.raw",
+                "field": "tender.procurementMethod.keyword",
                 "order": {
                   "_count": "desc"
                 },
@@ -150,7 +151,7 @@ function summaries(context) {
             },
             "top_entities_buyer": {
               "terms": {
-                "field": "buyer.id.raw",
+                "field": "buyer.id.keyword",
                 "order": {
                   "amount": "desc"
                 },
@@ -171,7 +172,7 @@ function summaries(context) {
             },            
             "top_entities_funder": {
               "terms": {
-                "field": "parties.funder.id.raw",
+                "field": "parties.funder.id.keyword",
                 "order": {
                   "amount": "desc"
                 },
@@ -192,7 +193,7 @@ function summaries(context) {
             },
             "top_entities_supplier": {
               "terms": {
-                "field": "awards.suppliers.id.raw",
+                "field": "awards.suppliers.id.keyword",
                 "order": {
                   "amount": "desc"
                 },
@@ -213,7 +214,7 @@ function summaries(context) {
             },
             "top_entities_contactPoint": {
               "terms": {
-                "field": "awards.suppliers.id.raw",
+                "field": "awards.suppliers.id.keyword",
                 "order": {
                   "amount": "desc"
                 },
@@ -237,20 +238,20 @@ function summaries(context) {
         },
         "relation_suppliers": {
           "terms": {
-            "field": "awards.suppliers.id.raw",
+            "field": "awards.suppliers.id.keyword",
             "size": 1000
           },
           "aggregations": {
             "name": {
               "terms": {
-                "field": "buyer.name.raw",
+                "field": "buyer.name.keyword",
                 "size": 1 
               }
             },
 
             "type": {
               "terms": {
-                "field": "tender.procurementMethod.raw",
+                "field": "tender.procurementMethod.keyword",
                 "order": {
                   "_count": "desc"
                 },
@@ -261,7 +262,7 @@ function summaries(context) {
             },
             "uc": {
               "terms": {
-                "field": "buyer.id.raw",
+                "field": "buyer.id.keyword",
                 "size": 1000                
               },
               "aggs": {
@@ -277,19 +278,19 @@ function summaries(context) {
         },
         "relation_uc": {
           "terms": {
-            "field": "buyer.id.raw",
+            "field": "buyer.id.keyword",
             "size": 1000
           },
           "aggregations": {
             "name": {
               "terms": {
-                "field": "buyer.name.raw",
+                "field": "buyer.name.keyword",
                 "size": 1 
               }
             },
             "type": {
               "terms": {
-                "field": "tender.procurementMethod.raw",
+                "field": "tender.procurementMethod.keyword",
                 "order": {
                   "_count": "desc"
                 },
@@ -305,7 +306,7 @@ function summaries(context) {
             },
             "dependencia": {
               "terms": {
-                "field": "parties.buyer.memberOf.id.raw",
+                "field": "parties.buyer.memberOf.id.keyword",
                 "size": 1000
               },
               "aggregations": {
@@ -320,19 +321,19 @@ function summaries(context) {
         },
         "relation_funder": {
           "terms": {
-            "field": "parties.funder.id.raw",
+            "field": "parties.funder.id.keyword",
             "size": 1000
           },
           "aggregations": {
             "name": {
               "terms": {
-                "field": "buyer.name.raw",
+                "field": "buyer.name.keyword",
                 "size": 1 
               }
             },
             "type": {
               "terms": {
-                "field": "tender.procurementMethod.raw",
+                "field": "tender.procurementMethod.keyword",
                 "order": {
                   "_count": "desc"
                 },
@@ -348,7 +349,7 @@ function summaries(context) {
             },
             "dependencia": {
               "terms": {
-                "field": "parties.buyer.memberOf.id.raw",
+                "field": "parties.buyer.memberOf.id.keyword",
                 "size": 1000               
               },
               "aggs": {
@@ -367,7 +368,9 @@ function summaries(context) {
     }
   }
   
-  // console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
+  if (debug) {
+    console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
+  }
 
   return lib.client.search(summaryDocument).then(formatSummaries)
 
@@ -376,8 +379,9 @@ function summaries(context) {
 }
 
 function formatSummaries(result) {
-  // console.log("formatSummaries",result);
-
+  if (debug) {
+    console.log("formatSummaries",result);
+  }
   
   // return Object.keys(result.body.aggregations.role.buckets).map((role) => {
   //   thisRole = result.body.aggregations.role.buckets[role];

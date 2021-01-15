@@ -238,13 +238,13 @@ const query_definitions = {
   // apiFieldNames:["contracts.id"],
   "id": {
     context: "must",
-    type: "match_phrase",
-    field: "id"
+    type: "match",
+    field: "id.keyword"
   },
   "ids": {
     context: "should",
     type: "match",
-    field: "id"
+    field: "id.keyword"
   },
   "ocid": {
     context: "filter",
@@ -641,7 +641,7 @@ function prepareOutput(body, context, debug) {
     }
 
     //This case is for CSV output from dataformat extension
-    if (body.headers) {
+    if (body && body.headers) {
 
       if(body.body.root_cause) {
         console.log("prepareOutput root_cause",body.body.root_cause);
@@ -667,13 +667,15 @@ function prepareOutput(body, context, debug) {
 
 
     
-    // Contracts have a different structure and their length comes in the third item in the array
+    // Case for Contracts - they have a different structure and their length comes in the third item in the array
     if (bodyhits && !bodyhits.error) {
       count = bodyhits.total.value;
       count_precission = bodyhits.total.relation;
       data = bodyhits.hits.map(o => o._source);
       size = data.length;
     }
+
+    //Unable to parse
     else {
       status = "error";
       if (bodyhits) {
@@ -681,7 +683,7 @@ function prepareOutput(body, context, debug) {
       }
       else {
         console.error("prepareOutput error, empty bodyhits");
-        if (body.error&& body.error.meta && body.error.meta.body.error) {
+        if (body && body.error && body.error.meta && body.error.meta.body.error) {
           console.error("prepareOutput error",body.error.meta.body.error);
 
         }
@@ -690,7 +692,7 @@ function prepareOutput(body, context, debug) {
     }
 
     if (debug) {
-        console.log("prepareOutput",size);
+        console.log("prepareOutput size",size);
     }
 
     const pageSize = limit || size;
