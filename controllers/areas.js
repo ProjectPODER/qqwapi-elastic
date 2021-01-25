@@ -8,7 +8,8 @@ function allAreas(context) {
     .then(results => { 
       return lib.embed(controllerIndex,context.params,results,debug) 
     })
-    .then(lib.prepareOutput)
-}
+    .then(body => {
+      return lib.prepareOutput(body, context, debug)
+    })}
 
 module.exports = {allAreas}

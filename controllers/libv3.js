@@ -67,7 +67,8 @@ const query_definitions = {
   "country": {
     context: "should",
     type: "match",
-    fields: ["area.id","parent_id"]
+    fields: ["area.id.keyword","parent_id.keyword"],
+    min: 1
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
@@ -244,7 +245,7 @@ const query_definitions = {
   "ids": {
     context: "should",
     type: "match",
-    field: "id.keyword"
+    field: "id"
   },
   "ocid": {
     context: "filter",
@@ -361,6 +362,9 @@ function paramsToBody(paramsObject, debug) {
               qdp.fields.forEach((field) => {
                 body.query.bool[qdp.context].push({[qdp.type]: { [field]: params[param]}});             
               })
+            }
+            if (qdp.min) {
+              body.query.bool.minimum_should_match = qdp.min;
             }
           }
         }
@@ -683,9 +687,11 @@ function prepareOutput(body, context, debug) {
       }
       else {
         console.error("prepareOutput error, empty bodyhits");
-        if (body && body.error && body.error.meta && body.error.meta.body.error) {
-          console.error("prepareOutput error",body.error.meta.body.error);
-
+        if (body && body != null) {
+          if (body.error && body.error.meta && body.error.meta.body.error) {
+            console.error("prepareOutput error",body.error.meta.body.error);
+  
+          }
         }
 
       }
