@@ -428,14 +428,14 @@ const membership_embed = [{
   foreign_key: "parent_id",
   index: "memberships",
   location: "memberships",
-  add: {direction: "child" }
+  add: {direction: "parent" }
 },
 {
   id: "id",
   foreign_key: "organization_id",
   index: "memberships",
   location: "memberships",
-  add: {direction: "parent" }
+  add: {direction: "child" }
 
 }];
 
