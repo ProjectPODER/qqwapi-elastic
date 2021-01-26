@@ -441,7 +441,7 @@ const membership_embed = [{
 
 const party_flags_embed = {
   id: "id",
-  foreign_key: "id",
+  foreign_key: "party.id",
   index: "party_flags",
   location: "flags"
 }
@@ -503,7 +503,7 @@ const aggs_definitions = {
   }
 }
 
-async function embed(index,params,results) {
+async function embed(index,params,results,debug) {
   // console.log("embed",params);
   if (!results.hits) {
     console.error("Embed with no hits",index);
@@ -534,7 +534,9 @@ async function embed(index,params,results) {
           body: body
         }
       
-        // console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
+        if (debug) {
+          console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
+        }
       
         try {
           // console.log("embed",edi);
@@ -543,7 +545,12 @@ async function embed(index,params,results) {
           // console.log("embed results",embedResult.body.hits.hits);
           for (r in results.hits.hits) {
             for (h in embedResult.body.hits.hits) {
-              if (embedResult.body.hits.hits[h]._source[edi.foreign_key] == results.hits.hits[r]._source[edi.id]) {
+              if (debug) {
+                console.log("embed",embedResult.body.hits.hits[h]._source[edi.foreign_key],edi.foreign_key,embedResult.body.hits.hits[h]._source)
+              }
+              let foreign_key_value = fieldPathExists(edi.foreign_key, embedResult.body.hits.hits[h]._source)
+
+              if (foreign_key_value[0] && foreign_key_value[0] == results.hits.hits[r]._source[edi.id]) {
                 // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
                 if (!results.hits.hits[r]._source[edi.location]) { 
                   results.hits.hits[r]._source[edi.location] = [];
@@ -753,6 +760,94 @@ function formatClassifications(buckets) {
   }, {});
   
 }
+
+
+/** This code imported from redflags project */
+// Parameters:
+//      field: name of the field as a string separated by "."
+//      tempObj: the object in which the fields should be found
+// Return:
+//      Array: the contents of the field, or empty array if the field was not found
+function fieldPathExists(field, tempObj) {
+  var fieldValues = [];
+  var fieldPath = field.split('.');
+
+  // Iterate over array with the components of the field
+  for(var i=0; i<fieldPath.length; i++) {
+      // Field does NOT exist in object
+      if( typeof tempObj[fieldPath[i]] == 'undefined' ) {
+          return fieldValues;
+      }
+      // Field has a value of null
+      if(tempObj[fieldPath[i]] == null) {
+          return fieldValues;
+      }
+
+      if( isArray(tempObj[fieldPath[i]]) ) { // Field is an array
+          if(i == fieldPath.length - 1) { // Estamos chequeando si existe el array, no su valor
+              fieldValues.push(tempObj[fieldPath[i]]);
+          }
+          else if( tempObj[fieldPath[i]].length > 0 ) { // Iteramos sobre el array de campos
+              tempObj[fieldPath[i]].map( (tempItem) => {
+                  var results = fieldPathExists( fieldPath.slice(i+1, fieldPath.length).join('.'), tempItem );
+                  fieldValues = fieldValues.concat(results);
+              } );
+          }
+          return fieldValues;
+      }
+      else if( isString(tempObj[fieldPath[i]]) || isNumeric(tempObj[fieldPath[i]]) ) { // Value of the field is a string or number
+          if(i < fieldPath.length - 1) { // Arrived at a string or number while end of path has not been reached
+              return fieldValues;
+          }
+          if(tempObj[fieldPath[i]] == '' || tempObj[fieldPath[i]] == '---' || tempObj[fieldPath[i]] == 'null') { // Arrived at empty string, '---' or 'null'
+              return fieldValues;
+          }
+          fieldValues.push( tempObj[fieldPath[i]] );
+          return fieldValues;
+      }
+      else if( isDate(tempObj[fieldPath[i]]) ) { // Value of the field is a date
+          if(i < fieldPath.length - 1) { // Arrived at a date while end of path has not been reached
+              return fieldValues;
+          }
+          fieldValues.push(tempObj[fieldPath[i]].toISOString());
+          return fieldValues;
+      }
+      else if( tempObj.hasOwnProperty(fieldPath[i]) && !isEmpty(tempObj[fieldPath[i]]) ) { // fieldPath[i] is an object
+          tempObj = tempObj[fieldPath[i]];
+      }
+      else { // None of the above...
+          return fieldValues;
+      }
+  }
+
+  fieldValues.push(tempObj);
+  return fieldValues;
+}
+
+function isEmpty(obj) {
+  for(var key in obj) {
+      if(obj.hasOwnProperty(key))
+          return false;
+  }
+  return true;
+}
+
+function isArray(obj) {
+  return !!obj && obj.constructor === Array;
+}
+
+function isString(x) {
+  return Object.prototype.toString.call(x) === "[object String]"
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function isDate(d) {
+  return typeof d.toISOString === "function";
+}
+/** END This code imported from redflags project */
 
 module.exports = {
     prepareOutput,
