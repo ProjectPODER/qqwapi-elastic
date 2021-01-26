@@ -443,7 +443,11 @@ const party_flags_embed = {
   id: "id",
   foreign_key: "party.id",
   index: "party_flags",
-  location: "flags"
+  location: "flags",
+  condition: {
+    field: "classification",
+    negativeValue: "company"
+  }
 }
 
 const embed_definitions = { 
@@ -520,19 +524,36 @@ async function embed(index,params,results,debug) {
 
     if (edis) {
       for (e in edis) {
-        let edi = edis[e];
-        let body = {query: {bool: {should: []}}}
+        const edi = edis[e];
+
+        const searchDocument = {
+          index: edi.index,
+          body: {query: {bool: {should: []}}}
+        }
+
 
         //collect ids
         //query other collections
         results.hits.hits.forEach(result => {
-          body.query.bool.should.push({match_phrase: {[edi.foreign_key]: result._source[edi.id]}})
+          let resultValid = true;
+
+          //Test for negative condition and mark as invalid if true
+          if (edi.condition) {
+
+            if (debug) {
+              console.log("embed condition",edi,result._source[edi.condition.field] == edi.condition.negativeValue);
+            }            
+            if (result._source[edi.condition.field] == edi.condition.negativeValue) {
+              resultValid = false;
+            }
+          }
+
+          if (resultValid) {
+            const foreignKeyword = edi.foreign_key+".keyword";
+            searchDocument.body.query.bool.should.push({match_phrase: {[foreignKeyword]: result._source[edi.id]}})
+          }
         })
   
-        const searchDocument = {
-          index: edi.index,
-          body: body
-        }
       
         if (debug) {
           console.log("embed searchDocument body",edi.index,JSON.stringify(searchDocument.body));
@@ -545,10 +566,10 @@ async function embed(index,params,results,debug) {
           // console.log("embed results",embedResult.body.hits.hits);
           for (r in results.hits.hits) {
             for (h in embedResult.body.hits.hits) {
-              if (debug) {
-                console.log("embed",embedResult.body.hits.hits[h]._source[edi.foreign_key],edi.foreign_key,embedResult.body.hits.hits[h]._source)
-              }
               let foreign_key_value = fieldPathExists(edi.foreign_key, embedResult.body.hits.hits[h]._source)
+              if (debug) {
+                console.log("embed",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
+              }
 
               if (foreign_key_value[0] && foreign_key_value[0] == results.hits.hits[r]._source[edi.id]) {
                 // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
