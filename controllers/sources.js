@@ -11,7 +11,7 @@ function allSources(context) {
       "aggs": {
         "source": {
           "terms": {
-            "field": "source.id.raw",
+            "field": "source.id.keyword",
             "order": {
               "_key": "asc"
             }
@@ -19,7 +19,7 @@ function allSources(context) {
           "aggs": {
             "classification": {
               "terms": {
-                "field": "classification.raw",
+                "field": "classification.keyword",
                 "order": {
                   "_key": "asc"
                 }
@@ -34,7 +34,7 @@ function allSources(context) {
         },
         "classification": {
           "terms": {
-            "field": "classification.raw",
+            "field": "classification.keyword",
             "order": {
               "_key": "asc"
             }
@@ -65,9 +65,13 @@ function allSources(context) {
       }
     },
   };
-  // console.log ("allSources searchocument",JSON.stringify(searchDocument.body))
+
+  if (debug) {
+    console.log ("allSources searchocument",JSON.stringify(searchDocument.body))
+  }
+
   return lib.client.search(searchDocument)
-  .then(returnAggregations)
+    .then(returnAggregations)
 }
 
 function returnAggregations(response) {
