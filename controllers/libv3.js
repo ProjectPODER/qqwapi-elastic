@@ -381,6 +381,7 @@ function paramsToBody(paramsObject, debug) {
             let function_score = {[qdp.type]: { functions: [] }}
 
             if (qdp.field) {
+              params[param] = params[param].split(",");
               if (params[param].map) {
                 values = params[param];
               }
