@@ -66,7 +66,7 @@ const query_definitions = {
   },
   "country": {
     context: "should",
-    type: "match",
+    type: "multi_match",
     fields: ["area.id.keyword","parent_id.keyword"],
     min: 1
   },
@@ -74,7 +74,7 @@ const query_definitions = {
   // apiFieldNames:["name"],
   "name": {
     context: "should",
-    type: "match",
+    type: "multi_match",
     fields: ["name","contracts.title","other_names.name"],
     launder: true,
   },
@@ -213,7 +213,7 @@ const query_definitions = {
   // apiFieldNames:["parties.memberOf.name"],
   "buyer_name": {
     context: "should",
-    type: "match",
+    type: "multi_match",
     fields: ["parties.buyer.name","parties.buyer.memberOf.name","parties.buyer.memberOf.initials"],
     launder: true
   },
@@ -223,7 +223,7 @@ const query_definitions = {
   // TODO: Match party type too
   "funder_name": {
     context: "should",
-    type: "match",
+    type: "multi_match",
     fields: ["parties.funder_names","parties.funder.details.initials"],
     launder: true
   },
@@ -244,8 +244,8 @@ const query_definitions = {
   },
   "ids": {
     context: "should",
-    type: "match",
-    field: "id"
+    type: "function_score",
+    field: "id.keyword"
   },
   "ocid": {
     context: "filter",
@@ -336,70 +336,12 @@ function paramsToBody(paramsObject, debug) {
         if (qdp.context == "skip") {
           //Skip
         }
-        if (qdp.context == "filter") {
+        else if (qdp.context == "filter") {
           if (qdp.type == "term") {
             body.query.bool[qdp.context].push({term: { [qdp.field]: params[param]}}); 
           }
         }
-        if (qdp.context == "should") {
-          if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
-            if (qdp.field) {
-              if (params[param].map) {
-                params[param].map( value => {
-                  if (qdp.launder ) {
-                    value = laundry.launder(value);
-                  }
-            
-                  body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
-                })
-
-              }
-              else {
-                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: params[param]}});             
-              }
-            }
-            if (qdp.fields) {
-              qdp.fields.forEach((field) => {
-                body.query.bool[qdp.context].push({[qdp.type]: { [field]: params[param]}});             
-              })
-            }
-            if (qdp.min) {
-              body.query.bool.minimum_should_match = qdp.min;
-            }
-          }
-        }
-        if (qdp.context == "must") {
-          if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
-            if (qdp.field) {
-              if (params[param].map) {
-                params[param].map( value => {
-                  if (qdp.launder ) {
-                    value = laundry.launder(value);
-                  }
-
-                  body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
-                })
-
-              }
-              else {
-                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: params[param]}});             
-              }         
-            }
-            if (qdp.fields) {
-              qdp.fields.forEach((field) => {
-                body.query.bool[qdp.context].push({[qdp.type]: { [field]: params[param]}});             
-              })
-            }
-          }
-          if (qdp.type == "range-lt") {
-            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lt: params[param] }}} ); 
-          }
-          if (qdp.type == "range-gt") {
-            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gt: params[param] }}} ); 
-          }
-
-        }
-        if (qdp.context == "body") {
+        else if (qdp.context == "body") {
           if (qdp.type=="sort") {
             body.sort.push({[params[param]]: {order: "desc"}});             
           }
@@ -412,7 +354,63 @@ function paramsToBody(paramsObject, debug) {
             body[qdp.field] = params[param]; 
           }
 
+        }        
+        else {
+          if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
+            if (qdp.field) {
+              if (params[param].map) {
+                values = params[param];
+              }
+              else {
+                values = [params[param]]
+              }
+              
+              values.map( value => {
+                if (qdp.launder ) {
+                  value = laundry.launder(value);
+                }
+          
+                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
+              })
+            }
+          }
+          else if (qdp.type == "multi_match") {
+            body.query.bool[qdp.context].push({[qdp.type]: { query: params[param] , fields: qdp.fields }});             
+          }
+          else if (qdp.type == "function_score") {
+            let function_score = {[qdp.type]: { functions: [] }}
+
+            if (qdp.field) {
+              if (params[param].map) {
+                values = params[param];
+              }
+              else {
+                values = [params[param]]
+              }
+              
+              values.map( value => {
+                if (qdp.launder ) {
+                  value = laundry.launder(value);
+                }
+          
+                function_score[qdp.type].functions.push({ weight: 10, filter: { match: { [qdp.field]: value }}});             
+              })
+            }
+            body.query.bool[qdp.context].push(function_score);
+          }
+          if (qdp.min) {
+            body.query.bool.minimum_should_match = qdp.min;
+          }
+
+          if (qdp.type == "range-lt") {
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lt: params[param] }}} ); 
+          }
+          if (qdp.type == "range-gt") {
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gt: params[param] }}} ); 
+          }
+
         }
+
   
       }
       else {
