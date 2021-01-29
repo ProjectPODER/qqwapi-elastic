@@ -472,38 +472,43 @@ const aggs_definitions = {
         "field": "contracts.value.amount"
       }
     },
-    "year": {
-      "date_histogram": {
-        "field": "contracts.period.startDate",
-        "calendar_interval": "1y",
-        "time_zone": "America/Mexico_City",
-        "min_doc_count": 1
-      },
-      "aggs": {
-        "amount": {
-          "sum": {
-            "field": "contracts.value.amount"
-          }
-        }
-      }
-    },
-    "type": {
-      "terms": {
-        "field": "tender.procurementMethod.raw",
-        "order": {
-          "_count": "desc"
-        },
-        "missing": "undefined",
-        "size": 10
-      },
-      "aggs": {
-        "amount": {
-          "sum": {
-            "field": "contracts.value.amount"
-          }
-        }
+    "count": {
+      "value_count": {
+        "field": "contracts.id.keyword"
       }
     }
+    // "year": {
+    //   "date_histogram": {
+    //     "field": "contracts.period.startDate",
+    //     "calendar_interval": "1y",
+    //     "time_zone": "America/Mexico_City",
+    //     "min_doc_count": 1
+    //   },
+    //   "aggs": {
+    //     "amount": {
+    //       "sum": {
+    //         "field": "contracts.value.amount"
+    //       }
+    //     }
+    //   }
+    // },
+    // "type": {
+    //   "terms": {
+    //     "field": "tender.procurementMethod.raw",
+    //     "order": {
+    //       "_count": "desc"
+    //     },
+    //     "missing": "undefined",
+    //     "size": 10
+    //   },
+    //   "aggs": {
+    //     "amount": {
+    //       "sum": {
+    //         "field": "contracts.value.amount"
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
 
@@ -751,10 +756,12 @@ function prepareOutput(body, context, debug) {
 
 function formatSummary(aggs) {
   if (aggs) {
+    // console.log(aggs);
     return {
       value: aggs.amount.value,
-      year: formatClassifications(aggs.year.buckets),
-      type: formatClassifications(aggs.type.buckets),
+      count: aggs.count.value
+      // year: formatClassifications(aggs.year.buckets),
+      // type: formatClassifications(aggs.type.buckets),
     }
   }
 }
