@@ -724,6 +724,9 @@
                         "$ref": "#/components/parameters/sort"
                     },
                     {
+                        "$ref": "#/components/parameters/sort_direction"
+                    },
+                    {
                         "$ref": "#/components/parameters/embed"
                     },                                                            
                     {
