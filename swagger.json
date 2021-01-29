@@ -620,18 +620,46 @@
             "x-exegesis-controller": "sources",
             "get": {
                 "operationId": "allSources",
+                "summary": "Retrieve a summary of amount of documents per sources, indexes and classifications",
+                "description": "Retrieve a summary of amount of documents per sources, indexes and classifications",
+                "tags": [
+                    "Sources"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Source"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sourcesList": {
+            "x-exegesis-controller": "sources_list",
+            "get": {
+                "operationId": "allSourcesList",
                 "summary": "Retrieve array of Source Documents",
                 "description": "Retrieve array of Source Documents",
                 "tags": [
                     "Sources"
-                ],
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/id"
-                    },
-                    {
-                        "$ref": "#/components/parameters/name"
-                    }
                 ],
                 "responses": {
                     "200": {

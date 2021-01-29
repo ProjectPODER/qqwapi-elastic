@@ -67,7 +67,7 @@ function allSources(context) {
   };
 
   if (debug) {
-    console.log ("allSources searchocument",JSON.stringify(searchDocument.body))
+    console.log ("allSources searchDocument",JSON.stringify(searchDocument.body))
   }
 
   return lib.client.search(searchDocument)
