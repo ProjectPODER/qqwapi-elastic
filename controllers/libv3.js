@@ -436,6 +436,14 @@ const membership_embed = [{
   location: "memberships",
   add: {direction: "child" }
 
+},
+{
+  id: "id",
+  foreign_key: "person_id",
+  index: "memberships",
+  location: "memberships",
+  add: {direction: "child" }
+
 }];
 
 const party_flags_embed = {

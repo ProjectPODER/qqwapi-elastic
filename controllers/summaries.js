@@ -456,6 +456,9 @@ function formatSummaries(result) {
     if (role == "buyer") {
       entityBucket = thisBucket.top_entities_supplier.buckets;
     }
+    if (role == "contactPoint") {
+      entityBucket = thisBucket.top_entities_contactPoint.buckets;
+    }
     for (e in entityBucket) {
       const thisEntity = entityBucket[e];
       // console.log("formatSummaries entityBucket",thisEntity.entity.hits.hits[0]._source.parties,thisEntity.key)
