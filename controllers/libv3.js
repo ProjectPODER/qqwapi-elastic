@@ -69,6 +69,12 @@ const query_definitions = {
     fields: ["area.id.keyword","parent_id.keyword"],
     min: 1
   },
+  "state": {
+    context: "must",
+    type: "multi_match",
+    fields: ["area.id.keyword","parent_id.keyword"],
+    min: 1
+  },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
   "name": {

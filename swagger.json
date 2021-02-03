@@ -95,6 +95,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/state"
                     }                                                                         
                 ],
                 "tags": [
@@ -716,12 +719,14 @@
                     {
                         "$ref": "#/components/parameters/format"
                     },
-
                     {
                         "$ref": "#/components/parameters/limit"
                     },
                     {
                         "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/state"
                     },
                     {
                         "$ref": "#/components/parameters/sort"
@@ -871,6 +876,15 @@
                 "in": "query",
                 "name": "country",
                 "description": "Country name or ISO 3166-1 alpha-2 code of the entity.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "state": {
+                "in": "query",
+                "name": "state",
+                "description": "State id in the from of country(2chars)-state(3chars).",
                 "allowEmptyValue": true,
                 "schema": {
                     "type": "string"
