@@ -2,13 +2,12 @@ const { Client } = require('@elastic/elasticsearch');
 const laundry = require('company-laundry'); 
 const pjson = require('../package.json');
 
-let client = {};
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 
 
 //We are using self-signed certificaes for elastic
-client = new Client({ node: elasticNode, ssl: { rejectUnauthorized: false } });
+const client = new Client({ node: elasticNode, ssl: { rejectUnauthorized: false }, resurrectStrategy: "none", compression: "gzip" });
 
 client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
   return function dataformat (params, options) {
@@ -73,7 +72,7 @@ const query_definitions = {
   // apiFilterName: "name",
   // apiFieldNames:["name"],
   "name": {
-    context: "should",
+    context: "must",
     type: "multi_match",
     fields: ["name","contracts.title","other_names.name"],
     launder: true,
@@ -540,7 +539,8 @@ async function embed(index,params,results,debug) {
 
         const searchDocument = {
           index: edi.index,
-          body: {query: {bool: {should: []}}}
+          body: {query: {bool: {should: []}}},
+          errorTrace: true
         }
 
 
@@ -620,7 +620,8 @@ async function search (index,params,debug) {
 
   const searchDocument = {
     index: index,
-    body: paramsToBody(params)
+    body: paramsToBody(params),
+    errorTrace: true
   }
 
   //This is the case for CSV with dataformat plugin
@@ -722,18 +723,11 @@ function prepareOutput(body, context, debug) {
     //Unable to parse
     else {
       status = "error";
-      if (bodyhits) {
-        console.error("prepareOutput error",bodyhits.error);
-      }
-      else {
-        console.error("prepareOutput error, empty bodyhits");
-        if (body && body != null) {
-          if (body.error && body.error.meta && body.error.meta.body.error) {
-            console.error("prepareOutput error",body.error.meta.body.error);
-  
-          }
-        }
+      console.error("prepareOutput error",bodyhits ? bodyhits.error : "empty bodyhits", body ? body.error : "");
 
+      //If connection is lost to database, kill API process
+      if (body.error.name == 'ConnectionError') {
+          process.exit(-1);
       }
     }
 
