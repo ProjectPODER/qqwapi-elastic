@@ -478,6 +478,13 @@ const embed_definitions = {
 }
 
 const aggs_definitions = {
+  organizations: {
+    "sources": {
+      "terms": {
+        "field": "source.id.keyword"
+      }
+    }
+  },
   contracts: {
     "amount": {
       "sum": {
@@ -652,6 +659,7 @@ async function search (index,params,debug) {
     }
 
   }
+ 
   //Add aggregations for result summaries
   if (aggs_definitions[index]) {
     searchDocument.body.aggs = aggs_definitions[index];
@@ -688,7 +696,7 @@ function prepareOutput(body, context, debug) {
     let bodyhits = body.hits;
 
     if (debug) {
-      console.log("prepareOutput",context.params);
+      console.log("prepareOutput",context.params,body);
     }
 
     //This case is for CSV output from dataformat extension
@@ -729,7 +737,11 @@ function prepareOutput(body, context, debug) {
     //Unable to parse
     else {
       status = "error";
-      console.error("prepareOutput error",bodyhits ? bodyhits.error : "empty bodyhits", body ? body.error : "");
+      let stack_trace;
+      if (body && body. error && body.error.meta) {
+        stack_trace = body.error.meta.body.error;
+      } 
+      console.error("prepareOutput error",bodyhits ? bodyhits.error : "empty bodyhits", body ? body.error : "", stack_trace);
 
       //If connection is lost to database, kill API process
       if (body.error.name == 'ConnectionError') {
@@ -756,20 +768,32 @@ function prepareOutput(body, context, debug) {
         version: pjson.version,
         error: bodyhits ? bodyhits.error : "Unexpected error",
         generated: new Date(),
-        summary: formatSummary(body.aggregations),
+        summary: formatSummary(body.aggregations,debug),
         data,
     };
 }
 
-function formatSummary(aggs) {
+function formatSummary(aggs,debug) {
+  if (debug) {
+    console.log("formatSummary",aggs);
+  }
   if (aggs) {
-    // console.log(aggs);
-    return {
-      value: aggs.amount.value,
-      count: aggs.count.value
-      // year: formatClassifications(aggs.year.buckets),
-      // type: formatClassifications(aggs.type.buckets),
+    let summary = {}
+    let agg_keys = Object.keys(aggs);
+    for (key_index in agg_keys) {
+      let key = agg_keys[key_index];
+      if (aggs[key].value) {
+        summary[key] = aggs[key].value;
+      }
+      else {
+        summary[key] = {};
+        for (bucket_index in aggs[key].buckets) {
+          let bucket = aggs[key].buckets[bucket_index];
+          summary[key][bucket.key] = bucket.doc_count;
+        }
+      }
     }
+    return summary;
   }
 }
 
