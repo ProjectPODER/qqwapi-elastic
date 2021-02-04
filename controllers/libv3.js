@@ -462,10 +462,33 @@ const party_flags_embed = {
   }
 }
 
+//TODO: Embed aggregations
+const products_embed = {
+  id: "id",
+  foreign_key: "buyer.id",
+  index: "contracts",
+  location: "products",
+  aggs: {
+    
+  }
+
+}
+
+const product_contracts_embed = {
+  id: "id",
+  foreign_key: "items.id",
+  index: "contracts",
+  location: "contracts",
+  aggs: {
+
+  }
+}
+
 const embed_definitions = { 
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
-  organizations: [ ... membership_embed, party_flags_embed ],
+  organizations: [ ... membership_embed, products_embed, party_flags_embed ],
+  products: [ product_contracts_embed ],
   contracts: [
     {
       id: "id",
@@ -576,6 +599,8 @@ async function embed(index,params,results,debug) {
           if (resultValid) {
             const foreignKeyword = edi.foreign_key+".keyword";
             searchDocument.body.query.bool.should.push({match_phrase: {[foreignKeyword]: result._source[edi.id]}})
+
+            //TODO: Embed aggregations
           }
         })
   

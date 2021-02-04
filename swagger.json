@@ -56,6 +56,63 @@
                 }
             }
         },
+        "/products": {
+            "x-exegesis-controller": "products",
+
+            "get": {
+                "description": "Search productos",
+                "operationId": "productsOperation",
+                "parameters": [
+                    {
+                        "$ref":  "#/components/parameters/id"
+                    },
+                    {
+                        "$ref":  "#/components/parameters/ids"
+                    },
+                    {
+                        "$ref": "#/components/parameters/name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/classification"
+                    },
+                    {
+                        "$ref": "#/components/parameters/subclassification"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_direction"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format"
+                    },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/state"
+                    }                                                                         
+                ],
+                "tags": [
+                    "Product"
+                ],                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/search": {
             "x-exegesis-controller": "search",
 
