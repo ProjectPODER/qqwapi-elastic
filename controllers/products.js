@@ -1,7 +1,7 @@
 const lib = require('./libv3');
 const controllerIndex = "products"
 
-function productOperation(context) {
+function productsOperation(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
 
   return lib.search(controllerIndex,context.params,debug)
@@ -12,4 +12,4 @@ function productOperation(context) {
       return lib.prepareOutput(body, context, debug)
     })}
 
-module.exports = {productOperation}
+module.exports = {productsOperation}
