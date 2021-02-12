@@ -500,58 +500,65 @@ const embed_definitions = {
   ]
 }
 
-const aggs_definitions = {
-  organizations: {
-    "sources": {
-      "terms": {
-        "field": "source.id.keyword"
-      }
+const general_summary = {
+  "sources": {
+    "terms": {
+      "field": "source.id.keyword"
     }
   },
-  contracts: {
+  "count": {
+    "value_count": {
+      "field": "id.keyword"
+    }
+  }
+
+};
+
+const aggs_definitions = {
+  "areas,contracts,organizations,persons": general_summary,
+  areas: general_summary,
+  persons: general_summary,
+  organizations: general_summary,
+  products: general_summary,
+  contracts: Object.assign({},general_summary , {
     "amount": {
       "sum": {
         "field": "contracts.value.amount"
       }
     },
-    "count": {
-      "value_count": {
-        "field": "contracts.id.keyword"
+    "year": {
+      "date_histogram": {
+        "field": "contracts.period.startDate",
+        "calendar_interval": "1y",
+        "time_zone": "America/Mexico_City",
+        "min_doc_count": 1
+      },
+      "aggs": {
+        "amount": {
+          "sum": {
+            "field": "contracts.value.amount"
+          }
+        }
+      }
+    },
+    "type": {
+      "terms": {
+        "field": "tender.procurementMethod.raw",
+        "order": {
+          "_count": "desc"
+        },
+        "missing": "undefined",
+        "size": 10
+      },
+      "aggs": {
+        "amount": {
+          "sum": {
+            "field": "contracts.value.amount"
+          }
+        }
       }
     }
-    // "year": {
-    //   "date_histogram": {
-    //     "field": "contracts.period.startDate",
-    //     "calendar_interval": "1y",
-    //     "time_zone": "America/Mexico_City",
-    //     "min_doc_count": 1
-    //   },
-    //   "aggs": {
-    //     "amount": {
-    //       "sum": {
-    //         "field": "contracts.value.amount"
-    //       }
-    //     }
-    //   }
-    // },
-    // "type": {
-    //   "terms": {
-    //     "field": "tender.procurementMethod.raw",
-    //     "order": {
-    //       "_count": "desc"
-    //     },
-    //     "missing": "undefined",
-    //     "size": 10
-    //   },
-    //   "aggs": {
-    //     "amount": {
-    //       "sum": {
-    //         "field": "contracts.value.amount"
-    //       }
-    //     }
-    //   }
-    // }
-  }
+  })
 }
 
 async function embed(index,params,results,debug) {
@@ -685,6 +692,7 @@ async function search (index,params,debug) {
 
   }
  
+  // console.log(index);
   //Add aggregations for result summaries
   if (aggs_definitions[index]) {
     searchDocument.body.aggs = aggs_definitions[index];
