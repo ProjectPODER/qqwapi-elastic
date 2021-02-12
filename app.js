@@ -26,7 +26,7 @@ async function createServer() {
             exegesisSwaggerUIPlugin({
                 // Express app (required)
                 app: app,     
-                path:"/docs",
+                path:"/v3/docs",
                 // Options to pass to Swagger UI
                 swaggerUIOptions: {
                     explorer: true
