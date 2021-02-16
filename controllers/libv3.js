@@ -582,8 +582,8 @@ async function embed(index,params,results,debug) {
 
         const searchDocument = {
           index: edi.index,
-          body: {query: {bool: {should: []}}},
-          errorTrace: true
+          body: {size: 5000, query: {bool: {should: []}}},
+          // errorTrace: true
         }
 
 
@@ -666,7 +666,7 @@ async function search (index,params,debug) {
   const searchDocument = {
     index: index,
     body: paramsToBody(params),
-    errorTrace: true
+    // errorTrace: true
   }
 
   //This is the case for CSV with dataformat plugin
