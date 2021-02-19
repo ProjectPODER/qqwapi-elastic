@@ -503,12 +503,27 @@ const embed_definitions = {
 const general_summary = {
   "sources": {
     "terms": {
-      "field": "source.id.keyword"
+      "field": "source.id.keyword",
+      "size": 100
     }
   },
   "count": {
     "value_count": {
       "field": "id.keyword"
+    }
+  },
+  "areas": {
+    "terms": {
+      "field": "area.classification.keyword",
+      "size": 10,
+      "include": ["country"]
+    },
+    "aggs": {
+      "count": {
+        "cardinality": {
+          "field": "area.id.keyword",
+        }
+      }
     }
   }
 
@@ -729,7 +744,7 @@ function prepareOutput(body, context, debug) {
     let bodyhits = body.hits;
 
     if (debug) {
-      console.log("prepareOutput",context.params,body);
+      console.log("prepareOutput",JSON.stringify(context.params,body,10));
     }
 
     //This case is for CSV output from dataformat extension
@@ -808,7 +823,7 @@ function prepareOutput(body, context, debug) {
 
 function formatSummary(aggs,debug) {
   if (debug) {
-    console.log("formatSummary",aggs);
+    console.log("formatSummary",JSON.stringify(aggs,10));
   }
   if (aggs) {
     let summary = {}
