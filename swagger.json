@@ -405,6 +405,8 @@
                         "$ref": "#/components/parameters/country"
                     },
                     {
+                        "$ref": "#/components/parameters/state"
+                    },                    {
                         "$ref": "#/components/parameters/contract_count_supplier_min"
                     },
                     {
