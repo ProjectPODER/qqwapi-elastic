@@ -80,7 +80,7 @@ const query_definitions = {
   "name": {
     context: "must",
     type: "multi_match",
-    fields: ["name","contracts.title","other_names.name"],
+    fields: ["name","contracts.title","other_names.name","identifiers.legalName"],
     launder: true,
   },
   // apiFilterName: "identifier",
