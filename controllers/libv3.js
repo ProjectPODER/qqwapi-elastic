@@ -194,7 +194,16 @@ const query_definitions = {
   "classification": {
     context: "must",
     type: "match_phrase",
-    field: "classification"
+    field: "classification",
+    change_qdp: { //Modify query definition for another field based on the value of this field
+      "country": {
+          value: "city",
+          context: "must",
+          type: "match",
+          field: "parent_id",
+          modifier: "-"
+      }
+    }
   },
   // apiFilterName: "title",
   // apiFieldNames:["contracts.title"],
@@ -236,8 +245,8 @@ const query_definitions = {
   // apiFilterName: "subclassification",
   // apiFieldNames:["subclassification"],
   "subclassification": {
-    context: "filter",
-    type: "term",
+    context: "must",
+    type: "match_phrase",
     field: "subclassification"
   },
   // apiFilterName: "id",
@@ -269,7 +278,7 @@ const query_definitions = {
   // apiFieldNames:["parties.contactPoint.name"],
   "contact_point_name": {
     context: "must",
-    type: "match",
+    type: "match_phrase",
     field: "parties.buyer.contactPoint.name"
   },
 
@@ -513,18 +522,9 @@ const general_summary = {
     }
   },
   "areas": {
-    "terms": {
-      "field": "area.classification.keyword",
-      "size": 10,
-      "include": ["country"]
+    "cardinality": {
+      "field": "area.id.keyword",
     },
-    "aggs": {
-      "count": {
-        "cardinality": {
-          "field": "area.id.keyword",
-        }
-      }
-    }
   }
 
 };
@@ -837,7 +837,7 @@ function formatSummary(aggs,debug) {
         summary[key] = {};
         for (bucket_index in aggs[key].buckets) {
           let bucket = aggs[key].buckets[bucket_index];
-          summary[key][bucket.key] = bucket.doc_count;
+          summary[key][bucket.key_as_string || bucket.key ] = bucket.doc_count;
         }
       }
     }
