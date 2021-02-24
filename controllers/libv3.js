@@ -389,7 +389,7 @@ function paramsToBody(paramsObject, debug) {
             }
           }
           else if (qdp.type == "multi_match") {
-            body.query.bool[qdp.context].push({[qdp.type]: { query: params[param] , fields: qdp.fields }});             
+            body.query.bool[qdp.context].push({[qdp.type]: { query: params[param], type: "phrase" , fields: qdp.fields }});             
           }
           else if (qdp.type == "function_score") {
             let function_score = {[qdp.type]: { functions: [] }}
