@@ -155,6 +155,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/state"
+                    },
+                    {
+                        "$ref": "#/components/parameters/city"
                     }                                                                         
                 ],
                 "tags": [
@@ -307,6 +310,12 @@
                         "$ref": "#/components/parameters/country"
                     },
                     {
+                        "$ref": "#/components/parameters/state"
+                    },  
+                    {
+                        "$ref": "#/components/parameters/city"
+                    },                                          
+                    {
                         "$ref": "#/components/parameters/contract_count_supplier_min"
                     },
                     {
@@ -406,7 +415,11 @@
                     },
                     {
                         "$ref": "#/components/parameters/state"
-                    },                    {
+                    },
+                    {
+                        "$ref": "#/components/parameters/city"
+                    },                    
+                    {
                         "$ref": "#/components/parameters/contract_count_supplier_min"
                     },
                     {
@@ -507,6 +520,12 @@
                     {
                         "$ref": "#/components/parameters/country"
                     },
+                    {
+                        "$ref": "#/components/parameters/state"
+                    },  
+                    {
+                        "$ref": "#/components/parameters/city"
+                    },                      
                     {
                         "$ref": "#/components/parameters/contract_count_supplier_min"
                     },
@@ -788,6 +807,9 @@
                         "$ref": "#/components/parameters/state"
                     },
                     {
+                        "$ref": "#/components/parameters/city"
+                    },                      
+                    {
                         "$ref": "#/components/parameters/sort"
                     },
                     {
@@ -949,6 +971,15 @@
                     "type": "string"
                 }
             },
+            "city": {
+                "in": "query",
+                "name": "city",
+                "description": "City id in the from of country(2chars)-state(3chars)-city.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },            
             "source": {
                 "in": "query",
                 "name": "source",

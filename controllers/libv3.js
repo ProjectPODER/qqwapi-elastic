@@ -73,7 +73,11 @@ const query_definitions = {
     context: "must",
     type: "multi_match",
     fields: ["area.id.keyword","parent_id.keyword"],
-    min: 1
+  },
+  "city": {
+    context: "must",
+    type: "multi_match",
+    fields: ["area.id.keyword","parent_id.keyword"],
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
