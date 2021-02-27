@@ -1186,7 +1186,10 @@
                         "proveedor",
                         "owner",
                         "company",
-                        "institution"
+                        "institution",
+                        "contract",
+                        "person",
+                        "city"
                     ]
                 }
             },

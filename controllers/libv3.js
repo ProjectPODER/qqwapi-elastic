@@ -525,6 +525,11 @@ const general_summary = {
     "cardinality": {
       "field": "area.id.keyword",
     },
+  },
+  "classification": {
+    "terms": {
+      "field": "classification.keyword",
+    },
   }
 
 };
