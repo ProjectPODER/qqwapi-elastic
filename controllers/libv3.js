@@ -218,7 +218,7 @@ const query_definitions = {
   // apiFieldNames:["awards.suppliers.name"],
   "supplier_name": {
     context: "must",
-    type: "match",
+    type: "match_phrase",
     field: "parties.suppliers.names",
     launder: true
   },
@@ -226,7 +226,7 @@ const query_definitions = {
   // apiFilterName: "buyer_name",
   // apiFieldNames:["parties.memberOf.name"],
   "buyer_name": {
-    context: "should",
+    context: "must",
     type: "multi_match",
     fields: ["parties.buyer.name","parties.buyer.memberOf.name","parties.buyer.memberOf.initials"],
     launder: true
@@ -236,7 +236,7 @@ const query_definitions = {
   // apiFieldNames:["funder"],
   // TODO: Match party type too
   "funder_name": {
-    context: "should",
+    context: "must",
     type: "multi_match",
     fields: ["parties.funder_names","parties.funder.details.initials"],
     launder: true
