@@ -274,8 +274,8 @@ const query_definitions = {
   // apiFilterName: "buyer_id",
   // apiFieldNames:["buyer.id"],
   "buyer_id": {
-    context: "filter",
-    type: "term",
+    context: "must",
+    type: "match_phrase",
     field: "buyer.id"
   },
   // apiFilterName: "contact_point_name",
