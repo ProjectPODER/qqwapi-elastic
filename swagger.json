@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "description": "QuienEsQuien.Wiki APIv3. [DOCS](https://QuienEsQuienApi.readthedocs.io).  [Source](https://github.com/ProjectPODER/QuienEsQuienApi).",
+        "description": "QuienEsQuien.Wiki APIv3. [DOCS](https://qqwapi-elastic.readthedocs.io/).  [Source](https://github.com/ProjectPODER/qqwapi-elastic).",
         "title": "API de QuienEsQuien.Wiki",
         "version": "3.0.0-beta",
         "contact": {
@@ -13,7 +13,7 @@
             "name": "GPL-3.0",
             "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
         },
-        "termsOfService": "https://quienesquien.wiki/es/licencia"
+        "termsOfService": "https://quienesquien.wiki/licencia"
     },
     "paths": {
         "/summaries": {
