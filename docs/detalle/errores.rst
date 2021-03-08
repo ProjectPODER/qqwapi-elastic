@@ -48,7 +48,7 @@ Parámetro inexistente
 
    }
 
-Resultado vacío
+Resultado vacío (desactualizado)
 ===============
 
 Si el conjunto de filtros eliminan todos los registros, lo que ocurre es
@@ -70,7 +70,7 @@ Ejemplo:
 
    }
 
-Exceso de tiempo de procesamiento
+Exceso de tiempo de procesamiento (desactualizado)
 =================================
 
 Las consultas de API no deben tardar más de 6 segundos en ejecutarse en
