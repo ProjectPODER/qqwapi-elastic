@@ -1215,6 +1215,8 @@
                         "country",
                         "funcionario",
                         "proveedor",
+                        "proveedor%2Cfuncionario",
+                        "funcionario%2Cproveedor",
                         "owner",
                         "company",
                         "institution",
