@@ -222,17 +222,16 @@ const query_definitions = {
   // apiFieldNames:["awards.suppliers.name"],
   "supplier_name": {
     context: "must",
-    type: "match_phrase",
-    field: "parties.suppliers.names",
+    type: "multi_match",
+    fields: ["parties.suppliers.names", "parties.suppliers.ids"],
     launder: true
   },
-
   // apiFilterName: "buyer_name",
   // apiFieldNames:["parties.memberOf.name"],
   "buyer_name": {
     context: "must",
     type: "multi_match",
-    fields: ["parties.buyer.name","parties.buyer.memberOf.name","parties.buyer.memberOf.initials"],
+    fields: ["parties.buyer.name","parties.buyer.memberOf.name","parties.buyer.id","parties.buyer.memberOf.id","parties.buyer.memberOf.initials"],
     launder: true
   },
 
@@ -273,17 +272,12 @@ const query_definitions = {
 
   // apiFilterName: "buyer_id",
   // apiFieldNames:["buyer.id"],
-  "buyer_id": {
-    context: "must",
-    type: "match_phrase",
-    field: "buyer.id"
-  },
   // apiFilterName: "contact_point_name",
   // apiFieldNames:["parties.contactPoint.name"],
   "contact_point_name": {
     context: "must",
-    type: "match_phrase",
-    field: "parties.buyer.contactPoint.name"
+    type: "multi_match",
+    fields: ["parties.buyer.contactPoint.name","parties.buyer.contactPoint.id"]
   },
 
   // apiFilterName: "procurement_method",

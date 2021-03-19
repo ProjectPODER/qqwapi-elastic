@@ -634,9 +634,6 @@
                         "$ref": "#/components/parameters/contact_point_name"
                     },
                     {
-                        "$ref": "#/components/parameters/buyer_id"
-                    },
-                    {
                         "$ref": "#/components/parameters/funder_name"
                     },
                     {
@@ -1157,14 +1154,6 @@
                 "in": "query",
                 "name": "contact_point_name",
                 "description": "Name of a contact point participating in a contracting process.",
-                "schema": {
-                    "type": "string"
-                }
-            },
-            "buyer_id": {
-                "in": "query",
-                "name": "buyer_id",
-                "description": "Id of a buyer participating in a contracting process (only unidad-compradora).",
                 "schema": {
                     "type": "string"
                 }
