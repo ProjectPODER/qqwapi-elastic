@@ -257,8 +257,8 @@ const query_definitions = {
   // apiFieldNames:["contracts.id"],
   "id": {
     context: "must",
-    type: "match",
-    field: "id.keyword"
+    type: "multi_match",
+    fields: ["id.keyword", "ocid", "tender.id", "contracts.awardID"]
   },
   "ids": {
     context: "should",
