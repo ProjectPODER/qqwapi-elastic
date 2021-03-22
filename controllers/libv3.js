@@ -66,18 +66,18 @@ const query_definitions = {
   "country": {
     context: "should",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword"],
+    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword"],
     min: 1
   },
   "state": {
     context: "must",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword"],
+    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword"],
   },
   "city": {
     context: "must",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword"],
+    fields: ["area.id.keyword","area.name.keyword"],
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
