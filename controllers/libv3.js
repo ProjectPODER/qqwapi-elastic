@@ -84,6 +84,7 @@ const query_definitions = {
   "name": {
     context: "must",
     type: "multi_match",
+    match: "phrase_prefix",
     fields: ["name","contracts.title","other_names.name","identifiers.legalName"],
     launder: true,
   },
@@ -390,7 +391,7 @@ function paramsToBody(paramsObject, debug) {
             }
           }
           else if (qdp.type == "multi_match") {
-            body.query.bool[qdp.context].push({[qdp.type]: { query: params[param], type: "phrase" , fields: qdp.fields }});             
+            body.query.bool[qdp.context].push({[qdp.type]: { query: params[param], type: qdp.match || "phrase" , fields: qdp.fields }});             
           }
           else if (qdp.type == "function_score") {
             let function_score = {[qdp.type]: { functions: [] }}
@@ -701,7 +702,7 @@ async function search (index,params,debug) {
       context: params
     };
 
-    console.log("resultDataformat",searchDocumentDataformat);
+    console.log("search resultDataformat",searchDocumentDataformat);
 
     try {
       const resultDataformat = await client.dataformat(searchDocumentDataformat,{})
@@ -754,26 +755,54 @@ function prepareOutput(body, context, debug) {
     }
 
     //This case is for CSV output from dataformat extension
-    if (body && body.headers) {
+    if (context.params.query.format) {
 
       if(body.body.root_cause) {
-        console.log("prepareOutput root_cause",body.body.root_cause);
+        console.log("prepareOutput dataformat error",body.body.root_cause);
       }
   
-      const headerKeys = Object.keys(body.headers);
-      for (header in headerKeys) {
-        context.res.set(headerKeys[header],body.headers[headerKeys[header]]);
-  
+      if (context.params.query.format == "csv") {
+
+        const headerKeys = Object.keys(body.headers);
+        for (header in headerKeys) {
+          context.res.set(headerKeys[header],body.headers[headerKeys[header]]);
+    
+        }
+        
+        // .set('content-type', body.headers['content-type'])
+        // .set('content-length', body.headers['content-length'])
+        // .set('content-disposition', body.headers['content-disposition'])
+    
+    
+        context.res
+          .status(body.statusCode)
+          .setBody(body.body);
       }
-      
-      // .set('content-type', body.headers['content-type'])
-      // .set('content-length', body.headers['content-length'])
-      // .set('content-disposition', body.headers['content-disposition'])
-  
-  
-      context.res
-        .status(body.statusCode)
-        .setBody(body.body);
+
+      if (context.params.query.format == "json") {
+
+        if (body.error) {
+          console.log("prepareOutput json error",body.error);
+          body.statusCode = 500;
+
+        }
+        context.res
+          .status(body.statusCode)
+          .setBody(body.body);
+      }
+      if (context.params.query.format == "xlsx") {
+
+        if (body.error) {
+          console.log("prepareOutput json error",body.error);
+          body.statusCode = 500;
+
+        }
+        context.res
+          .status(body.statusCode)
+          .setBody(body.body);
+      }
+
+
   
       return;
     }

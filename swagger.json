@@ -1175,7 +1175,7 @@
                 "description": "The format in whith results will be returned",
                 "schema": {
                     "type": "string",
-                    "enum": ["json", "jsonlist", "csv", "xls"]
+                    "enum": ["json", "jsonlist", "csv", "xls","xlsx"]
                 }
             },
             "procurement_method": {
