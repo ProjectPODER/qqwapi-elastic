@@ -754,8 +754,10 @@ function prepareOutput(body, context, debug) {
       console.log("prepareOutput",JSON.stringify(context.params,body,10));
     }
 
-    //This case is for CSV output from dataformat extension
+    //This case is for dataformat extension
     if (context.params.query.format) {
+
+      const filename = "qqw"+context.req.url.replace(/\//g,"_").replace(/\?/g,"_").replace(/&/g,"_")+"."+context.params.query.format;
 
       if(body.body.root_cause) {
         console.log("prepareOutput dataformat error",body.body.root_cause);
@@ -768,36 +770,24 @@ function prepareOutput(body, context, debug) {
           context.res.set(headerKeys[header],body.headers[headerKeys[header]]);
     
         }
-        
-        // .set('content-type', body.headers['content-type'])
-        // .set('content-length', body.headers['content-length'])
-        // .set('content-disposition', body.headers['content-disposition'])
-    
     
         context.res
           .status(body.statusCode)
+          .header("content-disposition","attachment; filename=\""+filename+"\"")
           .setBody(body.body);
       }
 
-      if (context.params.query.format == "json") {
+      if (context.params.query.format == "xlsx" || context.params.query.format == "xls") {
 
         if (body.error) {
-          console.log("prepareOutput json error",body.error);
+          console.log("prepareOutput xls/xlsx error",body.error);
           body.statusCode = 500;
 
         }
-        context.res
-          .status(body.statusCode)
-          .setBody(body.body);
-      }
-      if (context.params.query.format == "xlsx") {
 
-        if (body.error) {
-          console.log("prepareOutput json error",body.error);
-          body.statusCode = 500;
-
-        }
         context.res
+          .set("content-type","application/octet-stream; charset=binary")
+          .set("content-disposition","attachment; filename=\""+filename+"\"")
           .status(body.statusCode)
           .setBody(body.body);
       }
