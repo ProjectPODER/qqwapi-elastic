@@ -226,6 +226,9 @@
                         }
                     },
                     {
+                        "$ref": "#/components/parameters/collection"
+                    },
+                    {
                         "$ref": "#/components/parameters/classification"
                     },
                     {
@@ -1192,6 +1195,23 @@
                     "type": "string"
                 }
             },
+            "collection": {
+                "in": "query",
+                "name": "collection",
+                "description": "Collection in which the object is",
+                "schema":{
+                    "type": "string",
+                    "enum": [
+                        "companies",
+                        "institutions",
+                        "persons",
+                        "products",
+                        "areas",
+                        "contracts",
+                        "all"
+                    ]
+                }
+            },
             "classification": {
                 "in": "query",
                 "name": "classification",
@@ -1214,7 +1234,7 @@
                         "city"
                     ]
                 }
-            },
+            },            
             "subclassification": {
                 "in": "query",
                 "name": "subclassification",

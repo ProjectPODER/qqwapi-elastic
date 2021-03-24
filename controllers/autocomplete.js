@@ -1,8 +1,35 @@
 const lib = require('./libv3');
-const controllerIndex = "areas,organizations,persons,contracts,products"
+
+let controllerIndex = "areas,organizations,persons,contracts,products"
 
 function autocomplete(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
+
+  if (context.params.query.collection) {
+    switch (context.params.query.collection) {
+      case "persons":
+        controllerIndex = "persons";
+      break;
+      case "companies":
+        controllerIndex = "organizations";
+      break;
+      case "institutions":
+        controllerIndex = "organizations";
+      break;
+      case "areas":
+        controllerIndex = "areas";
+      break;
+      case "products":
+        controllerIndex = "products";
+      break;
+      case "contracts":
+        controllerIndex = "contracts";
+      break;
+      case "all":
+      default:
+        break;
+    }
+  }
 
   return lib.search(controllerIndex,context.params,debug)
     .then(results => { 

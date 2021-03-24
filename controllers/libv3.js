@@ -323,6 +323,9 @@ const query_definitions = {
   "limit": {
     context: "body",
     field: "size"
+  },
+  "collection": {
+    context: "skip"
   }
 }
 
