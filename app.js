@@ -54,7 +54,7 @@ async function createServer() {
     });
 
     app.use((err, req, res, next) => {
-        console.error("Internal error",req.route.path, err.meta ? err.meta.meta.request.params :"", err.meta ? err.meta.body ? err.meta.body.error : err : "");
+        console.error("Internal error",req.route.path, err.meta ? err.meta.meta.request.params :"", err.meta ? err.meta.body ? err.meta.body.error : "" : "", err);
         res.status(500).json({"Internal error": err.message});
 
         //If connection is lost to database, kill API process
