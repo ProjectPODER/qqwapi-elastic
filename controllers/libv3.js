@@ -781,7 +781,11 @@ function prepareOutput(body, context, debug) {
     if (bodyhits && !bodyhits.error) {
       count = bodyhits.total.value;
       count_precission = bodyhits.total.relation;
-      data = bodyhits.hits.map(o => o._source);
+      data = bodyhits.hits.map(o => { 
+        //Add index to results
+        o._source.type = o._index.split("_")[0]; 
+        return  o._source 
+      } );
       size = data.length;
     }
 
