@@ -784,13 +784,26 @@ function prepareOutput(body, context, debug) {
           body.statusCode = 500;
 
         }
+        console.log(context.res.getHeaders())
+
+        //esto está bueno porque le pone el content-type adecuado y el content-length tambien, pero tira errores de headers
+        // context.origRes
+        //   .status(body.statusCode)
+        //   .attachment(filename)
+        //   .type(context.params.query.format)
+        //   .send(body.body)
+        //   .end();
 
         context.res
           .set("content-type","application/octet-stream; charset=binary")
           .set("content-disposition","attachment; filename=\""+filename+"\"")
           .status(body.statusCode)
           .setBody(body.body);
-      }
+
+
+        console.log(context.res.getHeaders())
+
+       }
 
 
   
