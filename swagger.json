@@ -226,6 +226,9 @@
                         }
                     },
                     {
+                        "$ref":  "#/components/parameters/ids"
+                    },                    
+                    {
                         "$ref": "#/components/parameters/collection"
                     },
                     {
