@@ -769,10 +769,160 @@ Example:
 
    }
 
-contract (falta documentar)
+contract (nuevo en v3)
 ---------------------------
 
-Basado en OCDS pero sin compilar releases.
+El tipo de dato de contratos está basado en OCDS, pero se ha modificado para evitar mezclar diferentes contratos en el mismo, es decir, descompilando los awards de cada compiledRelease (ver recordPackage) en un contrato individual. Adicionalmente se modificaron las listas de varios objetos para facilitar su búsqueda. Es decir, parties ya no es un array sino que tiene parties.buyer, parties.suppliers, en parties.suppliers además hay una array simple (de strings) para names y ids, esto facilita la búsqueda y el filtrado a nivel base de datos.
+
+Example:
+
+::
+    {
+
+        "classification": "contract",
+        "area": {
+            "id": "mx",
+            "name": "MX"
+        },
+        "ocid": "ocds-0ud2q6-100722",
+        "id": "100722-100722",
+        "initiationType": "tender",
+        "tag": [
+            "contract"
+        ],
+        "language": "es",
+        "parties": {
+            "buyer": {
+                "roles": "buyer",
+                "id": "director-general-hospital-general-de-mexico-dr-eduardo-liceaga",
+                "name": "DIRECTOR GENERAL",
+                "address": {
+                    "countryName": "Mexico"
+                },
+                "memberOf": {
+                    "name": "HOSPITAL GENERAL DE MÉXICO DR. EDUARDO LICEAGA",
+                    "id": "hospital-general-de-mexico-dr-eduardo-liceaga"
+                },
+                "details": {
+                    "type": "institution",
+                    "classification": "unidad-compradora"
+                }
+            },
+            "suppliers": {
+                "names": [
+                    "Lauman S.A. de C.V.",
+                    "GRUPO PAPELERO GUTIERREZ S.A. DE C.V."
+                ],
+                "ids": [
+                    "lauman-sa-de-cv",
+                    "grupo-papelero-gutierrez-sa-de-cv"
+                ],
+                "list": [
+                    {
+                        "name": "Lauman S.A. de C.V.",
+                        "id": "lauman-sa-de-cv",
+                        "roles": "supplier",
+                        "details": {
+                            "type": "company"
+                        }
+                    },
+                    {
+                        "name": "GRUPO PAPELERO GUTIERREZ S.A. DE C.V.",
+                        "id": "grupo-papelero-gutierrez-sa-de-cv",
+                        "roles": "supplier",
+                        "details": {
+                            "type": "company"
+                        }
+                    }
+                ]
+            }
+        },
+        "buyer": {
+            "name": "DIRECTOR GENERAL",
+            "id": "director-general-hospital-general-de-mexico-dr-eduardo-liceaga",
+            "memberOf": {
+                "name": "HOSPITAL GENERAL DE MÉXICO DR. EDUARDO LICEAGA",
+                "id": "hospital-general-de-mexico-dr-eduardo-liceaga"
+            }
+        },
+        "tender": {
+            "id": "100722",
+            "title": "MATERIAL OFICINA",
+            "status": "complete",
+            "procuringEntity": {
+                "id": "director-general-hospital-general-de-mexico-dr-eduardo-liceaga",
+                "name": "DIRECTOR GENERAL"
+            },
+            "procurementMethodDetails": "ADJUDICACION DIRECTA",
+            "procurementMethod": "direct"
+        },
+        "awards": {
+            "title": "MATERIAL OFICINA",
+            "suppliers": [
+                {
+                    "name": "Lauman S.A. de C.V.",
+                    "id": "lauman-sa-de-cv"
+                },
+                {
+                    "name": "GRUPO PAPELERO GUTIERREZ S.A. DE C.V.",
+                    "id": "grupo-papelero-gutierrez-sa-de-cv"
+                }
+            ],
+            "status": "active",
+            "id": "100722",
+            "value": {
+                "amount": 73861.26,
+                "currency": "MXN"
+            },
+            "documents": {
+                "list": [
+                    {
+                        "id": "doc-pot-100722-1",
+                        "documentType": "awardNotice",
+                        "url": "http://www.portaltransparencia.gob.mx/buscador/search/search.do?method=search&siglasDependencia=&searchBy=1&query=100722",
+                        "format": "text/html",
+                        "language": "es"
+                    }
+                ],
+                "urls": [
+                    "http://www.portaltransparencia.gob.mx/buscador/search/search.do?method=search&siglasDependencia=&searchBy=1&query=100722"
+                ]
+            }
+        },
+        "contracts": {
+            "status": "terminated",
+            "title": "MATERIAL OFICINA",
+            "id": "100722",
+            "awardID": "100722",
+            "period": {
+                "startDate": "2010-07-21T00:00:00.000Z",
+                "endDate": "2010-12-10T00:00:00.000Z"
+            },
+            "value": {
+                "amount": 73861.26,
+                "currency": "MXN"
+            },
+            "dateSigned": "2010-07-21T00:00:00.000Z"
+        },
+        "publisher": {
+            "name": "Portal de Obligaciones de Transparencia",
+            "uri": "http://portaltransparencia.gob.mx/pot/repoServlet?archivo=contrato.zip"
+        },
+        "date": "2020-09-28T20:07:12.000Z",
+        "source": [
+            {
+                "id": "pot"
+            }
+        ],
+        "sourceRun": [
+            {
+                "id": "pot-1601323616728"
+            }
+        ],
+        "type": "contracts"
+
+    }
+
 
 recordPackage
 -------------
@@ -3215,18 +3365,266 @@ OCDS Release:
 
    }
 
-source (desactualizado)
+source (actualizado en v3)
 -----------------------
+
+El endpoint de source no recibe parámetros y permite saber la cantidad de elementos y fecha de modificación de cada índice, clasificación y fuente.
+
+Example:
 
 ::
 
-   {
-   importador
-   descripción_fuente
-   source_run - array: fecha, numero registros, numero errores, descripcion de errores, status, id
-   url_origen
-   coleccion
-   }
+    {
+
+    "index": {
+        "areas": {
+            "count": 1911,
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "contracts": {
+            "count": 4176290,
+            "lastModified": "2021-04-04T15:04:07.000Z"
+        },
+        "organizations": {
+            "count": 232653,
+            "lastModified": "2021-04-05T02:25:28.016Z"
+        },
+        "persons": {
+            "count": 265185,
+            "lastModified": "2021-04-05T02:24:06.973Z"
+        }
+    },
+    "classification": {
+        "city": {
+            "count": 1739,
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "company": {
+            "count": 218488,
+            "lastModified": "2021-04-05T02:24:47.104Z"
+        },
+        "contract": {
+            "count": 4176290,
+            "lastModified": "2021-04-04T15:04:07.000Z"
+        },
+        "country": {
+            "count": 90,
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "funcionario": {
+            "count": 5664,
+            "lastModified": "2021-04-05T02:24:06.973Z"
+        },
+        "institution": {
+            "count": 14165,
+            "lastModified": "2021-04-05T02:25:28.016Z"
+        },
+        "owner": {
+            "count": 1595,
+            "lastModified": "2020-09-11T08:51:36.000Z"
+        },
+        "proveedor": {
+            "count": 232547,
+            "lastModified": "2021-04-05T02:24:06.973Z"
+        },
+        "state": {
+            "count": 82,
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        }
+    },
+    "sources": {
+        "bmv": {
+            "classification": {
+                "city": {
+                    "count": 298
+                },
+                "company": {
+                    "count": 3263
+                },
+                "country": {
+                    "count": 38
+                },
+                "owner": {
+                    "count": 32
+                },
+                "proveedor": {
+                    "count": 38
+                },
+                "state": {
+                    "count": 62
+                }
+            },
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "compranet": {
+            "classification": {
+                "city": {
+                    "count": 1458
+                },
+                "company": {
+                    "count": 107583
+                },
+                "contract": {
+                    "count": 1924259
+                },
+                "country": {
+                    "count": 78
+                },
+                "funcionario": {
+                    "count": 5664
+                },
+                "institution": {
+                    "count": 8006
+                },
+                "proveedor": {
+                    "count": 130025
+                },
+                "state": {
+                    "count": 32
+                }
+            },
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "compranet3": {
+            "classification": {
+                "city": {
+                    "count": 15
+                },
+                "company": {
+                    "count": 72396
+                },
+                "contract": {
+                    "count": 856088
+                },
+                "country": {
+                    "count": 8
+                },
+                "funcionario": {
+                    "count": 626
+                },
+                "institution": {
+                    "count": 5129
+                },
+                "proveedor": {
+                    "count": 45833
+                },
+                "state": {
+                    "count": 7
+                }
+            },
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "latam_offshore": {
+            "classification": {
+                "company": {
+                    "count": 1618
+                },
+                "owner": {
+                    "count": 1595
+                },
+                "proveedor": {
+                    "count": 21
+                }
+            },
+            "lastModified": "2021-04-05T02:24:47.104Z"
+        },
+        "mujeres2019": {
+            "classification": {
+                "company": {
+                    "count": 1810
+                },
+                "country": {
+                    "count": 15
+                },
+                "funcionario": {
+                    "count": 1
+                },
+                "institution": {
+                    "count": 2
+                },
+                "owner": {
+                    "count": 36
+                },
+                "proveedor": {
+                    "count": 32
+                }
+            },
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "mujeres2020": {
+            "classification": {
+                "company": {
+                    "count": 2384
+                },
+                "country": {
+                    "count": 16
+                },
+                "funcionario": {
+                    "count": 1
+                },
+                "institution": {
+                    "count": 1
+                },
+                "owner": {
+                    "count": 34
+                },
+                "proveedor": {
+                    "count": 28
+                }
+            },
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "pot": {
+            "classification": {
+                "city": {
+                    "count": 19
+                },
+                "company": {
+                    "count": 102753
+                },
+                "contract": {
+                    "count": 1397425
+                },
+                "country": {
+                    "count": 22
+                },
+                "funcionario": {
+                    "count": 429
+                },
+                "institution": {
+                    "count": 2966
+                },
+                "proveedor": {
+                    "count": 99951
+                },
+                "state": {
+                    "count": 9
+                }
+            },
+            "lastModified": "2021-04-05T02:25:31.062Z"
+        },
+        "tdc": {
+            "classification": {
+                "company": {
+                    "count": 177
+                },
+                "contract": {
+                    "count": 407
+                },
+                "funcionario": {
+                    "count": 5
+                },
+                "institution": {
+                    "count": 12
+                },
+                "proveedor": {
+                    "count": 44
+                }
+            },
+            "lastModified": "2021-04-05T02:25:28.016Z"
+        }
+    }
+
 
 summaries
 ---------
