@@ -705,8 +705,9 @@ async function search (index,params,debug) {
     console.log("search resultDataformat",searchDocumentDataformat);
 
     try {
-      const resultDataformat = await client.dataformat(searchDocumentDataformat,{})
-      return resultDataformat;
+      let resultDataformat = await client.dataformat(searchDocumentDataformat,{})
+      // resultDataformat.body = client.serializer.deserialize(resultDataformat.body);
+      return resultDataformat
     }
     catch(e) {
       return {error: e, body: (e.meta && e.meta.body ) ? e.meta.body.error : {} }
@@ -784,18 +785,21 @@ function prepareOutput(body, context, debug) {
           body.statusCode = 500;
 
         }
-        console.log(context.res.getHeaders())
+        console.log(body)
 
         //esto está bueno porque le pone el content-type adecuado y el content-length tambien, pero tira errores de headers
         // context.origRes
         //   .status(body.statusCode)
         //   .attachment(filename)
         //   .type(context.params.query.format)
-        //   .send(body.body)
-        //   .end();
+        //   .set('Content-Transfer-Encoding','binary')
+        // .send(body.body)
+          // .end();
 
         context.res
           .set("content-type","application/octet-stream; charset=binary")
+          .set('Content-Transfer-Encoding','binary')
+          .set('Content-Length',body.body.length)
           .set("content-disposition","attachment; filename=\""+filename+"\"")
           .status(body.statusCode)
           .setBody(body.body);
@@ -828,7 +832,7 @@ function prepareOutput(body, context, debug) {
     else {
       status = "error";
       let stack_trace;
-      if (body && body. error && body.error.meta) {
+      if (body && body. error && body.error.meta && body.error.meta.body) {
         stack_trace = body.error.meta.body.error;
       } 
       console.error("prepareOutput error",bodyhits ? bodyhits.error : "empty bodyhits", body ? body.error : "", stack_trace);
