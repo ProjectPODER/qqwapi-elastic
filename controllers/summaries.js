@@ -427,15 +427,19 @@ function formatSummaries(result) {
       // console.log("formatSummaries role",role);
     if (role == "funder") {
       entityBucket = thisBucket.top_entities_funder.buckets;
+      entityType = "institutions"
     }
     if (role == "supplier") {
       entityBucket = thisBucket.top_entities_buyer.buckets;
+      entityType = "institutions"
     }
     if (role == "buyer") {
       entityBucket = thisBucket.top_entities_supplier.buckets;
+      entityType = "companies"
     }
     if (role == "contactPoint") {
       entityBucket = thisBucket.top_entities_contactPoint.buckets;
+      entityType = "persons"
     }
     for (e in entityBucket) {
       const thisEntity = entityBucket[e];
@@ -443,8 +447,9 @@ function formatSummaries(result) {
 
       let allParties = [... [thisEntity.entity.hits.hits[0]._source.parties.buyer], ... [thisEntity.entity.hits.hits[0]._source.funder], ...thisEntity.entity.hits.hits[0]._source.parties.suppliers.list]
       const entityObject = find(allParties,{id: thisEntity.key});
-      entityObject.contract_amount = { [entityObject.roles[0]]: thisEntity.amount.value};
-      entityObject.contract_count = { [entityObject.roles[0]]: thisEntity.doc_count};
+      entityObject.contract_amount = { [entityObject.roles]: thisEntity.amount.value};
+      entityObject.contract_count = { [entityObject.roles]: thisEntity.doc_count};
+      entityObject.type = entityType
 
       entitiesObject.push(entityObject)
     }
@@ -457,7 +462,7 @@ function formatSummaries(result) {
       },
       year: yearObject,
       type: typeObject,
-      top_contracts: thisBucket.top_contracts.hits.hits.map(o => Object.assign(o._source,{type: o._index})),
+      top_contracts: thisBucket.top_contracts.hits.hits.map(o => Object.assign(o._source,{type: o._index.split("_")[0]})),
       top_entities: entitiesObject
     }
   }
