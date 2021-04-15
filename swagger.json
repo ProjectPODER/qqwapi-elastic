@@ -79,6 +79,9 @@
                         "$ref": "#/components/parameters/subclassification"
                     },
                     {
+                        "$ref": "#/components/parameters/indications"
+                    },                    
+                    {
                         "$ref": "#/components/parameters/sort"
                     },
                     {
@@ -96,6 +99,9 @@
                     {
                         "$ref": "#/components/parameters/limit"
                     },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },                    
                     {
                         "$ref": "#/components/parameters/country"
                     },
@@ -1194,6 +1200,14 @@
                 "in": "query",
                 "name": "identifier",
                 "description": "Identifier of companies (RFC, RUPC, etc)",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "indications": {
+                "in": "query",
+                "name": "indications",
+                "description": "Disease indications for a medicine (products)   ",
                 "schema": {
                     "type": "string"
                 }

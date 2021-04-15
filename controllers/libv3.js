@@ -319,6 +319,11 @@ const query_definitions = {
     context: "body",
     field: "from"
   },
+  "indications": {
+    context: "must",
+    type: "match",
+    field: "guideline.indicationsMxIMSS"
+  },
 
   //OK 
   "limit": {
@@ -474,7 +479,7 @@ const party_flags_embed = {
 }
 
 //TODO: Embed aggregations
-const products_embed = {
+const products_buyer_embed = {
   id: "id",
   foreign_key: "buyer.id",
   index: "contracts",
@@ -483,6 +488,14 @@ const products_embed = {
     
   }
 
+}
+
+const pruducts_related_embed = {
+  must: ["cbmei.clave1_grupo_id","cbmei.clave2_especifico_id"],
+  should: [ "name","cbmei.clave3_diferenciador_id"],
+  index: "products_test",
+  location: "relatedProducts",
+  dontRepeatSelf: true
 }
 
 const product_contracts_embed = {
@@ -498,8 +511,8 @@ const product_contracts_embed = {
 const embed_definitions = { 
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
-  organizations: [ ... membership_embed, products_embed, party_flags_embed ],
-  products: [ product_contracts_embed ],
+  organizations: [ ... membership_embed, products_buyer_embed, party_flags_embed ],
+  products_test: [ product_contracts_embed, pruducts_related_embed ],
   contracts: [
     {
       id: "id",
@@ -541,7 +554,7 @@ const aggs_definitions = {
   areas: general_summary,
   persons: general_summary,
   organizations: general_summary,
-  products: general_summary,
+  products_test: general_summary,
   contracts: Object.assign({},general_summary , {
     "amount": {
       "sum": {
@@ -584,7 +597,7 @@ const aggs_definitions = {
 }
 
 async function embed(index,params,results,debug) {
-  // console.log("embed",params);
+  // console.log("embed",index,params);
   if (!results.hits) {
     console.error("Embed with no hits",index);
     return results;
@@ -599,12 +612,15 @@ async function embed(index,params,results,debug) {
     const edis = embed_definitions[index];
 
     if (edis) {
+      if (debug) {
+        console.log("Embed definitions for", index, edis);
+      }
       for (e in edis) {
         const edi = edis[e];
 
         const searchDocument = {
           index: edi.index,
-          body: {size: 5000, query: {bool: {should: []}}},
+          body: {size: 5000, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
           // errorTrace: true
         }
 
@@ -626,8 +642,18 @@ async function embed(index,params,results,debug) {
           }
 
           if (resultValid) {
-            const foreignKeyword = edi.foreign_key+".keyword";
-            searchDocument.body.query.bool.should.push({match_phrase: {[foreignKeyword]: result._source[edi.id]}})
+            if (edi.id) {
+              const foreignKeyword = edi.foreign_key+".keyword";
+              searchDocument.body.query.bool.should.push({match_phrase: {[foreignKeyword]: result._source[edi.id]}})
+            }
+
+            //Support for must and should in related products
+            for (m in edi.must) {
+              searchDocument.body.query.bool.must.push({match_phrase: {[edi.must[m]]: fieldPathExists(edi.must[m],result._source)[0] }})
+            }
+            for (s in edi.should) {
+              searchDocument.body.query.bool.should.push({match_phrase: {[edi.should[s]]: fieldPathExists(edi.should[s],result._source)[0] }})
+            }
 
             //TODO: Embed aggregations
           }
@@ -645,21 +671,40 @@ async function embed(index,params,results,debug) {
           // console.log("embed results",embedResult.body.hits.hits);
           for (r in results.hits.hits) {
             for (h in embedResult.body.hits.hits) {
-              let foreign_key_value = fieldPathExists(edi.foreign_key, embedResult.body.hits.hits[h]._source)
-              if (debug) {
-                console.log("embed",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
+              if (edi.foreign_key) {
+                let foreign_key_value = fieldPathExists(edi.foreign_key, embedResult.body.hits.hits[h]._source)
+                if (debug) {
+                  console.log("embed",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
+                }
+  
+                if (foreign_key_value[0] && foreign_key_value[0] == results.hits.hits[r]._source[edi.id]) {
+                  // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
+                  if (!results.hits.hits[r]._source[edi.location]) { 
+                    results.hits.hits[r]._source[edi.location] = [];
+                  }
+                  if (edi.add) {
+                    embedResult.body.hits.hits[h]._source = Object.assign({},embedResult.body.hits.hits[h]._source,edi.add);
+                  }
+                  embedResult.body.hits.hits[h]._source.type = embedResult.body.hits.hits[h]._index.split("_")[0];
+                  results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
+                  // console.log("embed foreign one result expanded",results.hits[r]._source);
+                }
               }
+              if (edi.must || edi.should) {
+                let resultValidEmbed = true;
+                if (edi.dontRepeatSelf && results.hits.hits[r]._source.id == embedResult.body.hits.hits[h]._source.id) {
+                  resultValidEmbed = false;
+                }
+                if (resultValidEmbed) {
 
-              if (foreign_key_value[0] && foreign_key_value[0] == results.hits.hits[r]._source[edi.id]) {
-                // console.log(embedResult.body.hits.hits[h]._source[edi.foreign_key],results.hits[r]._source[edi.id]);
-                if (!results.hits.hits[r]._source[edi.location]) { 
-                  results.hits.hits[r]._source[edi.location] = [];
+                  // console.log("embed must one result expanded",results.hits.hits[r]._source);
+                  if (!results.hits.hits[r]._source[edi.location]) { 
+                    results.hits.hits[r]._source[edi.location] = [];
+                  }                          
+                  embedResult.body.hits.hits[h]._source.type = embedResult.body.hits.hits[h]._index.split("_")[0];
+                  results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
                 }
-                if (edi.add) {
-                  embedResult.body.hits.hits[h]._source = Object.assign({},embedResult.body.hits.hits[h]._source,edi.add);
-                }
-                results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
-                // console.log("embed one result expanded",results.hits[r]._source);
+                
               }
             }
           }
