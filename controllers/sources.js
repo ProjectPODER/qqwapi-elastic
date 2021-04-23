@@ -5,7 +5,7 @@ function allSources(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
 
   const searchDocument = {
-    index: "areas,contracts,persons,organizations",
+    index: lib.allIndexes,
     body: {  
       "size": 0,
       "aggs": {

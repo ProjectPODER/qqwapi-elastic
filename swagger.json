@@ -664,6 +664,15 @@
                         "$ref": "#/components/parameters/start_date_max"
                     },
                     {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/state"
+                    },
+                    {
+                        "$ref": "#/components/parameters/city"
+                    },                    
+                    {
                         "$ref": "#/components/parameters/sort"
                     },
                     {
@@ -824,6 +833,9 @@
                     {
                         "$ref": "#/components/parameters/sort_direction"
                     },
+                    {
+                        "$ref": "#/components/parameters/source"
+                    },                    
                     {
                         "$ref": "#/components/parameters/embed"
                     },                                                            

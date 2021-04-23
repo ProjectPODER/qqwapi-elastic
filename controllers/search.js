@@ -1,5 +1,5 @@
 const lib = require('./libv3');
-const controllerIndex = "areas,contracts,organizations,persons"
+const controllerIndex = lib.allIndexes
 
 function searchOperation(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;

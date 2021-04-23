@@ -1,6 +1,6 @@
 const lib = require('./libv3');
 
-let controllerIndex = "areas,organizations,persons,contracts,products"
+let controllerIndex = lib.allIndexes;
 
 function autocomplete(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
@@ -20,7 +20,7 @@ function autocomplete(context) {
         controllerIndex = "areas";
       break;
       case "products":
-        controllerIndex = "products";
+        controllerIndex = "products_test";
       break;
       case "contracts":
         controllerIndex = "contracts";

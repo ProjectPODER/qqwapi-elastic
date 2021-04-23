@@ -66,18 +66,18 @@ const query_definitions = {
   "country": {
     context: "should",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword"],
+    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.address.countryName"],
     min: 1
   },
   "state": {
     context: "must",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword"],
+    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.address.region"],
   },
   "city": {
     context: "must",
     type: "multi_match",
-    fields: ["area.id.keyword","area.name.keyword"],
+    fields: ["area.id.keyword","area.name.keyword","parties.address.locality"],
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
@@ -549,8 +549,10 @@ const general_summary = {
 
 };
 
+const allIndexes = "areas,contracts,organizations,persons,products_test";
+
 const aggs_definitions = {
-  "areas,contracts,organizations,persons": general_summary,
+  [allIndexes]: general_summary,
   areas: general_summary,
   persons: general_summary,
   organizations: general_summary,
@@ -1051,5 +1053,6 @@ module.exports = {
     prepareOutput,
     search,
     embed,
+    allIndexes,
     client
 }
