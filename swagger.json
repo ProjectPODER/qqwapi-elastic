@@ -1251,42 +1251,46 @@
                 "schema":{
                     "type": "string",
                     "enum": [
-                        "municipality",
+
+                        "shareholder", 
+                        "boardmember", 
+                        "proveedor", 
+                        "funcionario",
+                        "company", 
+                        "institution",
                         "state",
                         "country",
-                        "funcionario",
-                        "proveedor",
-                        "proveedor%2Cfuncionario",
-                        "funcionario%2Cproveedor",
-                        "owner",
-                        "company",
-                        "institution",
                         "contract",
-                        "person",
+                        "purchase",
                         "city",
-                        "purchase"
+                        "Material médico",
+                        "Artículos de consumo",
+                        "Ropa y Telas",
+                        "Medicinas y vacunas",
+                        "Mobiliario"
+                  
                     ]
                 }
             },            
             "subclassification": {
                 "in": "query",
                 "name": "subclassification",
-                "description": "Subclassification for companies and institutions",
+                "description": "Subclassification for persons, companies and institutions",
                 "schema":{
                     "type": "string",
                     "enum": [
-                        "Government Institution",
-                        "Private Company",
-                        "Private Investment Firm",
-                        "Public Company",
-                        "Public Fund",
-                        "Public Investment Firm",
-                        "banco",
-                        "dependencia",
-                        "non-profit",
-                        "profit",
+                        "individual-person-with-significant-control",
+                        "director",
+                        "llp-member",
+                        "secretary",
+                        "llp-designated-member",
+                        "offshore",
                         "stock-exchange",
-                        "unidad-compradora"
+                        "profit",
+                        "dependencia",
+                        "banco",
+                        "unidad-compradora",
+                        "non-profit"
                     ]
                 }
             }

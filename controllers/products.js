@@ -1,5 +1,5 @@
 const lib = require('./libv3');
-const controllerIndex = "products_test"
+const controllerIndex = "products"
 
 function productsOperation(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
