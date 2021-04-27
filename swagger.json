@@ -634,6 +634,9 @@
                         "$ref": "#/components/parameters/source"
                     },
                     {
+                        "$ref": "#/components/parameters/classification"
+                    },                    
+                    {
                         "$ref": "#/components/parameters/format"
                     },
                     {
@@ -1260,7 +1263,8 @@
                         "institution",
                         "contract",
                         "person",
-                        "city"
+                        "city",
+                        "purchase"
                     ]
                 }
             },            
