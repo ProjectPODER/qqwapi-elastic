@@ -66,18 +66,18 @@ const query_definitions = {
   "country": {
     context: "should",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.address.countryName"],
+    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.buyer.address.countryName"],
     min: 1
   },
   "state": {
     context: "must",
     type: "multi_match",
-    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.address.region"],
+    fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.buyer.address.region"],
   },
   "city": {
     context: "must",
     type: "multi_match",
-    fields: ["area.id.keyword","area.name.keyword","parties.address.locality"],
+    fields: ["area.id.keyword","area.name.keyword","parties.buyer.address.locality"],
   },
   // apiFilterName: "name",
   // apiFieldNames:["name"],
@@ -549,7 +549,7 @@ const general_summary = {
 
 };
 
-const allIndexes = "areas,contracts,organizations,persons,products_test";
+const allIndexes = "areas,contracts,organizations,persons,products";
 
 const aggs_definitions = {
   [allIndexes]: general_summary,
@@ -812,17 +812,23 @@ function prepareOutput(body, context, debug) {
       }
   
       if (context.params.query.format == "csv") {
+        if (body.headers) {
 
-        const headerKeys = Object.keys(body.headers);
-        for (header in headerKeys) {
-          context.res.set(headerKeys[header],body.headers[headerKeys[header]]);
-    
+          const headerKeys = Object.keys(body.headers);
+          for (header in headerKeys) {
+            context.res.set(headerKeys[header],body.headers[headerKeys[header]]);
+      
+          }
+      
+          context.res
+            .status(body.statusCode)
+            .header("content-disposition","attachment; filename=\""+filename+"\"")
+            .setBody(body.body);
         }
-    
-        context.res
-          .status(body.statusCode)
-          .header("content-disposition","attachment; filename=\""+filename+"\"")
-          .setBody(body.body);
+        else {
+          console.error("CSV with no headers",body);
+          return "API Error: "+body.body;
+        }
       }
 
       if (context.params.query.format == "xlsx" || context.params.query.format == "xls") {
