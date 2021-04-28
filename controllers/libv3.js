@@ -503,9 +503,14 @@ const product_contracts_embed = {
   foreign_key: "contracts.items.classification.id",
   index: "contracts",
   location: "contracts",
-  aggs: {
-
-  }
+  _source: [
+    "contracts.items.quantity",
+    "contracts.items.unit.value.amount",
+    "contracts.items.unit.value.valueAverageMxIMSS",
+    "contracts.period.startDate",
+    "contracts.items.classification.id",
+    "contracts.items.unit.value.amountOverpriceMxIMSS"
+]
 }
 
 const embed_definitions = { 
@@ -657,6 +662,11 @@ async function embed(index,params,results,debug) {
               searchDocument.body.query.bool.should.push({match_phrase: {[edi.should[s]]: fieldPathExists(edi.should[s],result._source)[0] }})
             }
 
+            //Embed filter fields
+            if (edi._source) {
+              searchDocument.body._source = edi._source;
+            }
+
             //TODO: Embed aggregations
           }
         })
@@ -676,7 +686,7 @@ async function embed(index,params,results,debug) {
               if (edi.foreign_key) {
                 let foreign_key_value = fieldPathExists(edi.foreign_key, embedResult.body.hits.hits[h]._source)
                 if (debug) {
-                  console.log("embed",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
+                  console.log("embed each result",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
                 }
   
                 if (foreign_key_value[0] && foreign_key_value[0] == results.hits.hits[r]._source[edi.id]) {
