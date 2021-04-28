@@ -493,14 +493,14 @@ const products_buyer_embed = {
 const pruducts_related_embed = {
   must: ["cbmei.clave1_grupo_id","cbmei.clave2_especifico_id"],
   should: [ "name","cbmei.clave3_diferenciador_id"],
-  index: "products_test",
+  index: "products",
   location: "relatedProducts",
   dontRepeatSelf: true
 }
 
 const product_contracts_embed = {
   id: "id",
-  foreign_key: "items.id",
+  foreign_key: "contracts.items.classification.id",
   index: "contracts",
   location: "contracts",
   aggs: {
@@ -512,7 +512,7 @@ const embed_definitions = {
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
   organizations: [ ... membership_embed, products_buyer_embed, party_flags_embed ],
-  products_test: [ product_contracts_embed, pruducts_related_embed ],
+  products: [ product_contracts_embed, pruducts_related_embed ],
   contracts: [
     {
       id: "id",
@@ -556,7 +556,7 @@ const aggs_definitions = {
   areas: general_summary,
   persons: general_summary,
   organizations: general_summary,
-  products_test: general_summary,
+  products:  general_summary,
   contracts: Object.assign({},general_summary , {
     "amount": {
       "sum": {
