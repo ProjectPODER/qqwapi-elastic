@@ -490,7 +490,7 @@ const products_buyer_embed = {
 
 }
 
-const pruducts_related_embed = {
+const product_related_embed = {
   must: ["cbmei.clave1_grupo_id","cbmei.clave2_especifico_id"],
   should: [ "name","cbmei.clave3_diferenciador_id"],
   index: "products",
@@ -510,14 +510,99 @@ const product_contracts_embed = {
     "contracts.period.startDate",
     "contracts.items.classification.id",
     "contracts.items.unit.value.amountOverpriceMxIMSS"
-]
+  ],
+  aggs: [
+    { 
+      location: "suppliers",
+      definition: {
+        "terms": {
+          "field": "awards.suppliers.id.keyword",
+          "size": 100
+        },        
+        aggs: {
+          "nombre": {
+            "top_hits": {
+              "size": 1,
+              "_source": [
+                "awards.suppliers.name"
+              ]
+            }
+          },
+          "monto_total": {
+            "sum": {
+              "field": "contracts.value.amount"
+            }
+          },
+          "monto_total_sobrecosto": {
+            "sum": {
+              "field": "contracts.items.unit.value.amountOverpriceMxIMSS"
+            }
+          },
+          "sobrecosto": {
+            "avg": {
+              "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
+            }
+          },
+          "ultima_compra": {
+            "max": {
+              "field": "contracts.period.startDate"
+            }
+          },
+          "primera_compra": {
+            "min": {
+              "field": "contracts.period.startDate"
+            }
+          }
+        }
+      }
+    }
+    ,
+    { 
+      location: "buyers",
+      definition: {
+        "terms": {
+          "field": "buyer.id.keyword",
+          "size": 100
+        },
+        "aggs": {
+          "estado": {
+            "top_hits": {
+              "size": 1
+              , "_source": ["buyer.name","parties.buyer.address.region"]
+            }
+          },
+          "monto_total": {
+            "sum": {
+              "field": "contracts.value.amount"
+            }
+          },
+          "monto_total_sobrecosto": {
+            "sum": {
+              "field": "contracts.items.unit.value.overpriceMxIMSS"
+            }
+          },
+          "sobrecosto": {
+            "avg": {
+              "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
+            }
+  
+          },
+          "ultima_compra": {
+            "max": {
+              "field": "contracts.period.startDate"
+            }
+          }
+        }
+      }
+    },
+  ]
 }
 
 const embed_definitions = { 
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
   organizations: [ ... membership_embed, products_buyer_embed, party_flags_embed ],
-  products: [ product_contracts_embed, pruducts_related_embed ],
+  products: [ product_contracts_embed, product_related_embed ],
   contracts: [
     {
       id: "id",
@@ -627,7 +712,7 @@ async function embed(index,params,results,debug) {
 
         const searchDocument = {
           index: edi.index,
-          body: {size: 5000, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
+          body: {size: 5000, aggs: {}, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
           // errorTrace: true
         }
 
@@ -667,7 +752,12 @@ async function embed(index,params,results,debug) {
               searchDocument.body._source = edi._source;
             }
 
-            //TODO: Embed aggregations
+            //Embed aggregations
+            if (edi.aggs) {
+              for (a in edi.aggs) {
+                searchDocument.body.aggs[edi.aggs[a].location] = edi.aggs[a].definition;
+              }
+            }
           }
         })
   
@@ -680,7 +770,12 @@ async function embed(index,params,results,debug) {
           // console.log("embed",edi);
           const embedResult = await client.search(searchDocument);
       
-          // console.log("embed results",embedResult.body.hits.hits);
+          // console.log("embed results",embedResult.body);
+          if (embedResult.body.aggregations) {
+            //TODO: We're adding the aggregations to the first result instead of specifying which one. This would fail for queries multiple results.
+            results.hits.hits[0]._source[edi.location + "_summaries"] = formatSummary(embedResult.body.aggregations, debug);
+          }
+
           for (r in results.hits.hits) {
             for (h in embedResult.body.hits.hits) {
               if (edi.foreign_key) {
@@ -715,10 +810,12 @@ async function embed(index,params,results,debug) {
                   }                          
                   embedResult.body.hits.hits[h]._source.type = embedResult.body.hits.hits[h]._index.split("_")[0];
                   results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
+
                 }
                 
               }
             }
+
           }
         }  
         catch(e) {
@@ -762,7 +859,7 @@ async function search (index,params,debug) {
     console.log("search resultDataformat",searchDocumentDataformat);
 
     try {
-      let resultDataformat = await client.dataformat(searchDocumentDataformat,{})
+      let resultDataformat = await client.dataformat(searchDocumentDataformformatClassificationsat,{})
       // resultDataformat.body = client.serializer.deserialize(resultDataformat.body);
       return resultDataformat
     }
@@ -939,14 +1036,28 @@ function formatSummary(aggs,debug) {
     let agg_keys = Object.keys(aggs);
     for (key_index in agg_keys) {
       let key = agg_keys[key_index];
-      if (aggs[key].value) {
+      if (typeof aggs[key] == "number") {
+        summary[key] = aggs[key];
+      }
+      else if (aggs[key].value) {
         summary[key] = aggs[key].value;
+      }
+      else if (aggs[key].hits) {
+        summary[key] =  aggs[key].hits.hits[0]._source;
       }
       else {
         summary[key] = {};
         for (bucket_index in aggs[key].buckets) {
           let bucket = aggs[key].buckets[bucket_index];
-          summary[key][bucket.key_as_string || bucket.key ] = bucket.doc_count;
+          if (Object.keys(bucket).length > 2) {
+            console.log("formatSummary bucked", bucket)
+
+            summary[key][bucket.key_as_string || bucket.key ] = formatSummary(bucket);
+          }
+          else {
+
+            summary[key][bucket.key_as_string || bucket.key ] = bucket.doc_count;
+          }
         }
       }
     }
