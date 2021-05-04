@@ -44,7 +44,7 @@ function summaries(context) {
         "role": {
           "filters": {
             "filters": {
-              "buyer": {
+              "buyer_contract": {
                 "bool": {
                   "should": [
                     {
@@ -58,24 +58,74 @@ function summaries(context) {
                       }
                     }
                   ],
-                  "minimum_should_match": 1
+                  "must": [
+                    {
+                      "match": {
+                        "classification.keyword": "contract"
+                      }
+                    }
+                  ]  
                 }
               },
-              "supplier": {
+              "buyer_purchase": {
                 "bool": {
                   "should": [
                     {
                       "match_phrase": {
-                        "parties.suppliers.list.id.keyword": entity_id
+                        "parties.buyer.id.keyword": entity_id
+                      }
+                    },
+                    {
+                      "match_phrase": {
+                        "parties.buyer.memberOf.id.keyword": entity_id
                       }
                     }
                   ],
-                  "minimum_should_match": 1
+                  "minimum_should_match": 1,
+                  "must": [
+                    {
+                      "match": {
+                        "classification.keyword": "purchase"
+                      }
+                    }
+                  ]                  
+                }
+              },              
+              "supplier_contract": {
+                "bool": {
+                  "must": [
+                    {
+                      "match_phrase": {
+                        "parties.suppliers.list.id.keyword": entity_id
+                      }
+                    },
+                    {
+                      "match": {
+                        "classification.keyword": "contract"
+                      }
+                    }
+                  ]
+                }
+              },
+              "supplier_purchase": {
+                "bool": {
+                  "must": [
+                    {
+                      "match_phrase": {
+                        "parties.suppliers.list.id.keyword": entity_id
+                      }
+                    },
+                    {
+                      "match": {
+                        "classification.keyword": "purchase"
+                      }
+                    }
+                  ]
                 }
               },
               "contactPoint": {
                 "bool": {
-                  "should": [
+                  "must": [
                     {
                       "match": {
                         "parties.buyer.contactPoint.id.keyword": entity_id
@@ -396,7 +446,7 @@ function formatSummaries(result) {
   }
 
   const summaries = {
-    relation: formatGraph(result.body.aggregations)
+    
   };
 
   for (role in result.body.aggregations.role.buckets) {
@@ -429,7 +479,11 @@ function formatSummaries(result) {
       entityBucket = thisBucket.top_entities_funder.buckets;
       entityType = "institutions"
     }
-    if (role == "supplier") {
+    if (role == "supplier_contract") {
+      entityBucket = thisBucket.top_entities_buyer.buckets;
+      entityType = "institutions"
+    }
+    if (role == "supplier_purchase") {
       entityBucket = thisBucket.top_entities_buyer.buckets;
       entityType = "institutions"
     }
@@ -466,6 +520,7 @@ function formatSummaries(result) {
       top_entities: entitiesObject
     }
   }
+  summaries.relation = formatGraph(result.body.aggregations)
   return summaries;
 }
 
