@@ -639,6 +639,46 @@ const general_summary = {
 
 };
 
+const contracts_summary = {
+  "amount": {
+    "sum": {
+      "field": "contracts.value.amount"
+    }
+  },
+  "year": {
+    "date_histogram": {
+      "field": "contracts.period.startDate",
+      "calendar_interval": "1y",
+      "time_zone": "America/Mexico_City",
+      "min_doc_count": 1
+    },
+    "aggs": {
+      "amount": {
+        "sum": {
+          "field": "contracts.value.amount"
+        }
+      }
+    }
+  },
+  "type": {
+    "terms": {
+      "field": "tender.procurementMethod.raw",
+      "order": {
+        "_count": "desc"
+      },
+      "missing": "undefined",
+      "size": 10
+    },
+    "aggs": {
+      "amount": {
+        "sum": {
+          "field": "contracts.value.amount"
+        }
+      }
+    }
+  }
+}
+
 const allIndexes = "areas,contracts,organizations,persons,products";
 
 const aggs_definitions = {
@@ -647,45 +687,7 @@ const aggs_definitions = {
   persons: general_summary,
   organizations: general_summary,
   products:  general_summary,
-  contracts: Object.assign({},general_summary , {
-    "amount": {
-      "sum": {
-        "field": "contracts.value.amount"
-      }
-    },
-    "year": {
-      "date_histogram": {
-        "field": "contracts.period.startDate",
-        "calendar_interval": "1y",
-        "time_zone": "America/Mexico_City",
-        "min_doc_count": 1
-      },
-      "aggs": {
-        "amount": {
-          "sum": {
-            "field": "contracts.value.amount"
-          }
-        }
-      }
-    },
-    "type": {
-      "terms": {
-        "field": "tender.procurementMethod.raw",
-        "order": {
-          "_count": "desc"
-        },
-        "missing": "undefined",
-        "size": 10
-      },
-      "aggs": {
-        "amount": {
-          "sum": {
-            "field": "contracts.value.amount"
-          }
-        }
-      }
-    }
-  })
+  contracts: Object.assign({},general_summary , contracts_summary)
 }
 
 async function embed(index,params,results,debug) {
