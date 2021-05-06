@@ -101,12 +101,12 @@ const query_definitions = {
   // apiFieldNames:["contract_amount.supplier"],
   "contract_amount_supplier_min": {
     context: "must",
-    type: "range-gt",
+    type: "range-gte",
     field: "contract_amount.supplier"
   },
   "contract_amount_supplier_max": {
     context: "must",
-    type: "range-lt",
+    type: "range-lte",
     field: "contract_amount.supplier"
   },
 
@@ -118,12 +118,12 @@ const query_definitions = {
   // apiFieldNames:["contract_count.supplier"],
   "contract_count_supplier_min": {
     context: "must",
-    type: "range-gt",
+    type: "range-gte",
     field: "contract_count.supplier"
   },
   "contract_count_supplier_max": {
     context: "must",
-    type: "range-lt",
+    type: "range-lte",
     field: "contract_count.supplier"
   },
 
@@ -134,12 +134,12 @@ const query_definitions = {
   // apiFieldNames:["contract_amount.buyer"],
   "contract_amount_buyer_min": {
     context: "must",
-    type: "range-gt",
+    type: "range-gte",
     field: "contract_amount.buyer"
   },
   "contract_amount_buyer_max": {
     context: "must",
-    type: "range-lt",
+    type: "range-lte",
     field: "contract_amount.buyer"
   },
 
@@ -150,12 +150,12 @@ const query_definitions = {
   // apiFieldNames:["contract_count.buyer"],
   "contract_count_buyer_min": {
     context: "must",
-    type: "range-gt",
+    type: "range-gte",
     field: "contract_count.buyer"
   },
   "contract_count_buyer_max": {
     context: "must",
-    type: "range-lt",
+    type: "range-lte",
     field: "contract_count.buyer"
   },
 
@@ -167,12 +167,12 @@ const query_definitions = {
   // apiFieldNames:["contracts.period.startDate"],
   "start_date_min": {
     context: "must",
-    type: "range-gt",
+    type: "range-gte",
     field: "contracts.period.startDate"
   },
   "start_date_max": {
     context: "must",
-    type: "range-lt",
+    type: "range-lte",
     field: "contracts.period.startDate"
   },
 
@@ -184,12 +184,12 @@ const query_definitions = {
   // apiFieldNames:["total_amount"],
   "amount_min": {
     context: "must",
-    type: "range-gt",
+    type: "range-gte",
     field: "contracts.value.amount"
   },
   "amount_max": {
     context: "must",
-    type: "range-lt",
+    type: "range-lte",
     field: "contracts.value.amount"
   },
 
@@ -423,11 +423,11 @@ function paramsToBody(paramsObject, debug) {
             body.query.bool.minimum_should_match = qdp.min;
           }
 
-          if (qdp.type == "range-lt") {
-            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lt: params[param] }}} ); 
+          if (qdp.type == "range-lte") {
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lte: params[param] }}} ); 
           }
-          if (qdp.type == "range-gt") {
-            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gt: params[param] }}} ); 
+          if (qdp.type == "range-gte") {
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gte: params[param] }}} ); 
           }
 
         }
