@@ -1,6 +1,7 @@
 const { Client } = require('@elastic/elasticsearch');
 const laundry = require('company-laundry'); 
 const pjson = require('../package.json');
+const PRODUCTS_ACTIVE = false;
 
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
@@ -66,7 +67,7 @@ const query_definitions = {
     context: "should",
     type: "multi_match",
     fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.buyer.address.countryName"],
-    min: 1
+    // min: 1
   },
   "state": {
     context: "must",
@@ -844,6 +845,11 @@ async function search (index,params,debug) {
     index: index,
     body: paramsToBody(params),
     // errorTrace: true
+  }
+
+  //TODO: Hide products
+  if (!PRODUCTS_ACTIVE) {
+    searchDocument.body;
   }
 
   //This is the case for CSV with dataformat plugin
