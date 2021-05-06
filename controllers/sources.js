@@ -21,8 +21,9 @@ function allSources(context) {
               "terms": {
                 "field": "classification.keyword",
                 "order": {
-                  "_key": "asc"
-                }
+                  "_key": "asc",
+                },
+                "size": 20
               }
             },
             "date": {
@@ -37,7 +38,8 @@ function allSources(context) {
             "field": "classification.keyword",
             "order": {
               "_key": "asc"
-            }
+            },
+            "size": 20
           },
           "aggs": {
             "date": {
