@@ -1,440 +1,455 @@
 const lib = require('./libv3');
 const find = require('lodash/find');
 let debug = false;
+const useGraph = false;
 
 function summaries(context) {
   const entity_id = context.params.query.id;
-  debug = context.req.query.debug;
-
-  const summaryDocument = {
-    index: "contracts",
-    body: {
-      "query": {
-        "bool": {
-          "should": [
-            {
-              "match_phrase": {
-                "parties.buyer.id.keyword": entity_id
+  if (entity_id) {
+    debug = context.req.query.debug;
+  
+    const summaryDocument = {
+      index: "contracts",
+      body: {
+        "query": {
+          "bool": { 
+            "should": [
+              {
+                "match_phrase": {
+                  "parties.buyer.id.keyword": entity_id
+                }
+              },
+              {
+                "match_phrase": {
+                  "parties.buyer.memberOf.id.keyword": entity_id
+                }
+              },
+              {
+                "match_phrase": {
+                  "parties.suppliers.ids.keyword": entity_id
+                }
+              },
+              {
+                "match_phrase": {
+                  "parties.funder_ids.keyword": entity_id
+                }
+              },
+              {
+                "match": {
+                  "parties.buyer.contactPoint.id.keyword": entity_id
+                }
               }
-            },
-            {
-              "match_phrase": {
-                "parties.buyer.memberOf.id.keyword": entity_id
-              }
-            },
-            {
-              "match_phrase": {
-                "parties.suppliers.ids.keyword": entity_id
-              }
-            },
-            {
-              "match_phrase": {
-                "parties.funder_ids.keyword": entity_id
-              }
-            },
-            {
-              "match": {
-                "parties.buyer.contactPoint.id.keyword": entity_id
-              }
-            }
-          ]
-        }
-      },
-      "aggs": {
-        "role": {
-          "filters": {
+            ]
+          }
+        },
+        "aggs": {
+          "role": {
             "filters": {
-              "buyer_contract": {
-                "bool": {
-                  "should": [
-                    {
-                      "match_phrase": {
-                        "parties.buyer.id.keyword": entity_id
+              "filters": {
+                "buyer_contract": {
+                  "bool": {
+                    "should": [
+                      {
+                        "match_phrase": {
+                          "parties.buyer.id.keyword": entity_id
+                        }
+                      },
+                      {
+                        "match_phrase": {
+                          "parties.buyer.memberOf.id.keyword": entity_id
+                        }
                       }
-                    },
+                    ],
+                    "must": [
+                      {
+                        "match": {
+                          "classification.keyword": "contract"
+                        }
+                      }
+                    ]  
+                  }
+                },
+                "buyer_purchase": {
+                  "bool": {
+                    "should": [
+                      {
+                        "match_phrase": {
+                          "parties.buyer.id.keyword": entity_id
+                        }
+                      },
+                      {
+                        "match_phrase": {
+                          "parties.buyer.memberOf.id.keyword": entity_id
+                        }
+                      }
+                    ],
+                    "minimum_should_match": 1,
+                    "must": [
+                      {
+                        "match": {
+                          "classification.keyword": "purchase"
+                        }
+                      }
+                    ]                  
+                  }
+                },              
+                "supplier_contract": {
+                  "bool": {
+                    "must": [
+                      {
+                        "match_phrase": {
+                          "parties.suppliers.list.id.keyword": entity_id
+                        }
+                      },
+                      {
+                        "match": {
+                          "classification.keyword": "contract"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "supplier_purchase": {
+                  "bool": {
+                    "must": [
+                      {
+                        "match_phrase": {
+                          "parties.suppliers.list.id.keyword": entity_id
+                        }
+                      },
+                      {
+                        "match": {
+                          "classification.keyword": "purchase"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "contactPoint": {
+                  "bool": {
+                    "must": [
+                      {
+                        "match": {
+                          "parties.buyer.contactPoint.id.keyword": entity_id
+                        }
+                      }
+                    ],
+                    "minimum_should_match": 1
+                  }
+                },
+                "funder": {
+                  "bool": {
+                    "must": [
+                      {
+                        "match_phrase": {
+                          "parties.funder.id.keyword": entity_id
+                        }
+                      }
+                    ],
+                    "minimum_should_match": 1
+                  }
+                }
+              }
+            },
+            "aggs": {
+              "amount": {
+                "sum": {
+                  "field": "contracts.value.amount"
+                }
+              },
+              "year": {
+                "date_histogram": {
+                  "field": "contracts.period.startDate",
+                  "calendar_interval": "1y",
+                  "time_zone": "America/Mexico_City",
+                  "min_doc_count": 1
+                },
+                "aggs": {
+                  "amount": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  }
+                }
+              },
+              "type": {
+                "terms": {
+                  "field": "tender.procurementMethod.keyword",
+                  "order": {
+                    "_count": "desc"
+                  },
+                  "missing": "undefined",
+                  "size": 10
+                },
+                "aggs": {
+                  "amount": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  }
+                }
+              },
+              "top_contracts": {
+                "top_hits": {
+                  "sort": [
                     {
-                      "match_phrase": {
-                        "parties.buyer.memberOf.id.keyword": entity_id
+                      "contracts.value.amount": {
+                        "order": "desc"
                       }
                     }
                   ],
-                  "must": [
-                    {
-                      "match": {
-                        "classification.keyword": "contract"
-                      }
-                    }
-                  ]  
+                  "size": 3
                 }
               },
-              "buyer_purchase": {
-                "bool": {
-                  "should": [
-                    {
-                      "match_phrase": {
-                        "parties.buyer.id.keyword": entity_id
-                      }
-                    },
-                    {
-                      "match_phrase": {
-                        "parties.buyer.memberOf.id.keyword": entity_id
-                      }
-                    }
-                  ],
-                  "minimum_should_match": 1,
-                  "must": [
-                    {
-                      "match": {
-                        "classification.keyword": "purchase"
-                      }
-                    }
-                  ]                  
-                }
-              },              
-              "supplier_contract": {
-                "bool": {
-                  "must": [
-                    {
-                      "match_phrase": {
-                        "parties.suppliers.list.id.keyword": entity_id
-                      }
-                    },
-                    {
-                      "match": {
-                        "classification.keyword": "contract"
-                      }
-                    }
-                  ]
-                }
-              },
-              "supplier_purchase": {
-                "bool": {
-                  "must": [
-                    {
-                      "match_phrase": {
-                        "parties.suppliers.list.id.keyword": entity_id
-                      }
-                    },
-                    {
-                      "match": {
-                        "classification.keyword": "purchase"
-                      }
-                    }
-                  ]
-                }
-              },
-              "contactPoint": {
-                "bool": {
-                  "must": [
-                    {
-                      "match": {
-                        "parties.buyer.contactPoint.id.keyword": entity_id
-                      }
-                    }
-                  ],
-                  "minimum_should_match": 1
-                }
-              },
-              "funder": {
-                "bool": {
-                  "must": [
-                    {
-                      "match_phrase": {
-                        "parties.funder.id.keyword": entity_id
-                      }
-                    }
-                  ],
-                  "minimum_should_match": 1
-                }
-              }
-            }
-          },
-          "aggs": {
-            "amount": {
-              "sum": {
-                "field": "contracts.value.amount"
-              }
-            },
-            "year": {
-              "date_histogram": {
-                "field": "contracts.period.startDate",
-                "calendar_interval": "1y",
-                "time_zone": "America/Mexico_City",
-                "min_doc_count": 1
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                }
-              }
-            },
-            "type": {
-              "terms": {
-                "field": "tender.procurementMethod.keyword",
-                "order": {
-                  "_count": "desc"
+              "top_entities_buyer": {
+                "terms": {
+                  "field": "buyer.id.keyword",
+                  "order": {
+                    "amount": "desc"
+                  },
+                  "size": 3
                 },
-                "missing": "undefined",
-                "size": 10
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                }
-              }
-            },
-            "top_contracts": {
-              "top_hits": {
-                "sort": [
-                  {
-                    "contracts.value.amount": {
-                      "order": "desc"
+                "aggs": {
+                  "amount": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  },
+                  "entity": {
+                    "top_hits": {
+                      "size": 1
                     }
                   }
-                ],
-                "size": 3
-              }
-            },
-            "top_entities_buyer": {
-              "terms": {
-                "field": "buyer.id.keyword",
-                "order": {
-                  "amount": "desc"
+                }
+              },            
+              "top_entities_funder": {
+                "terms": {
+                  "field": "parties.funder.id.keyword",
+                  "order": {
+                    "amount": "desc"
+                  },
+                  "size": 3
                 },
-                "size": 3
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
+                "aggs": {
+                  "amount": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  },
+                  "entity": {
+                    "top_hits": {
+                      "size": 1
+                    }
                   }
+                }
+              },
+              "top_entities_supplier": {
+                "terms": {
+                  "field": "awards.suppliers.id.keyword",
+                  "order": {
+                    "amount": "desc"
+                  },
+                  "size": 3
                 },
-                "entity": {
-                  "top_hits": {
-                    "size": 1
+                "aggs": {
+                  "amount": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  },
+                  "entity": {
+                    "top_hits": {
+                      "size": 1
+                    }
+                  }
+                }
+              },
+              "top_entities_contactPoint": {
+                "terms": {
+                  "field": "awards.suppliers.id.keyword",
+                  "order": {
+                    "amount": "desc"
+                  },
+                  "size": 3
+                },
+                "aggs": {
+                  "amount": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  },
+                  "entity": {
+                    "top_hits": {
+                      "size": 1
+                    }
                   }
                 }
               }
-            },            
-            "top_entities_funder": {
-              "terms": {
-                "field": "parties.funder.id.keyword",
-                "order": {
-                  "amount": "desc"
-                },
-                "size": 3
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                },
-                "entity": {
-                  "top_hits": {
-                    "size": 1
-                  }
-                }
-              }
-            },
-            "top_entities_supplier": {
-              "terms": {
-                "field": "awards.suppliers.id.keyword",
-                "order": {
-                  "amount": "desc"
-                },
-                "size": 3
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                },
-                "entity": {
-                  "top_hits": {
-                    "size": 1
-                  }
-                }
-              }
-            },
-            "top_entities_contactPoint": {
-              "terms": {
-                "field": "awards.suppliers.id.keyword",
-                "order": {
-                  "amount": "desc"
-                },
-                "size": 3
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                },
-                "entity": {
-                  "top_hits": {
-                    "size": 1
-                  }
-                }
-              }
-            }
-
-          }
-        },
-        "relation_suppliers": {
-          "terms": {
-            "field": "awards.suppliers.id.keyword",
-            "size": 5000
-          },
-          "aggregations": {
-            "name": {
-              "terms": {
-                "field": "awards.suppliers.name.keyword",
-                "size": 1 
-              }
-            },
-
-            "type": {
-              "terms": {
-                "field": "tender.procurementMethod.keyword",
-                "order": {
-                  "_count": "desc"
-                },
-                "missing": "undefined",
-                "size": 10,
-              },
-
-            },
-            "uc": {
-              "terms": {
-                "field": "buyer.id.keyword",
-                "size": 5000                
-              },
-              "aggs": {
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
-                }
-                
-              }
+  
             }
           }
         },
-        "relation_uc": {
-          "terms": {
-            "field": "buyer.id.keyword",
-            "size": 5000
-          },
-          "aggregations": {
-            "name": {
-              "terms": {
-                "field": "buyer.name.keyword",
-                "size": 1 
-              }
-            },
-            "type": {
-              "terms": {
-                "field": "tender.procurementMethod.keyword",
-                "order": {
-                  "_count": "desc"
-                },
-                "missing": "undefined",
-                "size": 10,
-              },
+        "size": 0
+      }
+    }
 
-            },
-            "amount": {
-              "sum": {
-                "field": "contracts.value.amount"
-              }
-            },
-            "dependencia": {
-              "terms": {
-                "field": "parties.buyer.memberOf.id.keyword",
-                "size": 5000
+    const graphSummaryDocument = {
+    "relation_suppliers": {
+        "terms": {
+          "field": "awards.suppliers.id.keyword",
+          "size": 5000
+        },
+        "aggregations": {
+          "name": {
+            "terms": {
+              "field": "awards.suppliers.name.keyword",
+              "size": 1 
+            }
+          },
+
+          "type": {
+            "terms": {
+              "field": "tender.procurementMethod.keyword",
+              "order": {
+                "_count": "desc"
               },
-              "aggregations": {
-                "name": {
-                  "terms": {
-                    "field": "parties.buyer.memberOf.name.keyword",
-                    "size": 1 
-                  }
-                },
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
+              "missing": "undefined",
+              "size": 10,
+            },
+
+          },
+          "uc": {
+            "terms": {
+              "field": "buyer.id.keyword",
+              "size": 5000                
+            },
+            "aggs": {
+              "amount": {
+                "sum": {
+                  "field": "contracts.value.amount"
                 }
               }
+              
             }
           }
+        }
+      },
+      "relation_uc": {
+        "terms": {
+          "field": "buyer.id.keyword",
+          "size": 5000
         },
-        "relation_funder": {
-          "terms": {
-            "field": "parties.funder.id.keyword",
-            "size": 5000
+        "aggregations": {
+          "name": {
+            "terms": {
+              "field": "buyer.name.keyword",
+              "size": 1 
+            }
           },
-          "aggregations": {
-            "name": {
-              "terms": {
-                "field": "buyer.name.keyword",
-                "size": 1 
-              }
-            },
-            "type": {
-              "terms": {
-                "field": "tender.procurementMethod.keyword",
-                "order": {
-                  "_count": "desc"
-                },
-                "missing": "undefined",
-                "size": 10,
+          "type": {
+            "terms": {
+              "field": "tender.procurementMethod.keyword",
+              "order": {
+                "_count": "desc"
               },
+              "missing": "undefined",
+              "size": 10,
+            },
 
+          },
+          "amount": {
+            "sum": {
+              "field": "contracts.value.amount"
+            }
+          },
+          "dependencia": {
+            "terms": {
+              "field": "parties.buyer.memberOf.id.keyword",
+              "size": 5000
             },
-            "amount": {
-              "sum": {
-                "field": "contracts.value.amount"
-              }
-            },
-            "dependencia": {
-              "terms": {
-                "field": "parties.buyer.memberOf.id.keyword",
-                "size": 1   
-              },
-              "aggs": {
-                "name": {
-                  "terms": {
-                    "field": "parties.buyer.memberOf.name.keyword",
-                    "size": 1 
-                  }
-                },
-                "amount": {
-                  "sum": {
-                    "field": "contracts.value.amount"
-                  }
+            "aggregations": {
+              "name": {
+                "terms": {
+                  "field": "parties.buyer.memberOf.name.keyword",
+                  "size": 1 
                 }
-                
+              },
+              "amount": {
+                "sum": {
+                  "field": "contracts.value.amount"
+                }
               }
             }
           }
         }
       },
-      "size": 0
+      "relation_funder": {
+        "terms": {
+          "field": "parties.funder.id.keyword",
+          "size": 5000
+        },
+        "aggregations": {
+          "name": {
+            "terms": {
+              "field": "buyer.name.keyword",
+              "size": 1 
+            }
+          },
+          "type": {
+            "terms": {
+              "field": "tender.procurementMethod.keyword",
+              "order": {
+                "_count": "desc"
+              },
+              "missing": "undefined",
+              "size": 10,
+            },
+
+          },
+          "amount": {
+            "sum": {
+              "field": "contracts.value.amount"
+            }
+          },
+          "dependencia": {
+            "terms": {
+              "field": "parties.buyer.memberOf.id.keyword",
+              "size": 1   
+            },
+            "aggs": {
+              "name": {
+                "terms": {
+                  "field": "parties.buyer.memberOf.name.keyword",
+                  "size": 1 
+                }
+              },
+              "amount": {
+                "sum": {
+                  "field": "contracts.value.amount"
+                }
+              }
+              
+            }
+          }
+        }
+      }
+    }
+
+    if (useGraph === true) {
+      summaryDocument.body.aggs = Object.assign({}, summaryDocument.body.aggs, graphSummaryDocument);
+    }
+    
+    if (debug) {
+      console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
+    }
+  
+    return lib.client.search(summaryDocument).then(formatSummaries)
+  }
+  else {
+    return {
+      "error": "No id for entity summaries."
     }
   }
-  
-  if (debug) {
-    console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
-  }
-
-  return lib.client.search(summaryDocument).then(formatSummaries)
 
   
 
@@ -487,7 +502,11 @@ function formatSummaries(result) {
       entityBucket = thisBucket.top_entities_buyer.buckets;
       entityType = "institutions"
     }
-    if (role == "buyer") {
+    if (role == "buyer_contract") {
+      entityBucket = thisBucket.top_entities_supplier.buckets;
+      entityType = "companies"
+    }
+    if (role == "buyer_purchase") {
       entityBucket = thisBucket.top_entities_supplier.buckets;
       entityType = "companies"
     }
@@ -503,7 +522,8 @@ function formatSummaries(result) {
       const entityObject = find(allParties,{id: thisEntity.key});
       entityObject.contract_amount = { [entityObject.roles]: thisEntity.amount.value};
       entityObject.contract_count = { [entityObject.roles]: thisEntity.doc_count};
-      entityObject.type = entityType
+      entityObject.type = entityType;
+      entityObject.classification = entityObject.details.type;
 
       entitiesObject.push(entityObject)
     }
@@ -520,7 +540,10 @@ function formatSummaries(result) {
       top_entities: entitiesObject
     }
   }
-  summaries.relation = formatGraph(result.body.aggregations)
+
+  if (result.body.aggregations && result.body.aggregations.relation_suppliers) {
+    summaries.relation = formatGraph(result.body.aggregations)
+  }
   return summaries;
 }
 

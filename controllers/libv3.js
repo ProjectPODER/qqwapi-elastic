@@ -37,7 +37,6 @@ client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
   }
 })
 
-
 //Simple test query
 client.xpack.usage().then(
   () => {
@@ -861,7 +860,7 @@ async function search (index,params,debug) {
     console.log("search resultDataformat",searchDocumentDataformat);
 
     try {
-      let resultDataformat = await client.dataformat(searchDocumentDataformformatClassificationsat,{})
+      let resultDataformat = await client.dataformat(searchDocumentDataformat,{})
       // resultDataformat.body = client.serializer.deserialize(resultDataformat.body);
       return resultDataformat
     }
