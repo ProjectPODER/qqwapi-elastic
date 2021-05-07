@@ -14,7 +14,8 @@ async function createServer() {
         response.header('Access-Control-Allow-Origin', '*');
         response.header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
         response.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
-      
+        response.header('Cache-Control', 'public; max-age: 700');
+
         return next();
     });
 
