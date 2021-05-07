@@ -38,18 +38,33 @@ client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
   }
 })
 
-//Simple test query
-client.xpack.usage().then(
-  () => {
-    console.log("Connected to elastic node:",elasticNode);
-  }
-).catch(e => {
-  console.error("Error connecting to elastic node:",elasticNode,e);
-  if (e.meta && e.meta.body && e.meta.body.error) {
-    console.error("Error body", e.meta.body.error);
-  }
-  process.exit(100);
-})
+function elastic_test(retry=0) {
+
+  //Simple test query
+  client.xpack.usage().then(
+    () => {
+      console.log("Connected to elastic node:",elasticNode);
+    }
+  ).catch(e => {
+    if (retry < 3) {
+      console.log("Retry elastic");
+      setTimeout(() => {
+
+        elastic_test(retry+1)
+      },5000*(retry+1))
+    }
+    else {
+
+      console.error("Error connecting to elastic node:",elasticNode,e);
+      if (e.meta && e.meta.body && e.meta.body.error) {
+        console.error("Error body", e.meta.body.error);
+      }
+      process.exit(100);
+    }
+  })
+}
+
+elastic_test();
 
 const query_definitions = {
   // apiFilterName: "country",
@@ -332,9 +347,30 @@ const query_definitions = {
   },
   "collection": {
     context: "skip"
+  },
+  "products": {
+    context: "must_not",
+    type: "hide_products"
   }
+
 }
 
+const avoidProductsQuery = {
+  bool: {
+    must_not: [
+      {
+        "terms": {
+          "classification.keyword": ["purchase","Artículos de consumo","Material médico","Medicinas y vacunas","Mobiliario","Ropa y Telas"]
+        }
+      },
+      {
+        "match": {
+          "source.id.keyword": "cbmei"
+        }
+      } 
+    ]
+  }
+};
 
 function paramsToBody(paramsObject, debug) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
@@ -375,6 +411,12 @@ function paramsToBody(paramsObject, debug) {
             body[qdp.field] = params[param]; 
           }
 
+        }
+        else if (qdp.context == "must_not" ) {
+          //Hide products and purchases
+          if (params[param] != true) {
+            body.query.bool.must_not = avoidProductsQuery.bool.must_not;
+          }
         }        
         else {
           if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
@@ -847,10 +889,6 @@ async function search (index,params,debug) {
     // errorTrace: true
   }
 
-  //TODO: Hide products
-  if (!PRODUCTS_ACTIVE) {
-    searchDocument.body;
-  }
 
   //This is the case for CSV with dataformat plugin
   if (params.query.format) {
@@ -1188,5 +1226,6 @@ module.exports = {
     search,
     embed,
     allIndexes,
-    client
+    client,
+    avoidProductsQuery
 }

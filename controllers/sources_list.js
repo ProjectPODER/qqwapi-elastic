@@ -3,6 +3,7 @@ const controllerIndex = "sources"
 
 function allSourcesList(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
+  const products = context.params.query.products;
 
   const searchDocument = {
     index: lib.allIndexes,
@@ -21,9 +22,23 @@ function allSourcesList(context) {
     },
   };
 
-  if (debug) {
-    console.log ("allSourcesList searchDocument",JSON.stringify(searchDocument.body))
+  if (products != "true") {
+
+    searchDocument.body.query = lib.avoidProductsQuery;
+    searchDocument.body.query.bool.must_not.push(
+    {
+      "match": {
+        "source.id.keyword": "comprasimss"
+      }
+    } 
+    );
   }
+
+  if (debug) {
+    console.log ("allSourcesList searchDocument",products,lib.allIndexes,JSON.stringify(searchDocument.body))
+  }
+
+
 
   return lib.client.search(searchDocument)
     .then(returnAggregations)

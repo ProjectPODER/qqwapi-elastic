@@ -17,13 +17,13 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@elastic/elasticsearch": "^7.9.0",
+    "company-laundry": "git+https://github.com/ProjectPODER/lavanderia-empresarial",
     "deep-extend": "^0.6.0",
     "exegesis-express": "^2.0.0",
     "exegesis-plugin-swagger-ui-express": "^1.0.7",
     "express": "^4.17.1",
     "i18n-iso-countries": "^6.0.0",
-    "monk": "^7.3.2",
-    "company-laundry": "git+https://github.com/ProjectPODER/lavanderia-empresarial"
+    "monk": "^7.3.2"
   },
   "devDependencies": {
     "should": "^7.1.0",

@@ -3,6 +3,7 @@ const controllerIndex = "sources"
 
 function allSources(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
+  const products = context.params.query.products;
 
   const searchDocument = {
     index: lib.allIndexes,
@@ -70,6 +71,13 @@ function allSources(context) {
 
   if (debug) {
     console.log ("allSources searchDocument",JSON.stringify(searchDocument.body))
+  }
+
+
+  // console.log("allSources",products);
+  if (products != "true") {
+
+    searchDocument.body.query = lib.avoidProductsQuery;
   }
 
   return lib.client.search(searchDocument)

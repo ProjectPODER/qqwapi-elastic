@@ -165,6 +165,8 @@
                     {
                         "$ref": "#/components/parameters/city"
                     }                                                                         
+                    ,{"$ref":  "#/components/parameters/products"}
+
                 ],
                 "tags": [
                     "Search"
@@ -260,7 +262,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/country"
-                    }                                                                         
+                    }        
+                    ,{"$ref":  "#/components/parameters/products"}
+
 
                 ],
                 "responses": {
@@ -369,6 +373,8 @@
                     {
                         "$ref": "#/components/parameters/offset"
                     }
+                    ,{"$ref":  "#/components/parameters/products"}
+
                 ],
                 "responses": {
                     "200": {
@@ -473,6 +479,8 @@
                     {
                         "$ref": "#/components/parameters/offset"
                     }
+                    ,{"$ref":  "#/components/parameters/products"}
+
                 ],
                 "responses": {
                     "200": {
@@ -580,6 +588,8 @@
                     {
                         "$ref": "#/components/parameters/offset"
                     }
+                    ,{"$ref":  "#/components/parameters/products"}
+
                 ],
                 "responses": {
                     "200": {
@@ -693,6 +703,8 @@
                     {
                         "$ref": "#/components/parameters/offset"
                     }
+                    ,{"$ref":  "#/components/parameters/products"}
+
                 ],
                 "responses": {
                     "200": {
@@ -730,6 +742,9 @@
                 "tags": [
                     "Sources"
                 ],
+                "parameters": [
+                    {"$ref":  "#/components/parameters/products"}
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -756,6 +771,7 @@
                     }
                 }
             }
+
         },
         "/sourcesList": {
             "x-exegesis-controller": "sources_list",
@@ -765,6 +781,9 @@
                 "description": "Retrieve array of Source Documents",
                 "tags": [
                     "Sources"
+                ],
+                "parameters": [
+                    {"$ref":  "#/components/parameters/products"}
                 ],
                 "responses": {
                     "200": {
@@ -845,6 +864,8 @@
                     {
                         "$ref": "#/components/parameters/offset"
                     }
+                    ,{"$ref":  "#/components/parameters/products"}
+
                 ],
                 "responses": {
                     "200": {
@@ -1271,7 +1292,19 @@
                   
                     ]
                 }
-            },            
+            },     
+            "products": {
+                "in": "query",
+                "name": "products",
+                "description": "Show products or hide",
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "true",
+                        "false"
+                    ]
+                }
+            },
             "subclassification": {
                 "in": "query",
                 "name": "subclassification",
