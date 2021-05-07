@@ -1057,7 +1057,7 @@ function formatSummary(aggs,debug) {
         for (bucket_index in aggs[key].buckets) {
           let bucket = aggs[key].buckets[bucket_index];
           if (Object.keys(bucket).length > 2) {
-            console.log("formatSummary bucked", bucket)
+            // console.log("formatSummary bucked", bucket)
 
             summary[key][bucket.key_as_string || bucket.key ] = formatSummary(bucket);
           }
