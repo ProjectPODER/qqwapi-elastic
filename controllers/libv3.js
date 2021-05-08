@@ -1,8 +1,6 @@
 const { Client } = require('@elastic/elasticsearch');
 const laundry = require('company-laundry'); 
 const pjson = require('../package.json');
-const PRODUCTS_ACTIVE = false;
-
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 
@@ -414,7 +412,7 @@ function paramsToBody(paramsObject, debug) {
         }
         else if (qdp.context == "must_not" ) {
           //Hide products and purchases
-          if (params[param] != true) {
+          if (params[param] != "true") {
             body.query.bool.must_not = avoidProductsQuery.bool.must_not;
           }
         }        
@@ -624,6 +622,12 @@ const product_contracts_embed = {
             }
           },
           "sobrecosto": {
+            "avg": {
+              "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
+            }
+  
+          },
+          "cantidad_perdida": {
             "avg": {
               "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
             }
