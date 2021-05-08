@@ -22,9 +22,26 @@ function allSourcesList(context) {
     },
   };
 
+
   if (products != "true") {
 
-    searchDocument.body.query = lib.avoidProductsQuery;
+    searchDocument.body.query = {
+      bool: {
+        must_not: [
+          {
+            "terms": {
+              "classification.keyword": ["purchase","Artículos de consumo","Material médico","Medicinas y vacunas","Mobiliario","Ropa y Telas"]
+            }
+          },
+          {
+            "match": {
+              "source.id.keyword": "cbmei"
+            }
+          } 
+        ]
+      }
+    };
+    
     searchDocument.body.query.bool.must_not.push(
     {
       "match": {
