@@ -703,6 +703,7 @@
                     {
                         "$ref": "#/components/parameters/offset"
                     }
+                    ,{"$ref":  "#/components/parameters/product_name"}
                     ,{"$ref":  "#/components/parameters/products"}
 
                 ],
@@ -1298,11 +1299,15 @@
                 "name": "products",
                 "description": "Show products or hide",
                 "schema": {
-                    "type": "string",
-                    "enum": [
-                        "true",
-                        "false"
-                    ]
+                    "type": "boolean"
+                }
+            },
+            "product_name": {
+                "in": "query",
+                "name": "product_name",
+                "description": "Filter contracts by product name or id",
+                "schema": {
+                    "type": "string"
                 }
             },
             "subclassification": {
