@@ -590,6 +590,11 @@ const product_contracts_embed = {
               "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
             }
           },
+          "cantidad_perdida": {
+            "sum": {
+              "field": "contracts.items.unit.value.quantityLostMxIMSS"
+            }
+          },          
           "ultima_compra": {
             "max": {
               "field": "contracts.period.startDate"
@@ -635,11 +640,10 @@ const product_contracts_embed = {
   
           },
           "cantidad_perdida": {
-            "avg": {
-              "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
+            "sum": {
+              "field": "contracts.items.unit.value.quantityLostMxIMSS"
             }
-  
-          },
+          },    
           "ultima_compra": {
             "max": {
               "field": "contracts.period.startDate"
