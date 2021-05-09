@@ -288,8 +288,6 @@ function summaries(context) {
               "top_products" : {
                 "terms": {
                   "field": "contracts.items.id.keyword",
-                  //Ordenar 
-                  // campos: producto, cantidad, monto total, sobrecosto mxn, sobrecosto %, canidad perdida
                 },
                 "aggs": {
                   "producto": {
@@ -330,6 +328,16 @@ function summaries(context) {
                       "field": "contracts.period.startDate"
                     }
                   }
+                }
+              },
+              "sobrecosto_total": {
+                "sum": {
+                  "field": "contracts.items.unit.value.amountOverpriceMxIMSS"
+                }
+              },
+              "sobrecosto_porcentaje": {
+                "avg": {
+                  "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
                 }
               }
   
@@ -582,7 +590,9 @@ function formatSummaries(result) {
     summaries[role] = {
       total: {
         value: thisBucket.amount.value,
-        count: thisBucket.doc_count
+        count: thisBucket.doc_count,
+        sobrecosto_total: thisBucket.sobrecosto_total.value,
+        sobrecosto_porcentaje: thisBucket.sobrecosto_porcentaje.value
       },
       year: yearObject,
       type: typeObject,
@@ -603,18 +613,24 @@ function formatProducts(buckets) {
   let products = []
   for (b in buckets) {
     let p = buckets[b];
-    // console.log("formatProducts",b,buckets.length,buckets)
+    // console.log("formatProducts",p.key,p.producto.hits.hits[0]._source.contracts.items.classification.description)
   
-    products.push({
-      clave: p.key,
-      cantidad: p.doc_count,
-      monto_total: p.monto_total.value,
-      ultima_compra: p.ultima_compra.value_as_string,
-      // producto: p.producto.hits.hits[0]._source.contracts.items.classification.description,
-      monto_total_sobrecosto: p.monto_total_sobrecosto.value,
-      primera_compra: p.primera_compra.value_as_string,
-      sobrecosto: p.sobrecosto.value
-    })
+  //Ignore 0's and 9's
+   if (p.producto.hits.hits[0]._source.contracts) { 
+     products.push({
+       clave: p.key,
+       cantidad: p.doc_count,
+       monto_total: p.monto_total.value,
+       ultima_compra: p.ultima_compra.value_as_string,
+       producto: p.producto.hits.hits[0]._source.contracts.items.classification.description,
+       monto_total_sobrecosto: p.monto_total_sobrecosto.value,
+       primera_compra: p.primera_compra.value_as_string,
+       sobrecosto: p.sobrecosto.value
+     })
+   }
+   else {
+    //  console.log(p)
+   }
   }
   return products;
 }
