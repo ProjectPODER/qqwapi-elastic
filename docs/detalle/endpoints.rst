@@ -1,6 +1,10 @@
 Endpoints de consulta
 =====================
 
+```
+URL base de la API: https://api.quienesuquien.wiki/v3/ 
+```
+
 /companies
 ----------
 

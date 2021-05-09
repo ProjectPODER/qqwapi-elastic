@@ -12,10 +12,9 @@ Para detalles sobre el orígen de la infromación de la API, revisar la sección
 Nota: Esta documentación está en proceso de actualización. Por cualquier consulta por favor escribir a info@quienesquien.wiki.
 
 ```
-URL base de la API: https://api.beta.quienesuquien.wiki/v3/ 
+URL base de la API: https://api.quienesuquien.wiki/v3/ 
 ```
 
-(luego del período beta pasará a ser api.quienesquien.wiki/v3)
 
 .. toctree::
    :maxdepth: 2
