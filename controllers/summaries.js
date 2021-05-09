@@ -284,6 +284,53 @@ function summaries(context) {
                     }
                   }
                 }
+              },
+              "top_products" : {
+                "terms": {
+                  "field": "contracts.items.id.keyword",
+                  //Ordenar 
+                  // campos: producto, cantidad, monto total, sobrecosto mxn, sobrecosto %, canidad perdida
+                },
+                "aggs": {
+                  "producto": {
+                    "top_hits": {
+                      "size": 1,
+                      "_source": [
+                        "contracts.items.classification.description"
+                      ]
+                    }
+                  },                    
+                  "monto_total": {
+                    "sum": {
+                      "field": "contracts.value.amount"
+                    }
+                  },
+                  "monto_total_sobrecosto": {
+                    "sum": {
+                      "field": "contracts.items.unit.value.amountOverpriceMxIMSS"
+                    }
+                  },
+                  "sobrecosto": {
+                    "avg": {
+                      "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
+                    }
+                  },
+                  "cantidad_perdida": {
+                    "sum": {
+                      "field": "contracts.items.unit.value.quantityLostMxIMSS"
+                    }
+                  },          
+                  "ultima_compra": {
+                    "max": {
+                      "field": "contracts.period.startDate"
+                    }
+                  },
+                  "primera_compra": {
+                    "min": {
+                      "field": "contracts.period.startDate"
+                    }
+                  }
+                }
               }
   
             }
@@ -388,6 +435,9 @@ function summaries(context) {
           "field": "parties.funder.id.keyword",
           "size": 5000
         },
+        "order": {
+          "_count": "desc"
+        },        
         "aggregations": {
           "name": {
             "terms": {
@@ -537,7 +587,8 @@ function formatSummaries(result) {
       year: yearObject,
       type: typeObject,
       top_contracts: thisBucket.top_contracts.hits.hits.map(o => Object.assign(o._source,{type: o._index.split("_")[0]})),
-      top_entities: entitiesObject
+      top_entities: entitiesObject,
+      top_products: formatProducts(thisBucket.top_products.buckets)
     }
   }
 
@@ -545,6 +596,27 @@ function formatSummaries(result) {
     summaries.relation = formatGraph(result.body.aggregations)
   }
   return summaries;
+}
+
+function formatProducts(buckets) {
+  if (!buckets || buckets.length == 0) { return [] }
+  let products = []
+  for (b in buckets) {
+    let p = buckets[b];
+    // console.log("formatProducts",b,buckets.length,buckets)
+  
+    products.push({
+      clave: p.key,
+      cantidad: p.doc_count,
+      monto_total: p.monto_total.value,
+      ultima_compra: p.ultima_compra.value_as_string,
+      // producto: p.producto.hits.hits[0]._source.contracts.items.classification.description,
+      monto_total_sobrecosto: p.monto_total_sobrecosto.value,
+      primera_compra: p.primera_compra.value_as_string,
+      sobrecosto: p.sobrecosto.value
+    })
+  }
+  return products;
 }
 
 function formatGraph(graph) {
