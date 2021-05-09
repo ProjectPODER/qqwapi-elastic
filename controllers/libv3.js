@@ -525,7 +525,6 @@ const party_flags_embed = {
   }
 }
 
-//TODO: Embed aggregations
 const products_buyer_embed = {
   id: "id",
   foreign_key: "buyer.id",
@@ -798,12 +797,19 @@ async function embed(index,params,results,debug) {
               searchDocument.body.query.bool.should.push({match_phrase: {[foreignKeyword]: result._source[edi.id]}})
             }
 
+            function addFieldValue(type,field) {
+              let fieldValue = fieldPathExists(field,result._source)[0];
+              if (fieldValue) {
+                searchDocument.body.query.bool[type].push({match_phrase: {[edi.should[s]]: fieldValue }})
+              }
+            }
+
             //Support for must and should in related products
             for (m in edi.must) {
-              searchDocument.body.query.bool.must.push({match_phrase: {[edi.must[m]]: fieldPathExists(edi.must[m],result._source)[0] }})
+              addFieldValue("must",edi.must[m])
             }
             for (s in edi.should) {
-              searchDocument.body.query.bool.should.push({match_phrase: {[edi.should[s]]: fieldPathExists(edi.should[s],result._source)[0] }})
+              addFieldValue("must",edi.should[s])
             }
 
             //Embed filter fields
@@ -826,6 +832,10 @@ async function embed(index,params,results,debug) {
         }
       
         try {
+          if (searchDocument.body.query.bool.should.length == 0 && searchDocument.body.query.bool.must.length == 0) {
+            console.log("Empty search document")
+            return results;
+          }
           // console.log("embed",edi);
           const embedResult = await client.search(searchDocument);
       
