@@ -30,7 +30,10 @@ client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
       asStream: options.asStream || false,
       headers: options.headers || null
     }
-    console.log("makeRequest", request, requestOptions);
+
+    if (debug) {
+      console.log("makeRequest", request, requestOptions);
+    }
 
     return makeRequest(request, requestOptions)
   }
@@ -926,7 +929,9 @@ async function search (index,params,debug) {
       context: params
     };
 
-    console.log("search resultDataformat",searchDocumentDataformat);
+    if (debug) {
+      console.log("search resultDataformat",searchDocumentDataformat);
+    }
 
     try {
       let resultDataformat = await client.dataformat(searchDocumentDataformat,{})
