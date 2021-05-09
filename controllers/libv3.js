@@ -803,7 +803,7 @@ async function embed(index,params,results,debug) {
             function addFieldValue(type,field) {
               let fieldValue = fieldPathExists(field,result._source)[0];
               if (fieldValue) {
-                searchDocument.body.query.bool[type].push({match_phrase: {[edi.should[s]]: fieldValue }})
+                searchDocument.body.query.bool[type].push({match_phrase: {[field]: fieldValue }})
               }
             }
 
