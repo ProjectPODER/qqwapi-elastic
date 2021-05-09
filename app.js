@@ -47,8 +47,8 @@ async function createServer() {
 
     app.use((req, res) => {
         res.status(404).json({
-            en: `There's nothing here. Please check the docs: https://quienesquienapi.readthedocs.io/en/latest/`,
-            es: `Aquí no hay nada. Por favor revisa la documentación: https://quienesquienapi.readthedocs.io/es/latest/`,
+            es: `Aquí no hay nada. Por favor revisa la documentación: https://qqwapi-elastic.readthedocs.io/es/latest/`,
+            en: `There's nothing here. Please check the docs: https://qqwapi-elastic.readthedocs.io/es/latest/ (only in spanish)`,
             version: pjson.version,
             generated: new Date()
         });
