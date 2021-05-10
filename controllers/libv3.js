@@ -426,7 +426,7 @@ function paramsToBody(paramsObject, debug) {
 
         }
         else if (qdp.context == "must_not" ) {
-          console.log("qdp",qdp)
+          // console.log("qdp",qdp)
           //Hide products and purchases
           if (!body.query.bool.must_not) {
             body.query.bool.must_not = [];
