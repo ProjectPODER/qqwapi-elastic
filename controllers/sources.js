@@ -69,16 +69,18 @@ function allSources(context) {
     },
   };
 
-  if (debug) {
-    console.log ("allSources searchDocument",JSON.stringify(searchDocument.body))
-  }
 
 
   // console.log("allSources",products);
-  if (products != "true") {
+  if (products != true) {
 
     searchDocument.body.query = lib.avoidProductsQuery;
   }
+
+
+  if (debug) {
+    console.log ("allSources searchDocument",products,JSON.stringify(searchDocument.body))
+  }  
 
   return lib.client.search(searchDocument)
     .then(returnAggregations)
@@ -117,6 +119,9 @@ function formatClassifications(buckets) {
     }    
     if (bucket.key.indexOf("organizations_") == 0) {
       bucket.key = "organizations";
+    }   
+    if (bucket.key.indexOf("products_") == 0) {
+      bucket.key = "products";
     }   
 
     let classification = {
