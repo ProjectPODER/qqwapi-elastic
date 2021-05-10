@@ -842,7 +842,7 @@ async function embed(index,params,results,debug) {
               addFieldValue("must",edi.must[m])
             }
             for (s in edi.should) {
-              addFieldValue("must",edi.should[s])
+              addFieldValue("should",edi.should[s])
             }
 
             //Embed filter fields
