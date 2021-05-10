@@ -108,7 +108,7 @@ const query_definitions = {
     context: "must",
     type: "multi_match",
     match: "phrase_prefix",
-    fields: ["contracts.items.description","contracts.items.id"],
+    fields: ["contracts.items.description","contracts.items.id","contracts.items.classification.description" ],
     launder: false,
   },
   // apiFilterName: "identifier",
