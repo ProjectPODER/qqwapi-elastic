@@ -305,15 +305,21 @@ function summaries(context) {
                     }
                   },
                   "monto_total_sobrecosto": {
-                    "sum": {
-                      "field": "contracts.items.unit.value.amountOverpriceMxIMSS"
-                    }
+                    "scripted_metric": {
+                      "init_script": "state.sobrecostos = []", 
+                      "map_script": "if (doc['contracts.items.unit.value.amountOverpriceMxIMSS'].size()>0) { def o = doc['contracts.items.unit.value.amountOverpriceMxIMSS'].value; state.sobrecostos.add( o > 0 ? o : 0) }",
+                        "combine_script": "double sobrecosto = 0; for (t in state.sobrecostos) { sobrecosto += t } return sobrecosto",  
+                        "reduce_script": "double sobrecosto = 0; for (a in states) { sobrecosto += a } return sobrecosto"
+                      }
                   },
                   "sobrecosto": {
-                    "avg": {
-                      "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
-                    }
-                  },
+                    "scripted_metric": {
+                      "init_script": "state.sobrecostos = []", 
+                      "map_script": "if (doc['contracts.items.unit.value.percentageOverpriceMxIMSS'].size()>0) { def o = doc['contracts.items.unit.value.percentageOverpriceMxIMSS'].value; state.sobrecostos.add( o > 0 ? o : 0) }",
+                        "combine_script": "double sobrecosto = 0; for (t in state.sobrecostos) { sobrecosto += t } return sobrecosto/state.sobrecostos.length",  
+                        "reduce_script": "double sobrecosto = 0; for (a in states) { sobrecosto += a } return sobrecosto / states.length"
+                      }
+                  },                  
                   "cantidad_perdida": {
                     "sum": {
                       "field": "contracts.items.unit.value.quantityLostMxIMSS"
@@ -332,16 +338,21 @@ function summaries(context) {
                 }
               },
               "sobrecosto_total": {
-                "sum": {
-                  "field": "contracts.items.unit.value.amountOverpriceMxIMSS"
-                }
+                "scripted_metric": {
+                  "init_script": "state.sobrecostos = []", 
+                  "map_script": "if (doc['contracts.items.unit.value.amountOverpriceMxIMSS'].size()>0) { def o = doc['contracts.items.unit.value.amountOverpriceMxIMSS'].value; state.sobrecostos.add( o > 0 ? o : 0) }",
+                    "combine_script": "double sobrecosto = 0; for (t in state.sobrecostos) { sobrecosto += t } return sobrecosto",  
+                    "reduce_script": "double sobrecosto = 0; for (a in states) { sobrecosto += a } return sobrecosto"
+                  }
               },
               "sobrecosto_porcentaje": {
-                "avg": {
-                  "field": "contracts.items.unit.value.percentageOverpriceMxIMSS"
-                }
-              }
-  
+                "scripted_metric": {
+                  "init_script": "state.sobrecostos = []", 
+                  "map_script": "if (doc['contracts.items.unit.value.percentageOverpriceMxIMSS'].size()>0) { def o = doc['contracts.items.unit.value.percentageOverpriceMxIMSS'].value; state.sobrecostos.add( o > 0 ? o : 0) }",
+                    "combine_script": "double sobrecosto = 0; for (t in state.sobrecostos) { sobrecosto += t } return sobrecosto/state.sobrecostos.length",  
+                    "reduce_script": "double sobrecosto = 0; for (a in states) { sobrecosto += a } return sobrecosto / states.length"
+                  }
+              } 
             }
           }
         },
