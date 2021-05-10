@@ -360,6 +360,10 @@ const query_definitions = {
   "products": {
     context: "must_not",
     type: "hide_products"
+  },
+  "hide_by_id": {
+    context: "must_not",
+    type: "hide_by_id"
   }
 
 }
@@ -422,10 +426,24 @@ function paramsToBody(paramsObject, debug) {
 
         }
         else if (qdp.context == "must_not" ) {
+          console.log("qdp",qdp)
           //Hide products and purchases
-          if (params[param] != "true") {
-            body.query.bool.must_not = avoidProductsQuery.bool.must_not;
+          if (!body.query.bool.must_not) {
+            body.query.bool.must_not = [];
           }
+          if (qdp.type == "hide_products") {
+            if (params[param] != "true") {
+              body.query.bool.must_not.push(avoidProductsQuery.bool.must_not[0]);
+            }
+          }
+          if (qdp.type == "hide_by_id") {
+            body.query.bool.must_not.push({
+              "terms": {
+                "id.keyword": params[param].split(",")
+              }
+            })
+          }
+          
         }        
         else {
           if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
@@ -673,7 +691,7 @@ const embed_definitions = {
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
   organizations: [ ... membership_embed, products_buyer_embed, party_flags_embed ],
-  products: [ product_contracts_embed, product_related_embed ],
+  products: [ product_related_embed, product_contracts_embed ],
   contracts: [
     {
       id: "id",
@@ -865,7 +883,7 @@ async function embed(index,params,results,debug) {
               if (edi.foreign_key) {
                 let foreign_key_value = fieldPathExists(edi.foreign_key, embedResult.body.hits.hits[h]._source)
                 if (debug) {
-                  console.log("embed each result",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
+                  // console.log("embed each result",foreign_key_value,edi.foreign_key,embedResult.body.hits.hits[h]._source)
                 }
   
                 if (foreign_key_value[0] && foreign_key_value[0] == results.hits.hits[r]._source[edi.id]) {
@@ -925,7 +943,7 @@ async function search (index,params,debug) {
 
   const searchDocument = {
     index: index,
-    body: paramsToBody(params),
+    body: paramsToBody(params,debug),
     // errorTrace: true
   }
 
