@@ -48,6 +48,7 @@ function summaries(context) {
               "filters": {
                 "buyer_contract": {
                   "bool": {
+                    "minimum_should_match": 1,
                     "should": [
                       {
                         "match_phrase": {
