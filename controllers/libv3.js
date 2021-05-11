@@ -867,7 +867,7 @@ async function embed(index,params,results,debug) {
       
         try {
           if (searchDocument.body.query.bool.should.length == 0 && searchDocument.body.query.bool.must.length == 0) {
-            console.log("Empty search document")
+            console.log("Embed","Empty search document in index: ",index,"location:",edi.location);
             return results;
           }
           // console.log("embed",edi);
