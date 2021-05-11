@@ -592,7 +592,8 @@ const product_contracts_embed = {
             "top_hits": {
               "size": 1,
               "_source": [
-                "awards.suppliers.name"
+                "awards.suppliers.name",
+                "awards.suppliers.id"
               ]
             }
           },
@@ -647,7 +648,7 @@ const product_contracts_embed = {
           "estado": {
             "top_hits": {
               "size": 1
-              , "_source": ["buyer.name","parties.buyer.address.region"]
+              , "_source": ["buyer.name","buyer.id","parties.buyer.address.region"]
             }
           },
           "monto_total": {
