@@ -23,7 +23,7 @@ function allSourcesList(context) {
   };
 
 
-  if (products != "true") {
+  if (products != true) {
 
     searchDocument.body.query = {
       bool: {
