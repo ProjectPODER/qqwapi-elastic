@@ -1,9 +1,9 @@
 const lib = require('./libv3');
 
-let controllerIndex = lib.allIndexes;
 
 function autocomplete(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
+  let controllerIndex = lib.allIndexes;
 
   if (context.params.query.collection) {
     switch (context.params.query.collection) {
