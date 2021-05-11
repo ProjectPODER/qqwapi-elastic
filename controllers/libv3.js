@@ -9,7 +9,7 @@ const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 const client = new Client({ node: elasticNode, ssl: { rejectUnauthorized: false }, resurrectStrategy: "none", compression: "gzip" });
 
 client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
-  return function dataformat (params, options) {
+  return function dataformat (params, options, debug) {
     // build request object
     const request = {
       method: params.method || 'GET',
@@ -965,7 +965,7 @@ async function search (index,params,debug) {
     }
 
     try {
-      let resultDataformat = await client.dataformat(searchDocumentDataformat,{})
+      let resultDataformat = await client.dataformat(searchDocumentDataformat,{}, debug)
       // resultDataformat.body = client.serializer.deserialize(resultDataformat.body);
       return resultDataformat
     }
