@@ -20,7 +20,7 @@ function autocomplete(context) {
         controllerIndex = "areas";
       break;
       case "products":
-        controllerIndex = "products_test";
+        controllerIndex = "products";
       break;
       case "contracts":
         controllerIndex = "contracts";
