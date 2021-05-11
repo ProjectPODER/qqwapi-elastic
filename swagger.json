@@ -415,7 +415,7 @@
                     },
                     {
                         "$ref":  "#/components/parameters/ids"
-                    },                      
+                    },
                     {
                         "$ref": "#/components/parameters/identifier"
                     },
@@ -428,6 +428,9 @@
                     {
                         "$ref": "#/components/parameters/source"
                     },
+
+
+                    
                     {
                         "$ref": "#/components/parameters/country"
                     },
@@ -987,7 +990,10 @@
                 "description": "Series of unique identifier for entity. Format depends on endpoint: areas is ISO 3166 (for countries and states, and slug for municipalities), contracts is procedure number in source, companies, institutions, persons and sources is slug.",
                 "allowEmptyValue": true,
                 "schema": {
-                    "type": "array"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "ocid": {
