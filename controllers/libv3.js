@@ -484,7 +484,7 @@ function paramsToBody(paramsObject, debug) {
                   value = laundry.launder(value);
                 }
           
-                function_score[qdp.type].functions.push({ weight: 10, filter: { match: { [qdp.field]: value }}});             
+                function_score[qdp.type].functions.push({ weight: 100, filter: { match: { [qdp.field]: value }}});             
               })
             }
             body.query.bool[qdp.context].push(function_score);
