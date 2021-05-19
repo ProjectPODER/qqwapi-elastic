@@ -3,7 +3,6 @@ const controllerIndex = "sources"
 
 function allSourcesList(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
-  const products = context.params.query.products;
 
   const searchDocument = {
     index: lib.allIndexes,
@@ -21,35 +20,6 @@ function allSourcesList(context) {
       }
     },
   };
-
-
-  if (products != true) {
-
-    searchDocument.body.query = {
-      bool: {
-        must_not: [
-          {
-            "terms": {
-              "classification.keyword": ["purchase","Artículos de consumo","Material médico","Medicinas y vacunas","Mobiliario","Ropa y Telas"]
-            }
-          },
-          {
-            "match": {
-              "source.id.keyword": "cbmei"
-            }
-          } 
-        ]
-      }
-    };
-    
-    searchDocument.body.query.bool.must_not.push(
-    {
-      "match": {
-        "source.id.keyword": "comprasimss"
-      }
-    } 
-    );
-  }
 
   if (debug) {
     console.log ("allSourcesList searchDocument",products,lib.allIndexes,JSON.stringify(searchDocument.body))

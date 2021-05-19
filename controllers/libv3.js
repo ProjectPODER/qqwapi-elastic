@@ -357,33 +357,12 @@ const query_definitions = {
   "collection": {
     context: "skip"
   },
-  "products": {
-    context: "must_not",
-    type: "hide_products"
-  },
   "hide_by_id": {
     context: "must_not",
     type: "hide_by_id"
   }
 
 }
-
-const avoidProductsQuery = {
-  bool: {
-    must_not: [
-      {
-        "terms": {
-          "classification.keyword": ["purchase","Artículos de consumo","Material médico","Medicinas y vacunas","Mobiliario","Ropa y Telas"]
-        }
-      },
-      {
-        "match": {
-          "source.id.keyword": "cbmei"
-        }
-      } 
-    ]
-  }
-};
 
 function paramsToBody(paramsObject, debug) {
   const params = Object.assign({}, paramsObject.query, paramsObject.path);
@@ -430,11 +409,6 @@ function paramsToBody(paramsObject, debug) {
           //Hide products and purchases
           if (!body.query.bool.must_not) {
             body.query.bool.must_not = [];
-          }
-          if (qdp.type == "hide_products") {
-            if (params[param] != "true") {
-              body.query.bool.must_not.push(avoidProductsQuery.bool.must_not[0]);
-            }
           }
           if (qdp.type == "hide_by_id") {
             body.query.bool.must_not.push({
@@ -1287,6 +1261,5 @@ module.exports = {
     search,
     embed,
     allIndexes,
-    client,
-    avoidProductsQuery
+    client
 }
