@@ -10,7 +10,8 @@ function allPersons(context) {
     })
     .then(body => {
       return lib.prepareOutput(body, context, debug)
-    })}
+    })
+}
 
 
 module.exports = {allPersons}

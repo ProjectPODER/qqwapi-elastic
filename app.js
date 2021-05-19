@@ -4,16 +4,25 @@ const http = require('http');
 const path = require('path');
 const exegesisSwaggerUIPlugin = require( 'exegesis-plugin-swagger-ui-express' );
 const pjson = require('./package.json');
+const morgan = require('morgan');
+
 
 async function createServer() {
     const app = express();
 
+    //Log requests to console
+    app.use(morgan('short', {
+        // log only 4xx and 5xx responses to console
+        // skip: function (req, res) { return (res.statusCode < 400 && (req.headers.accept && req.headers.accept.indexOf("html") == -1 )) }
+    }))
     
 
     app.use((request, response, next) => {
         response.header('Access-Control-Allow-Origin', '*');
         response.header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
         response.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+
+        //TODO: Don't cache on debug
         response.header('Cache-Control', 'public; max-age: 700');
 
         return next();
