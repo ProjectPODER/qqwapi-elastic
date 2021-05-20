@@ -1,6 +1,24 @@
 const { Client } = require('@elastic/elasticsearch');
 const laundry = require('company-laundry'); 
-const pjson = require('../package.json');
+const fs = require('fs'); 
+
+
+function packageVersion() {
+  const pjson = require('../package.json');
+  let gitHead = fs.readFileSync(".git/HEAD", 'utf8');
+  if (gitHead.indexOf("refs/") > -1) {
+    gitHead = fs.readFileSync(".git/ORIG_HEAD", 'utf8');
+  }
+  return {
+    version: pjson.version,
+    commit: gitHead,
+    commit_short: gitHead.substr(0,7)
+  }
+}
+
+const version = packageVersion();
+
+console.log("QQWAPI",version);
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
 
@@ -66,6 +84,7 @@ function elastic_test(retry=0) {
 }
 
 elastic_test();
+
 
 const query_definitions = {
   // apiFilterName: "country",
@@ -1099,9 +1118,9 @@ function prepareOutput(body, context, debug) {
         pages: pagesNum,
         count: count,
         count_precission: count_precission,
-        version: pjson.version,
-        error: bodyhits ? bodyhits.error : "Unexpected error",
+        version: version,
         generated: new Date(),
+        error: bodyhits ? bodyhits.error : "Unexpected error",
         summary: formatSummary(body.aggregations,debug),
         data,
     };
@@ -1261,5 +1280,6 @@ module.exports = {
     search,
     embed,
     allIndexes,
-    client
+    client,
+    version
 }

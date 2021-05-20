@@ -40,6 +40,8 @@ function returnAggregations(response) {
     limit: null,
     offset: null,
     pages: null,
+    version: lib.version,
+    generated: new Date(),
     count: response.body.aggregations.sourceList.buckets.length,
     count_precission: "eq",
     data: formatSourcesList(response.body.aggregations.sourceList.buckets), 

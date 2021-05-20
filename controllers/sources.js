@@ -87,6 +87,8 @@ function returnAggregations(response) {
     pages: null,
     count: response.body.aggregations.source.buckets.length,
     count_precission: "eq",
+    version: lib.version,
+    generated: new Date(),
     data: { 
       index: formatClassifications(response.body.aggregations.index.buckets) ,
       classification: formatClassifications(response.body.aggregations.classification.buckets),
