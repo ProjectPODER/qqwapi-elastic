@@ -396,11 +396,13 @@ function paramsToBody(paramsObject, debug) {
       
       params[param] = decodeURIComponent(params[param]);
 
-      if (qdp.launder && ! params[param].map) {
-        params[param] = laundry.launder(params[param]);
-      }
       // console.log(param,query_definitions[param]);
       if (qdp) {
+        console.log("laundry",qdp.launder,param,params[param]);
+        if (qdp.launder && ! params[param].map) {
+          params[param] = laundry.launder(params[param]);
+        }
+  
         if (qdp.context == "skip") {
           //Skip
         }
