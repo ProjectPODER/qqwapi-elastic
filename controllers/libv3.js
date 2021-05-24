@@ -398,7 +398,7 @@ function paramsToBody(paramsObject, debug) {
 
       // console.log(param,query_definitions[param]);
       if (qdp) {
-        console.log("laundry",qdp.launder,param,params[param]);
+        // console.log("laundry",qdp.launder,param,params[param]);
         if (qdp.launder && ! params[param].map) {
           params[param] = laundry.launder(params[param]);
         }
@@ -579,7 +579,7 @@ const product_contracts_embed = {
       location: "suppliers",
       definition: {
         "terms": {
-          "field": "awards.suppliers.id.keyword",
+          "field": "parties.suppliers.list.id.keyword",
           "size": 100
         },        
         aggs: {
@@ -587,8 +587,9 @@ const product_contracts_embed = {
             "top_hits": {
               "size": 1,
               "_source": [
-                "awards.suppliers.name",
-                "awards.suppliers.id"
+                "parties.suppliers.list.name",
+                "parties.suppliers.list.id",
+                "parties.suppliers.list.details.type"
               ]
             }
           },
