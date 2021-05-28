@@ -43,7 +43,14 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/ocid"
-                    }                                  
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    }                   
+
                 ],
                 "operationId": "allRecords",
                 "tags": [

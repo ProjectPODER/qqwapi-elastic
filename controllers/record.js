@@ -1,18 +1,23 @@
-const monk = require('monk');
-const clone = require('lodash/clone');
 const lib = require('./libv3');
+const controllerIndex = "records"
+const clone = require("lodash").clone
 
-const dbConnect = process.env.MONGODB_URI || 'localhost:27017/da39a3ee5';
-const db = monk(dbConnect);
+function allRecords(context) {
+  const debug = context.req.originalUrl.indexOf("debug") > -1;
 
-db.then(() => {
-  process.stdout.write(`Connected to mongod server: ${dbConnect}\n`);
-});
-db.catch(err => {
-  console.error("Error connecting to mongod server: ",dbConnect,err);
-})
+  return lib.search(controllerIndex,context.params,debug)
+    .then(results => { 
+      return lib.embed(controllerIndex,context.params,results,debug) 
+    })
+    .then(body => {
+      const rp = addRecordPackage(body,debug)
+      return lib.prepareOutput(rp, context, debug)
+    })
+}
 
-const collection = db.get('records', { castIds: false });
+
+module.exports = {allRecords}
+
 
 const recordPackageBase = {
   uri: '',
@@ -40,60 +45,13 @@ function addRecordPackage(object, debug) {
   if (debug) {
     console.log("addRecordPackage", object);
   }
-  if (typeof object[0] == "object") {
+  if (object && object.hits && object.hits.hits  && object.hits.hits[0] && typeof object.hits.hits[0]._source && typeof object.hits.hits[0]._source == "object") {
     const recordPackage = clone(recordPackageBase);
 
-    recordPackage.records = object[0];
-    recordPackage.uri = `https://api.beta.quienesquien.wiki/v3/record/${object[0].ocid}`;
-    recordPackage.publishedDate = object[0].compiledRelease.date;
-    object = [recordPackage];
+    recordPackage.records = object.hits.hits[0]._source;
+    recordPackage.uri = `https://api.quienesquien.wiki/v3/record?ocid=${object.hits.hits[0]._source.ocid}`;
+    recordPackage.publishedDate = object.hits.hits[0]._source.compiledRelease.date;
+    object.hits.hits[0]._source = recordPackage;
   }
   return object;
 }
-
-async function allRecords(context) {
-  const debug = context.req.originalUrl.indexOf("debug") > -1;
-  const query = {ocid: context.params.query.ocid };
-  const offset = 0;
-  // console.log("allContracts debug",debug,context.params.query);
-
-  if (debug) {
-    console.log("DEBUG allContracts query",JSON.stringify(query,null,4));
-  }
-
-  return collection.find(query, {}).catch(err => {
-    console.error("allDocuments error",err);
-    if (err) {
-      return `error: ${err}`;
-    }
-    return err;
-  })
-    .then(array => (addRecordPackage(array, debug)))
-    .catch(err => {
-      console.error('allContracts query error', err);
-      if (err) {
-        return err;
-      }
-      return false;
-    })
-    .then((array) => {
-      if (debug) {
-        console.log("return",array);
-      }
-      return {
-        status: "success",
-        size:1,
-        limit:1,
-        offset:0,
-        pages: 1,
-        count: 1,
-        count_precission: "eq",
-        data: array,
-    };      
-    })
-}
-
-
-module.exports = {
-  allRecords,
-};

@@ -309,9 +309,9 @@ const query_definitions = {
     field: "id.keyword"
   },
   "ocid": {
-    context: "filter",
-    type: "term",
-    field: "ocid"
+    context: "must",
+    type: "match",
+    field: "ocid.keyword"
   },
 
   // apiFilterName: "buyer_id",
@@ -412,6 +412,7 @@ function paramsToBody(paramsObject, debug) {
           }
         }
         else if (qdp.context == "body") {
+
           if (qdp.type=="sort") {
             body.sort.push({[params[param]]: {order: "desc"}});             
           }
@@ -422,6 +423,7 @@ function paramsToBody(paramsObject, debug) {
           }
           if (!qdp.type) {
             body[qdp.field] = params[param]; 
+
           }
 
         }
@@ -773,7 +775,8 @@ const aggs_definitions = {
   persons: general_summary,
   organizations: general_summary,
   products:  general_summary,
-  contracts: Object.assign({},general_summary , contracts_summary)
+  contracts: Object.assign({},general_summary , contracts_summary),
+  records: Object.assign({},general_summary , contracts_summary)
 }
 
 async function embed(index,params,results,debug) {
@@ -992,6 +995,7 @@ async function search (index,params,debug) {
       
   }
   else {
+    console.error("Search size is bigger than 10000","bodysize",searchDocument.body.size, "bodyfrom",searchDocument.body.from,"sum",((parseInt(searchDocument.body.from) + parseInt(searchDocument.body.size))));
     return {error: "Search size is bigger than 10000. Elasticsearch does not allow it."}
   }
 }
