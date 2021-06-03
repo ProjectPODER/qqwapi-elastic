@@ -590,8 +590,8 @@ function formatSummaries(result) {
 
       let allParties = [... [thisEntity.entity.hits.hits[0]._source.parties.buyer], ... [thisEntity.entity.hits.hits[0]._source.funder], ...thisEntity.entity.hits.hits[0]._source.parties.suppliers.list]
       const entityObject = find(allParties,{id: thisEntity.key});
-      console.log("formatSummaries allParties",thisEntity.key,allParties);
-      console.log("formatSummaries entityObject",entityObject);
+      // console.log("formatSummaries allParties",thisEntity.key,allParties);
+      // console.log("formatSummaries entityObject",entityObject);
       if (entityObject) {
 
         entityObject.contract_amount = { [entityObject.roles]: thisEntity.amount.value};
