@@ -776,7 +776,7 @@ const aggs_definitions = {
   organizations: general_summary,
   products:  general_summary,
   contracts: Object.assign({},general_summary , contracts_summary),
-  records: Object.assign({},general_summary , contracts_summary)
+  records: {}
 }
 
 async function embed(index,params,results,debug) {
@@ -931,7 +931,7 @@ async function embed(index,params,results,debug) {
 
     }
     else {
-      console.error("No embed definitions for",index)
+      // console.error("No embed definitions for",index)
       return results;
     }
   }
