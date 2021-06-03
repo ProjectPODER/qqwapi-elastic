@@ -22,7 +22,7 @@ function allSourcesList(context) {
   };
 
   if (debug) {
-    console.log ("allSourcesList searchDocument",products,lib.allIndexes,JSON.stringify(searchDocument.body))
+    console.log ("allSourcesList searchDocument",lib.allIndexes,JSON.stringify(searchDocument.body))
   }
 
 

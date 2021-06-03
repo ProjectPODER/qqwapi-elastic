@@ -99,7 +99,7 @@ const query_definitions = {
     context: "skip"
   },
   "country": {
-    context: "should",
+    context: "must",
     type: "multi_match",
     fields: ["area.id.keyword","parent_id.keyword","area.name.keyword","parent.keyword","parties.buyer.address.countryName"],
     // min: 1
