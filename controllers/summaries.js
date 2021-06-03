@@ -590,12 +590,18 @@ function formatSummaries(result) {
 
       let allParties = [... [thisEntity.entity.hits.hits[0]._source.parties.buyer], ... [thisEntity.entity.hits.hits[0]._source.funder], ...thisEntity.entity.hits.hits[0]._source.parties.suppliers.list]
       const entityObject = find(allParties,{id: thisEntity.key});
-      entityObject.contract_amount = { [entityObject.roles]: thisEntity.amount.value};
-      entityObject.contract_count = { [entityObject.roles]: thisEntity.doc_count};
-      entityObject.type = entityType;
-      entityObject.classification = entityObject.details.type;
+      console.log("formatSummaries allParties",thisEntity.key,allParties);
+      console.log("formatSummaries entityObject",entityObject);
+      if (entityObject) {
 
-      entitiesObject.push(entityObject)
+        entityObject.contract_amount = { [entityObject.roles]: thisEntity.amount.value};
+        entityObject.contract_count = { [entityObject.roles]: thisEntity.doc_count};
+        entityObject.type = entityType;
+        entityObject.classification = entityObject.details.type;
+  
+        entitiesObject.push(entityObject)
+      }
+      
     }
     // console.log(b,thisBucket);
 
