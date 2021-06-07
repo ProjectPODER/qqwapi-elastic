@@ -476,12 +476,13 @@ function paramsToBody(paramsObject, debug) {
                 values = [params[param]]
               }
               
-              values.map( value => {
+              values.map( (value, index) => {
+                // console.log("function_score",value,index,qdp.field)
                 if (qdp.launder ) {
                   value = laundry.launder(value);
                 }
           
-                function_score[qdp.type].functions.push({ weight: 100, filter: { match: { [qdp.field]: value }}});             
+                function_score[qdp.type].functions.push({ weight: ((100+values.length)-index), filter: { match: { [qdp.field]: value }}});             
               })
             }
             body.query.bool[qdp.context].push(function_score);
