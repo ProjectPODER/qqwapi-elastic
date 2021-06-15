@@ -752,11 +752,11 @@ const contracts_summary = {
   },
   "type": {
     "terms": {
-      "field": "tender.procurementMethod.raw",
+      "field": "tender.procurementMethod.keyword",
       "order": {
         "_count": "desc"
       },
-      "missing": "undefined",
+      "missing": "other",
       "size": 10
     },
     "aggs": {
