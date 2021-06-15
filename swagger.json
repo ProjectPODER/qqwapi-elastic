@@ -636,6 +636,9 @@
                 ],
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/months_summary"
+                    },
+                    {
                         "$ref": "#/components/parameters/name"
                     },
                     {
@@ -976,6 +979,15 @@
                 "name": "name",
                 "in": "query",
                 "description": "Partial or complete name of the entity.",
+                "allowEmptyValue": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "months_summary": {
+                "name": "months_summary",
+                "in": "query",
+                "description": "Show an additional summary of contracts, count and amount per month.",
                 "allowEmptyValue": true,
                 "schema": {
                     "type": "string"

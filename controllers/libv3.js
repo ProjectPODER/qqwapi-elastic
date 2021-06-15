@@ -739,7 +739,8 @@ const contracts_summary = {
       "field": "contracts.period.startDate",
       "calendar_interval": "1y",
       "time_zone": "America/Mexico_City",
-      "min_doc_count": 1
+      "min_doc_count": 1,
+      "format": "yyyy"
     },
     "aggs": {
       "amount": {
@@ -757,6 +758,25 @@ const contracts_summary = {
       },
       "missing": "undefined",
       "size": 10
+    },
+    "aggs": {
+      "amount": {
+        "sum": {
+          "field": "contracts.value.amount"
+        }
+      }
+    }
+  }
+}
+
+const contracts_summary_month = {
+  "month": {
+    "date_histogram": {
+      "field": "contracts.period.startDate",
+      "calendar_interval": "1m",
+      "time_zone": "America/Mexico_City",
+      "min_doc_count": 1,
+      "format": "yyyy-MM"
     },
     "aggs": {
       "amount": {
@@ -979,6 +999,10 @@ async function search (index,params,debug) {
   //Add aggregations for result summaries
   if (aggs_definitions[index]) {
     searchDocument.body.aggs = aggs_definitions[index];
+  }
+
+  if (params.query.months_summary) {
+    searchDocument.body.aggs =  Object.assign({}, searchDocument.body.aggs, contracts_summary_month) 
   }
 
   // console.log("search size",searchDocument.body.from,searchDocument.body.size,(searchDocument.body.from + searchDocument.body.size))
