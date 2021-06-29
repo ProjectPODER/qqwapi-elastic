@@ -346,6 +346,12 @@ const query_definitions = {
     type: "sort",
     field: "sort"
   },
+ 
+  // "sort": {
+  //   context: "should",
+  //   type: "function_score_sort",
+  //   field: "sort"
+  // },  
 
   // OK apiFilterName: "sort_direction",
   // apiFieldNames:["_sortDirection"],
@@ -418,7 +424,7 @@ function paramsToBody(paramsObject, debug) {
           }
           if (qdp.type=="direction") {
             if (params["sort"]) {
-              body.sort[0][params["sort"]] = {order: params[param]};             
+              // body.sort[0][params["sort"]] = {order: params[param]};             
             }
           }
           if (!qdp.type) {
@@ -462,7 +468,16 @@ function paramsToBody(paramsObject, debug) {
             }
           }
           else if (qdp.type == "multi_match") {
-            body.query.bool[qdp.context].push({[qdp.type]: { query: params[param], type: qdp.match || "phrase" , fields: qdp.fields }});             
+            body.query.bool[qdp.context].push(
+              {
+                [qdp.type]: { 
+                  query: params[param], 
+                  type: qdp.match || "phrase" , 
+                  fields: qdp.fields,
+                  // "analyzer": "spanish"
+                }
+              }
+            );             
           }
           else if (qdp.type == "function_score") {
             let function_score = {[qdp.type]: { functions: [] }}
@@ -487,6 +502,27 @@ function paramsToBody(paramsObject, debug) {
             }
             body.query.bool[qdp.context].push(function_score);
           }
+          else if (qdp.type == "function_score_sort") {
+            let function_score = {["function_score"]: { functions: [] }}
+
+            params[param] = params[param].split(",");
+            if (params[param].map) {
+              values = params[param];
+            }
+            else {
+              values = [params[param]]
+            }
+            
+            values.map( (value, index) => {
+              // console.log("function_score",value,index,qdp.field)
+              if (qdp.launder ) {
+                value = laundry.launder(value);
+              }
+        
+              function_score["function_score"].functions.push({ field_value_factor: { field: value, factor: 1+(values.length-index)/10, missing: 0 }});             
+            })
+            body.query.bool[qdp.context].push(function_score);
+          }          
           if (qdp.min) {
             body.query.bool.minimum_should_match = qdp.min;
           }
