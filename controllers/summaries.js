@@ -134,8 +134,7 @@ function summaries(context) {
                           "parties.buyer.contactPoint.id.keyword": entity_id
                         }
                       }
-                    ],
-                    "minimum_should_match": 1
+                    ]
                   }
                 },
                 "funder": {
@@ -146,8 +145,7 @@ function summaries(context) {
                           "parties.funder.id.keyword": entity_id
                         }
                       }
-                    ],
-                    "minimum_should_match": 1
+                    ]
                   }
                 }
               }
