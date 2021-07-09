@@ -31,7 +31,7 @@ function summaries(context) {
               },
               {
                 "match_phrase": {
-                  "parties.funder_ids.keyword": entity_id
+                  "parties.funders.ids.keyword": entity_id
                 }
               },
               {
@@ -142,7 +142,7 @@ function summaries(context) {
                     "must": [
                       {
                         "match_phrase": {
-                          "parties.funder.id.keyword": entity_id
+                          "parties.funders.ids.keyword": entity_id
                         }
                       }
                     ]
