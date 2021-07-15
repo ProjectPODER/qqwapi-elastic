@@ -3,7 +3,9 @@ Haciendo una app que consuma datos de contrataciones (desactualizado)
 
 El objetivo de esta API es que se puedan crear aplicaciones interactivas
 que faciliten la investigación y presentación de datos de empresarios y
-funcionarios en América Latina, es por eso que incluiremos un detalle
+funcionarios en América Latina, en particular con el objetivo de difundir
+la práctica de la rendición de cuentas corporativa.
+Es por eso que incluiremos un detalle
 paso a paso de cómo crear una aplicación utilizando el lenguaje de
 programación JavaScript y el cliente de API
 `node-qqw <https://github.com/ProjectPODER/node-qqw/>`__.
@@ -59,7 +61,7 @@ package.json:
      "dependencies": {
        "express": "~4.16.1",
        "express-handlebars": "^3.0.2",
-       "qqw": "git+https://github.com/ProjectPODER/node-qqw/#v0.2.1",
+       "qqw": "git+https://github.com/ProjectPODER/node-qqw/#v0.3.2",
      }
    }
 
@@ -110,7 +112,7 @@ Creando nuestra página principal
 En esta página mostraremos la historia principal de nuestro sitio, por
 lo que necesitaremos consultar la API de QuienEsQuien.wiki para obtener
 la información, haremos un breve repaso de la API, pero para más
-información revisar la sección `Cómo consultar <link?>`__ de esta guía.
+información revisar la sección `Cómo consultar <https://qqwapi-elastic.readthedocs.io/es/latest/intro/como/>`__ de esta guía.
 
 En la API se pueden realizar varios filtros, limites y órdenes de la
 información. También se puede restringir la información que recibimos a
@@ -123,9 +125,9 @@ sólo los campos que necesitamos. En este caso tenemos algunos criterios:
 -  (opcional) Restringir los contenidos de la respuesta utilizando
    ``fields``.
 
-También recordemos que el sitio QuienEsQuien.wiki nos ofrece una forma
-fácil de obtener consultas a la API desde el menú de “herramientas” en
-la página de búsqueda. Es decir que cualquier búsqueda que hagamos en
+También recordemos que el sitio web de QuienEsQuien.wiki nos ofrece una forma
+fácil de obtener consultas a la API desde el menú de “DATOS” en
+el buscador. Es decir que cualquier búsqueda que hagamos en
 QuienEsQuien.wiki se realiza a través de la API y podemos crear los
 filtros de forma visual y luego copiarlos.
 
@@ -135,59 +137,54 @@ Haciendo consultas en QuienEsQuien.wiki
 Primero debemos realiza la consulta en QuienEsQuien.wiki para obtener
 una URL de API que nos sirva de base para crear nuestra consulta. Para
 esto entraremos al `buscador de
-contratos <https://www.quienesquien.wiki/contratos>`__.
+contratos <https://www.quienesquien.wiki/es/buscador?collection=contracts>`__.
 
 Filtro de fecha
 ^^^^^^^^^^^^^^^
 
-Veremos en la barra lateral los filtros por fecha. Configuraremos el
-primero al 1 de enero de 2012 y el segundo al 31 de diciembre de 2012.
+Veremos en la barra superior el filtro `FECHA`. Si no está visible, hacer click en `MÁS FILTROS`.
+Configuraremos del 1 de enero de 2012 al 31 de diciembre de 2012.
 Recuerda que luego de clickear en el campo, se abrirá un calendario, es
-opcinal utilizarlo siempre y cuando quede escrita una fecha válida en el
+opcional utilizarlo siempre y cuando quede escrita una fecha válida en el
 campo. Si utilizas el calendario, puedes clickear en el año para abrir
 un desplegable que te permita navegar a otros años. No olivdes
 seleccionar el día para completar la configuración de este filtro.
 
-Finalmente presiona el botón “filtrar” al final de la barra lateral.
+Finalmente presiona el botón `APLICAR`.
 
 Cantidad de resultados
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Si bien la API nos permite elegir de forma arbitraria la cantida de
 resultados a recibir en cada página, la interfaz de QuienEsQuien.wiki
-nos ofrece un desplegable en la barra superior de la página de búsqueda
-donde podemos elegir 25, 50 o 100 resultados por página. Elegiremos 100.
+nos ofrece un desplegable luego del listado de resultados en la página de búsqueda,
+en este podemos podemos elegir 25, 50 o 100 resultados por página. Elegiremos 100.
 
 Copiando la URL de la API
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-En la barra superior está el menú de herramientas, que despliega varias
-opciones, entre ellas veremos el botón “Copiar URL”, este pondrá el el
-portapapeles de nuestra computadora, la URL de la API que se consultó
-para llegar a este resultado. En nuestro caso debería quedar así:
+En la barra superior está el menú de DATOS, que despliega varias
+opciones, entre ellas veremos el botón “DESCARGAR JSON”, al hacer click en este botón iremos a la página de resultado de la API.
+Copiaremos la dirección de la página actual. En nuestro caso debería quedar así:
 
-.. code:: https://api.quienesquien.wiki/v2/contracts?sort=-compiledrelease.total_amount&compiledrelease.contracts.period.startdate=%3e2012-01-01t00%3a00%3a00.000&compiledrelease.contracts.period.enddate=%3c2012-12-31t00%3a00%3a00.000&limit=100
-
+.. code:: https://api.quienesquien.wiki/v3/contracts?collection=contracts&start_date_min=2012-01-01&start_date_max=2012-12-31&limit=100&sort=contracts.value.amount&sort_direction=desc
 Analicemos brevemente:
 
--  Primero la URL base de la API: ``https://api.quienesquien.wiki/v2/``
+-  Primero la URL base de la API: ``https://api.quienesquien.wiki/v4/``
 -  A continuación el tipo de entidad: ``contracts``
--  Luego el criterio de ordenamiento:
-   ``sort=-compiledRelease.total_amount``. Este está compuesto por un
-   signo menos, lo que indica la dirección de ordenamiento, en este caso
-   de mayor a menor, y luego el nombre del campo. Este campo es el
-   importe total de cada proceso de contratación
-   ``compiledRelease.total_amount``.
 -  A continuación tenemos los filtros de fecha, estos filtran contratos
    cuya ejecución haya comenzado después de la fecha de incio y haya
    terminado antes de la fecha de finalización. Las fechas se expresan
-   en standard ISO.
--  Finalmente tenemos el campo ``limit`` en 100, que especifica la
+   como año-mes-día.
+-  Luego el criterio de ordenamiento:
+   ``sort=contracts.value.amount``. Este campo es el importe total de cada proceso de contrato.
+-  Luego tenemos el campo ``limit`` en 100, que especifica la
    cantidad de contratos que queremos.
+- Finalmente tenemos el campo sort_direction que nos especifica "desc" para que sea de mayor a menor.
 
 ¿Qué devuelve la API?
 
-Un listado de contratos en el objeto ``data``. Por suerte no tendremos
+Un listado de contratos en el objeto ``data``, además de un resúmen de los datos y otros metadatos de la consulta, como la versión de la API. Por suerte no tendremos
 que hacer un sistema que analice la respuesta de la API en crudo, sino
 que utilizaremos un cliente de API.
 
@@ -212,10 +209,12 @@ Luego hay que construir el objeto de filtros que el enviaremos:
 ::
 
      const params = {
-       sort: "-compiledRelease.total_amount",
-       "compiledRelease.contracts.period.startDate" ">2012-01-01T00%3A00%3A00.000",
-       "compiledRelease.contracts.period.endDate": "<2012-12-31T00%3A00%3A00.000",
-       "limit": 100
+        collection: "contracts",
+        start_date_min: "2012-01-01",
+        start_date_max: "2012-12-31",
+        limit: "100",
+        sort: "contracts.value.amount",
+        sort_direction: "desc"
      }
 
 Luego hacemos la consulta. Hay varias formas de hacer la consulta, pero
@@ -250,10 +249,10 @@ En ``views/index.hbs``:
 
    <h1>Baktún</h1>
    <h2>Listado de los 100 contratos más caros de 2012.</h2>
-   {{#if result.data.0.records.length }}
-     {{#each result.data.0.records}}
+   {{#if result.data.length }}
+     {{#each result.data.}}
        {{#each this.awards}}
-       Contrato: Proveedor(es): {{this.suppliers}} Título: {{this.title}} Importe: {{this.value.amount}} {{this.value.currency}}
+       Contrato: Proveedor(es): {{this.parties.suppliers.names}} Título: {{this.contracts.title}} Importe: {{this.contracts.value.amount}} {{this.contracts.value.currency}}
        {{/each}}
      {{/each}}
    {{/if}}
@@ -271,5 +270,4 @@ de la API y antes de pasarlos al template.
 Hay que crear una función que suma importes, los agrupa por proveedor y
 lo envía al template como otra variable.
 
-Este tutorial está incompleto, si desea utilizar la api puede
-consultarnos a info@quienesquien.wiki
+Si llegaste hasta aquí y tienes ganas de ayudarnos a completar este tutorial, por favor escríbenos a info@quienesquien.wiki

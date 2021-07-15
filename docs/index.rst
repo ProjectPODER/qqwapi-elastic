@@ -7,7 +7,7 @@ La API (interfaz de programación de aplicaciones o Application Programming Inte
 
 Las respuestas son en JSON, basado en los estándares `Popolo Project <http://www.popoloproject.com/>`_ y `Open Contracting Data Standard <http://standard.open-contracting.org/>`_. El sistema es una API REST hecha con Exegesis Express y Swagger, basado en la definición OpenAPIv3 en JSON. El código fuente está disponible en `el Github del proyecto <https://github.com/ProjectPODER/qqwapi3-elastic>`_.
 
-Para detalles sobre el orígen de la infromación de la API, revisar la sección de fuentes.
+Para detalles sobre el orígen de la información de la API, revisar la sección de fuentes.
 
 Nota: Esta documentación está en proceso de actualización. Por cualquier consulta por favor escribir a info@quienesquien.wiki.
 
