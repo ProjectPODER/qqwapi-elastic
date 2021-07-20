@@ -92,6 +92,9 @@
                         "$ref": "#/components/parameters/sort"
                     },
                     {
+                        "$ref": "#/components/parameters/rank"
+                    },
+                    {
                         "$ref": "#/components/parameters/sort_direction"
                     },
                     {
@@ -147,6 +150,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/rank"
                     },
                     {
                         "$ref": "#/components/parameters/sort_direction"
@@ -254,6 +260,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/rank"
                     },
                     {
                         "$ref": "#/components/parameters/sort_direction"
@@ -372,6 +381,9 @@
                         "$ref": "#/components/parameters/sort"
                     },
                     {
+                        "$ref": "#/components/parameters/rank"
+                    },
+                    {
                         "$ref": "#/components/parameters/sort_direction"
                     },
                     {
@@ -481,6 +493,9 @@
                         "$ref": "#/components/parameters/sort"
                     },
                     {
+                        "$ref": "#/components/parameters/rank"
+                    },
+                    {
                         "$ref": "#/components/parameters/sort_direction"
                     },
                     {
@@ -588,6 +603,9 @@
                     },
                     {
                         "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/rank"
                     },
                     {
                         "$ref": "#/components/parameters/sort_direction"
@@ -700,6 +718,9 @@
                     },                    
                     {
                         "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/rank"
                     },
                     {
                         "$ref": "#/components/parameters/sort_direction"
@@ -867,6 +888,9 @@
                         "$ref": "#/components/parameters/sort"
                     },
                     {
+                        "$ref": "#/components/parameters/rank"
+                    },
+                    {
                         "$ref": "#/components/parameters/sort_direction"
                     },
                     {
@@ -925,6 +949,14 @@
                     "enum": [
                         "areas", "organizations", "persons", "contracts"
                     ]                    
+                }
+            },
+            "rank": {
+                "in": "query",
+                "name": "rank",
+                "description": "Rank results by multiple field values (only numeric fields).",
+                "schema": {
+                    "type": "string"
                 }
             },
             "sort": {

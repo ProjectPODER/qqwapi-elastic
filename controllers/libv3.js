@@ -347,11 +347,11 @@ const query_definitions = {
     field: "sort"
   },
  
-  // "sort": {
-  //   context: "should",
-  //   type: "function_score_sort",
-  //   field: "sort"
-  // },  
+  "rank": {
+    context: "should",
+    type: "function_score_sort",
+    field: "order"
+  },  
 
   // OK apiFilterName: "sort_direction",
   // apiFieldNames:["_sortDirection"],
@@ -497,15 +497,18 @@ function paramsToBody(paramsObject, debug) {
                   value = laundry.launder(value);
                 }
           
-                function_score[qdp.type].functions.push({ weight: ((100+values.length)-index), filter: { match: { [qdp.field]: value }}});             
+                function_score[qdp.type].functions.push({ weight: ((100000000000000+values.length)-index), filter: { match: { [qdp.field]: value }}});             
               })
             }
             body.query.bool[qdp.context].push(function_score);
           }
           else if (qdp.type == "function_score_sort") {
-            let function_score = {["function_score"]: { functions: [] }}
+            let function_score = {["function_score"]: { functions: [],
+              "score_mode": "max",
+              "boost_mode": "sum"
+            }}
 
-            params[param] = params[param].split(",");
+            params[param] = params[param].split(/,|\%\2\5\2\C/);
             if (params[param].map) {
               values = params[param];
             }
