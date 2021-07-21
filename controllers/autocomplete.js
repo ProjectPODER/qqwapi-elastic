@@ -31,6 +31,9 @@ function autocomplete(context) {
     }
   }
 
+  controllerIndex += ","; //Adding a comma so we avoid generating a summary, by avoiding matching with allIndexes aggs in libv3 aggs_definitions
+  context.params.query.limit = 5; //Limit to 5 results, because that's what the interface shows
+
   return lib.search(controllerIndex,context.params,debug)
     .then(results => { 
       return lib.embed(controllerIndex,context.params,results,debug) 
