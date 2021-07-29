@@ -72,7 +72,10 @@ El sistema de base de datos ElasticSearch utilizado por la API de QuienEsQuien.w
 
 Cómo alternativa se pueden aplicar otros filtros, para que el elemento buscado quede antes del resultado número 10.000. También se puede invertir el sentido del orden usando el parámetro `sort_direction`.
 
+Ejemplo:
+
 ::
+
     {
 
         "status": "error",
