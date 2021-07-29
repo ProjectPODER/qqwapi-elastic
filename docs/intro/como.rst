@@ -3,8 +3,8 @@ Cómo consultar
 
 La version 3 de la API REST de QuienEsQuien está disponible públicamente sin necesidad de registrarse y sin limitaciones vía HTTPS.
 
-Consola de Swagger: https://api.quienesquien.wiki/v3/docs
-Base de la API: https://api.quienesquien.wiki/v3 (agregando un endpoint a continuación)
+- Consola de Swagger: https://api.quienesquien.wiki/v3/docs
+- Base de la API: https://api.quienesquien.wiki/v3 (agregando un endpoint a continuación)
 
 Filtros
 -------
