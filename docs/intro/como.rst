@@ -1,7 +1,10 @@
 Cómo consultar
 ==============
 
-La API está disponible vía HTTPS en https://api.quienesquien.wiki/v3/
+La version 3 de la API REST de QuienEsQuien está disponible públicamente sin necesidad de registrarse y sin limitaciones vía HTTPS.
+
+Consola de Swagger: https://api.quienesquien.wiki/v3/docs
+Base de la API: https://api.quienesquien.wiki/v3 (agregando un endpoint a continuación)
 
 Filtros
 -------
@@ -21,14 +24,16 @@ limit
 -----
 
 La cantidad de registros que se incluyen en cada página de resultados.
-Default: 25 registros. Tipo: 1000 >= entero > 0.
+Default: 25 registros. Tipo: 1000 >= entero > 0. La suma de limit y offset
+no puede ser superior a 10000.
 
 offset
 ------
 
 El número de registros a omitir desde el principio. Default: 0 registros
 (página inicial). Tipo: entero >= 0. Si el offset es mayor al número
-total de registros devuelve una respuesta vacía.
+total de registros devuelve una respuesta vacía. La suma de limit y offset
+no puede ser superior a 10000.
 
 embed
 -----
@@ -46,33 +51,34 @@ formato alternativo disponible es “csv”. Si no se especifica se devuelve
 en json. Para cada tipo de entidad se generan diferentes tablas con los
 campos disponbles.
 
-omit (no implementado)
-----------------------
+..
+    omit (no implementado)
+    ----------------------
 
-Excluir de la respuesta los campos indicados, es un listado de campos
-separados por coma. Tipo: array.
+    Excluir de la respuesta los campos indicados, es un listado de campos
+    separados por coma. Tipo: array.
 
-fields (no implementado)
-------------------------
+    fields (no implementado)
+    ------------------------
 
-Incluir sólo los campos indicados en la respuesta, es un listado de
-campos separados por coma. Tipo: array.
+    Incluir sólo los campos indicados en la respuesta, es un listado de
+    campos separados por coma. Tipo: array.
 
-updated_since (no implementado)
--------------------------------
+    updated_since (no implementado)
+    -------------------------------
 
-Limitar el conjunto de resultados a aquellos cuya fecha de última
-actualización sea posterior al valor del filtro. Tipo: date. Default:
-0000-00-00T00:00:00Z.
+    Limitar el conjunto de resultados a aquellos cuya fecha de última
+    actualización sea posterior al valor del filtro. Tipo: date. Default:
+    0000-00-00T00:00:00Z.
 
-include_custom_fields (no implementado)
----------------------------------------
+    include_custom_fields (no implementado)
+    ---------------------------------------
 
-Bandera que indica los campos adicionales que se desea incluir dentro de
-cada documento en la respuesta. Default: none. Valores posibles: all,
-none, listado de campos. Tipo: array. Si algún campo solicitado no
-existe, no incluye información adicional en la respuesta.
+    Bandera que indica los campos adicionales que se desea incluir dentro de
+    cada documento en la respuesta. Default: none. Valores posibles: all,
+    none, listado de campos. Tipo: array. Si algún campo solicitado no
+    existe, no incluye información adicional en la respuesta.
 
-En las bases de datos de QQW existen muchos datos adicionales a los
-estándares utilizados para cada tipo de dato. TODO: hacer el listado de
-los fields disponibles para cada tipo de dato.
+    En las bases de datos de QQW existen muchos datos adicionales a los
+    estándares utilizados para cada tipo de dato. TODO: hacer el listado de
+    los fields disponibles para cada tipo de dato.
