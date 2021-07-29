@@ -1,96 +1,100 @@
-Mensajes de error (desactualizado)
+Mensajes de error
 ==================================
 
-Cuando la API no puede devolver resultados, devuelve un conjunto vacío
-pero el status sigue siendo success.
+Durante la interacción con la API pueden presentarse diversos mensajes de error.
 
-La API devuelve un mensaje de error cuando no pudo procesar la consulta.
+Errores de conexión
+---------------------
 
-Hay un límite máximo de 5 segundos a las consultas a la base de datos.
-Las consultas realizadas sobre campos sin índice normalmente exceden
-este límite y generan mensajes de error.
+Si la api no está disponible, es probable que se presente un error de conexión del estilo "ConnectionError: connect ECONNREFUSED". En este caso verifique la URL de la API, y si esta es correcta, verifique la disponibilidad del servicio en la página de status de los servicios de QQW: https://status.quienesquien.wiki/
+
+
+Aquí no hay nada (Error HTTP 404 )
+-----------------
+
+Las URLs de la API se componen de la base y los endpoints, ej: api.quienesquien.wiki/v3/sources), cuando se solicita una URL que no existe, se recibe este mensaje de error.
+
 
 Parámetro inexistente
 ---------------------
 
-.. code:: json
+Cuando se pasa via GET un parámetro inexistente, la API actúa como si el parámetro no existiera. No devuelve errores, simplemente devuelve los resultados basados en los filtros que si aplican.
 
-   {
 
-       "message": "Validation errors",
-       "errors": [
-           {
-               "code": "INVALID_REQUEST_PARAMETER",
-               "errors": [
-                   {
-                       "code": "PATTERN",
-                       "params": [
-                           "^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$",
-                           "a=a"
-                       ],
-                       "message": "String does not match pattern ^[23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz]{17}$: a=a",
-                       "path": [ ],
-                       "description": "Internal ID of person"
-                   }
-               ],
-               "in": "path",
-               "message": "Invalid parameter (_id): Value failed JSON Schema validation",
-               "name": "_id",
-               "path": [
-                   "paths",
-                   "/persons/{_id}",
-                   "get",
-                   "parameters",
-                   "0"
-               ]
-           }
-       ]
+Resultado vacío 
+---------------------
 
-   }
-
-Resultado vacío (desactualizado)
-===============
+Cuando la API no puede devolver resultados, devuelve un conjunto vacío
+pero el status sigue siendo success.
 
 Si el conjunto de filtros eliminan todos los registros, lo que ocurre es
-que se devuelve un estado de éxito pero sin resultados.
+que se devuelve un estado de éxito pero sin resultados. Es decir, el array de "data" se encuentra vacío.
 
 Ejemplo:
 
 ::
 
-   {
+    {
 
-       "status": "success",
-       "size": 0,
-       "limit": 1,
-       "offset": 0,
-       "pages": 0,
-       "count": 0,
-       "data": [ ]
+        "status": "success",
+        "size": 0,
+        "limit": 25,
+        "offset": 0,
+        "pages": 0,
+        "count": 0,
+        "count_precission": "eq",
+        "version": {
+            "version": "3.0.0-beta",
+            "commit": "9dda575ed0425754b747bb7166a917403987b1aa\n",
+            "commit_short": "9dda575"
+        },
+        "generated": "2021-07-29T17:16:56.734Z",
+        "summary": {
+            "amount": { },
+            "sources": { },
+            "year": { },
+            "count": { },
+            "areas": { },
+            "type": { },
+            "classification": { }
+        },
+        "data": [ ]
 
-   }
+    }
 
-Exceso de tiempo de procesamiento (desactualizado)
-=================================
 
-Las consultas de API no deben tardar más de 6 segundos en ejecutarse en
-la base de datos, es por esto que si se realizan consultas sobre campos
-indexistentes o que no tienen índice o que por sus relaciones con otras
-tablas o por otras razones toman más de 6 segundos, estas consultas
-devuelven un mensaje de error.
+Demasiados resultados
+---------------------
 
-Ejemplo:
+La API devuelve un estado de error cuando no puede procesar la consulta.
+
+El sistema de base de datos ElasticSearch utilizado por la API de QuienEsQuien.wiki no puede devolver resultados superiores a 10.000. Esto aplica para la suma del parámetro "offset" y parámetro "limit".
+
+Cómo alternativa se pueden aplicar otros filtros, para que el elemento buscado quede antes del resultado número 10.000. También se puede invertir el sentido del orden usando el parámetro `sort_direction`.
 
 ::
+    {
 
-   {
+        "status": "error",
+        "size": 0,
+        "limit": 25,
+        "offset": 10000,
+        "pages": 0,
+        "count": 0,
+        "count_precission": "unknown",
+        "version": {
+            "version": "3.0.0-beta",
+            "commit": "9dda575ed0425754b747bb7166a917403987b1aa\n",
+            "commit_short": "9dda575"
+        },
+        "generated": "2021-07-29T17:28:31.534Z",
+        "error": "Search size is bigger than 10000. Elasticsearch does not allow it.",
+        "data": { }
 
-       "status": "error",
-       "size": 0,
-       "limit": 1,
-       "offset": 0,
-       "pages": null,
-       "count": "error: MongoError: Exec error resulting in state DEAD :: caused by :: errmsg: \"operation exceeded time limit\"",
-       "data": "error: MongoError: Executor error during find command :: caused by :: errmsg: \"operation exceeded time limit\""
+    }
 
-   }
+
+Otros errores 
+-------------
+
+Si la API presenta un mensaje de error no explicado en esta sección, por favor cargue un issue en el repositorio para que podamos revisarlo: https://github.com/ProjectPODER/qqwapi-elastic/issues/new

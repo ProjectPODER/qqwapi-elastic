@@ -1180,6 +1180,7 @@ function prepareOutput(body, context, debug) {
     const pageSize = limit || size;
     const pagesNum = Math.ceil((count / pageSize));
 
+    const errorText = (body.error ? body.error : (bodyhits ? bodyhits.error : "Unexpected error"));
 
     return {
         status: status,
@@ -1191,7 +1192,7 @@ function prepareOutput(body, context, debug) {
         count_precission: count_precission,
         version: version,
         generated: new Date(),
-        error: bodyhits ? bodyhits.error : "Unexpected error",
+        error: errorText,
         summary: formatSummary(body.aggregations,debug),
         data,
     };
