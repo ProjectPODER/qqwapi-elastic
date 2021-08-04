@@ -763,6 +763,11 @@ const general_summary = {
     "terms": {
       "field": "classification.keyword",
     },
+  },
+  "type": {
+    "terms": {
+      "field": "_index",
+    },
   }
 
 };
@@ -789,7 +794,7 @@ const contracts_summary = {
       }
     }
   },
-  "type": {
+  "method": {
     "terms": {
       "field": "tender.procurementMethod.keyword",
       "order": {
@@ -1207,6 +1212,7 @@ function formatSummary(aggs,debug) {
     let agg_keys = Object.keys(aggs);
     for (key_index in agg_keys) {
       let key = agg_keys[key_index];
+
       if (typeof aggs[key] == "number") {
         summary[key] = aggs[key];
       }
@@ -1221,11 +1227,17 @@ function formatSummary(aggs,debug) {
         for (bucket_index in aggs[key].buckets) {
           let bucket = aggs[key].buckets[bucket_index];
           if (Object.keys(bucket).length > 2) {
-            // console.log("formatSummary bucked", bucket)
+
 
             summary[key][bucket.key_as_string || bucket.key ] = formatSummary(bucket);
           }
           else {
+            // console.log("formatSummary bucked", bucket)
+
+            //Remove date from index names.
+            if (/(.*)_[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(bucket.key)) {
+              bucket.key = bucket.key.substr(0,bucket.key.length-11);
+            }
 
             summary[key][bucket.key_as_string || bucket.key ] = bucket.doc_count;
           }
