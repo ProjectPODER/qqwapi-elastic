@@ -4,6 +4,7 @@ const clone = require("lodash").clone
 
 function allRecords(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
+  return lib.genericController(controllerIndex,context,addRecordPackage);
 
   return lib.search(controllerIndex,context.params,debug)
     .then(results => { 

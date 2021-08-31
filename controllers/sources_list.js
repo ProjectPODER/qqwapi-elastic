@@ -3,9 +3,10 @@ const controllerIndex = "sources"
 
 function allSourcesList(context) {
   const debug = context.req.originalUrl.indexOf("debug") > -1;
+  const prefix = context.params.query.db_prefix;
 
   const searchDocument = {
-    index: lib.allIndexes,
+    index: lib.addPrefix(lib.allIndexes,prefix),
     body: {  
       "size": 0,
       "aggs": {

@@ -24,6 +24,9 @@
                     "Summaries"
                 ],                
                 "parameters": [ 
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {"$ref":  "#/components/parameters/id"},
                     {"$ref":  "#/components/parameters/type"}
                 ],
@@ -41,6 +44,9 @@
             "get": {
                 "description": "Get a full OCDS contracting process, including releases.",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {
                         "$ref": "#/components/parameters/ocid"
                     },
@@ -70,6 +76,9 @@
                 "description": "Search productos",
                 "operationId": "productsOperation",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {
                         "$ref":  "#/components/parameters/id"
                     },
@@ -136,6 +145,9 @@
                 "description": "Search by filters in all collections",
                 "operationId": "searchOperation",
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {
                         "$ref":  "#/components/parameters/ids"
                     },
@@ -238,6 +250,9 @@
                 ],
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
+                    {
                         "name": "name",
                         "in": "path",
                         "description": "name to search",
@@ -317,6 +332,9 @@
                     "Persons"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {
                         "$ref": "#/components/parameters/id"
                     },
@@ -430,6 +448,9 @@
                 "operationId": "allCompanies",
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
+                    {
                         "$ref": "#/components/parameters/id"
                     },
                     {
@@ -542,6 +563,9 @@
                 "operationId": "allInstitutions",
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
+                    {
                         "$ref": "#/components/parameters/id"
                     },
                     {
@@ -653,6 +677,9 @@
                     "Contracts"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {
                         "$ref": "#/components/parameters/months_summary"
                     },
@@ -768,6 +795,107 @@
                 }
             }
         },
+        "/contract_flags": {
+            "x-exegesis-controller": "contract_flags",
+            "get": {
+                "operationId": "allContractFlags",
+                "summary": "Retrieve array of Contract Flag Documents",
+                "description": "Retrieve array of Contract Flag Documents",
+                "tags": [
+                    "Contracts"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
+                    {
+                        "$ref": "#/components/parameters/id"
+                    },
+                    {
+                        "$ref":  "#/components/parameters/ids"
+                    },                    
+                    {
+                        "$ref": "#/components/parameters/ocid"
+                    },        
+                    {
+                        "$ref": "#/components/parameters/format"
+                    },
+                    {
+                        "$ref": "#/components/parameters/party_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/supplier_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/buyer_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/contact_point_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/funder_name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/state"
+                    },
+                    {
+                        "$ref": "#/components/parameters/city"
+                    },                    
+                    {
+                        "$ref": "#/components/parameters/sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/rank"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort_direction"
+                    },
+                    {
+                        "$ref": "#/components/parameters/embed"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/country"
+                    },
+                    {
+                        "$ref": "#/components/parameters/offset"
+                    }
+                    ,{"$ref":  "#/components/parameters/product_name"}
+                    ,{"$ref":  "#/components/parameters/products"}
+
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Contract"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/sources": {
             "x-exegesis-controller": "sources",
             "get": {
@@ -778,6 +906,9 @@
                     "Sources"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {"$ref":  "#/components/parameters/products"}
                 ],
                 "responses": {
@@ -818,6 +949,9 @@
                     "Sources"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {"$ref":  "#/components/parameters/products"}
                 ],
                 "responses": {
@@ -857,6 +991,9 @@
                     "Areas"
                 ],
                 "parameters": [
+                    {
+                        "$ref": "#/components/parameters/db_prefix"
+                    },
                     {
                         "$ref": "#/components/parameters/name"
                     },
@@ -949,6 +1086,14 @@
                     "enum": [
                         "areas", "organizations", "persons", "contracts"
                     ]                    
+                }
+            },
+            "db_prefix": {
+                "in": "query",
+                "name": "db_prefix",
+                "description": "Prefix for the database (Elastic Index) where the results will come. To switch between dev and prod.",
+                "schema": {
+                    "type": "string"     
                 }
             },
             "rank": {
@@ -1244,6 +1389,14 @@
                 "in": "query",
                 "name": "supplier_name",
                 "description": "Name of a supplier (company or person) participating in a contracting process.",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "party_name": {
+                "in": "query",
+                "name": "party_name",
+                "description": "Name of a party (company, person, institution or funder) participating in a contracting process.",
                 "schema": {
                     "type": "string"
                 }

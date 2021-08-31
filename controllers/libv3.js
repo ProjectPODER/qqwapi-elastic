@@ -1,94 +1,15 @@
 const { Client } = require('@elastic/elasticsearch');
 const laundry = require('company-laundry'); 
 const fs = require('fs'); 
-
-
-function packageVersion() {
-  const pjson = require('../package.json');
-  let gitHead = fs.readFileSync(".git/HEAD", 'utf8');
-  if (gitHead.indexOf("refs/") > -1) {
-    gitHead = fs.readFileSync(".git/ORIG_HEAD", 'utf8');
-  }
-  return {
-    version: pjson.version,
-    commit: gitHead,
-    commit_short: gitHead.substr(0,7)
-  }
-}
+const allIndexes = "areas,contracts,organizations,persons,products";
 
 const version = packageVersion();
-
-console.log("QQWAPI",version);
+//We are using self-signed certificaes for elastic
 
 const elasticNode = process.env.ELASTIC_URI || 'http://localhost:9200/';
-
-
-//We are using self-signed certificaes for elastic
 const client = new Client({ node: elasticNode, ssl: { rejectUnauthorized: false }, resurrectStrategy: "none", compression: "gzip" });
 
-client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
-  return function dataformat (params, options, debug) {
-    // build request object
-    const request = {
-      method: params.method || 'GET',
-      path: `/${encodeURIComponent(params.index)}/_data`, //format=${encodeURIComponent(params.querystring.format)}&source_content_type=application/json&source=${encodeURIComponent(JSON.stringify(params.querystring.source))}
-      querystring: {
-        format: params.querystring.format,
-        source_content_type: "application/json",
-        source: JSON.stringify(params.body)
-      },
-      context: params.context
-    }
-
-    // build request options object
-    const requestOptions = {
-      ignore: options.ignore || null,
-      requestTimeout: options.requestTimeout || null,
-      maxRetries: options.maxRetries || null,
-      asStream: options.asStream || false,
-      headers: options.headers || null
-    }
-
-    if (debug) {
-      console.log("makeRequest", request, requestOptions);
-    }
-
-    return makeRequest(request, requestOptions)
-  }
-})
-
-function elastic_test(retry=0) {
-
-  //Simple test query
-  client.xpack.usage().then(
-    () => {
-      console.log("Connected to elastic node:",elasticNode);
-    }
-  ).catch(e => {
-    if (retry < 3) {
-      console.log("Retry elastic");
-      setTimeout(() => {
-
-        elastic_test(retry+1)
-      },5000*(retry+1))
-    }
-    else {
-
-      console.error("Error connecting to elastic node:",elasticNode,e);
-      if (e.meta && e.meta.body && e.meta.body.error) {
-        console.error("Error body", e.meta.body.error);
-      }
-      process.exit(100);
-    }
-  })
-}
-
-elastic_test();
-
-
 const query_definitions = {
-  // apiFilterName: "country",
-  // apiFieldNames:["area.id"],
   "embed": {
     context: "skip"
   },
@@ -98,6 +19,9 @@ const query_definitions = {
   "format": {
     context: "skip"
   },
+  "db_prefix": {
+    context: "index"
+  },  
   "country": {
     context: "must",
     type: "multi_match",
@@ -270,6 +194,12 @@ const query_definitions = {
     fields: ["parties.suppliers.names", "parties.suppliers.ids"],
     launder: true
   },
+  "party_name": {
+    context: "must",
+    type: "multi_match",
+    fields: ["parties.id", "parties.name"],
+    launder: true
+  },
   // apiFilterName: "buyer_name",
   // apiFieldNames:["parties.memberOf.name"],
   "buyer_name": {
@@ -387,166 +317,6 @@ const query_definitions = {
     type: "hide_by_id"
   }
 
-}
-
-function paramsToBody(paramsObject, debug) {
-  const params = Object.assign({}, paramsObject.query, paramsObject.path);
-  const body={ sort: [], from: 0, query: { bool: { should: [], must: [], filter: []}}, aggs: {} }; 
-  if (debug) {
-    console.log("paramsToBody",paramsObject.query);
-  }
-
-  Object.keys(params).forEach( param => { 
-    if (params[param]) {
-      let qdp = query_definitions[param];
-      
-      params[param] = decodeURIComponent(params[param]);
-
-      // console.log(param,query_definitions[param]);
-      if (qdp) {
-        // console.log("laundry",qdp.launder,param,params[param]);
-        if (qdp.launder && ! params[param].map) {
-          params[param] = laundry.launder(params[param]);
-        }
-  
-        if (qdp.context == "skip") {
-          //Skip
-        }
-        else if (qdp.context == "filter") {
-          if (qdp.type == "term") {
-            body.query.bool[qdp.context].push({term: { [qdp.field]: params[param]}}); 
-          }
-        }
-        else if (qdp.context == "body") {
-
-          if (qdp.type=="sort") {
-            body.sort.push({[params[param]]: {order: "desc"}});             
-          }
-          if (qdp.type=="direction") {
-            if (params["sort"]) {
-              // body.sort[0][params["sort"]] = {order: params[param]};             
-            }
-          }
-          if (!qdp.type) {
-            body[qdp.field] = params[param]; 
-
-          }
-
-        }
-        else if (qdp.context == "must_not" ) {
-          // console.log("qdp",qdp)
-          //Hide products and purchases
-          if (!body.query.bool.must_not) {
-            body.query.bool.must_not = [];
-          }
-          if (qdp.type == "hide_by_id") {
-            body.query.bool.must_not.push({
-              "terms": {
-                "id.keyword": params[param].split(",")
-              }
-            })
-          }
-          
-        }        
-        else {
-          if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
-            if (qdp.field) {
-              if (params[param].map) {
-                values = params[param];
-              }
-              else {
-                values = [params[param]]
-              }
-              
-              values.map( value => {
-                if (qdp.launder ) {
-                  value = laundry.launder(value);
-                }
-          
-                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
-              })
-            }
-          }
-          else if (qdp.type == "multi_match") {
-            body.query.bool[qdp.context].push(
-              {
-                [qdp.type]: { 
-                  query: params[param], 
-                  type: qdp.match || "phrase" , 
-                  fields: qdp.fields,
-                  // "analyzer": "spanish"
-                }
-              }
-            );             
-          }
-          else if (qdp.type == "function_score") {
-            let function_score = {[qdp.type]: { functions: [] }}
-
-            if (qdp.field) {
-              params[param] = params[param].split(",");
-              if (params[param].map) {
-                values = params[param];
-              }
-              else {
-                values = [params[param]]
-              }
-              
-              values.map( (value, index) => {
-                // console.log("function_score",value,index,qdp.field)
-                if (qdp.launder ) {
-                  value = laundry.launder(value);
-                }
-          
-                function_score[qdp.type].functions.push({ weight: ((100000000000000+values.length)-index), filter: { match: { [qdp.field]: value }}});             
-              })
-            }
-            body.query.bool[qdp.context].push(function_score);
-          }
-          else if (qdp.type == "function_score_sort") {
-            let function_score = {["function_score"]: { functions: [],
-              "score_mode": "max",
-              "boost_mode": "sum"
-            }}
-
-            params[param] = params[param].split(/,|\%\2\5\2\C/);
-            if (params[param].map) {
-              values = params[param];
-            }
-            else {
-              values = [params[param]]
-            }
-            
-            values.map( (value, index) => {
-              // console.log("function_score",value,index,qdp.field)
-              if (qdp.launder ) {
-                value = laundry.launder(value);
-              }
-        
-              function_score["function_score"].functions.push({ field_value_factor: { field: value, factor: 1+(values.length-index)/10, missing: 0 }});             
-            })
-            body.query.bool[qdp.context].push(function_score);
-          }          
-          if (qdp.min) {
-            body.query.bool.minimum_should_match = qdp.min;
-          }
-
-          if (qdp.type == "range-lte") {
-            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lte: params[param] }}} ); 
-          }
-          if (qdp.type == "range-gte") {
-            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gte: params[param] }}} ); 
-          }
-
-        }
-
-  
-      }
-      else {
-        console.error("Unexpected query param",param);
-      }
-    } 
-  })
-  return body; 
 }
 
 const membership_embed = [{
@@ -739,6 +509,16 @@ const embed_definitions = {
       location: "flags"
     }
 
+  ],
+  contract_flags: [
+    {
+
+      id: "id",
+      foreign_key: "contracts.id",
+      index: "contracts",
+      location: "contracts"
+    }
+
   ]
 }
 
@@ -832,8 +612,6 @@ const contracts_summary_month = {
   }
 }
 
-const allIndexes = "areas,contracts,organizations,persons,products";
-
 const aggs_definitions = {
   [allIndexes]: general_summary,
   areas: general_summary,
@@ -844,7 +622,202 @@ const aggs_definitions = {
   records: {}
 }
 
-async function embed(index,params,results,debug) {
+function genericController(controllerIndex,context,preprocess) {
+  const debug = context.req.originalUrl.indexOf("debug") > -1;
+  const prefix = context.params.query.db_prefix;
+  // console.log("genericController",context.params);
+
+  return search(controllerIndex,context.params,prefix,debug)
+    .then(results => { 
+      return embed(controllerIndex,context.params,results,prefix,debug) 
+    })
+    .then(body => {
+      if (preprocess) {
+        body = preprocess(body,debug);
+      }
+      return prepareOutput(body, context, debug)
+    })
+}
+
+
+function paramsToBody(paramsObject, debug) {
+  const params = Object.assign({}, paramsObject.query, paramsObject.path);
+  const body={ sort: [], from: 0, query: { bool: { should: [], must: [], filter: []}}, aggs: {} }; 
+  if (debug) {
+    console.log("paramsToBody",paramsObject.query);
+  }
+
+  Object.keys(params).forEach( param => { 
+    if (params[param]) {
+      let qdp = query_definitions[param];
+      
+      params[param] = decodeURIComponent(params[param]);
+
+      // console.log(param,query_definitions[param]);
+      if (qdp) {
+        // console.log("laundry",qdp.launder,param,params[param]);
+        if (qdp.launder && ! params[param].map) {
+          params[param] = laundry.launder(params[param]);
+        }
+  
+        if (qdp.context == "skip") {
+          //Skip
+        }
+        else if (qdp.context == "filter") {
+          if (qdp.type == "term") {
+            body.query.bool[qdp.context].push({term: { [qdp.field]: params[param]}}); 
+          }
+        }
+        else if (qdp.context == "body") {
+
+          if (qdp.type=="sort") {
+            body.sort.push({[params[param]]: {order: "desc"}});             
+          }
+          if (qdp.type=="direction") {
+            if (params["sort"]) {
+              // body.sort[0][params["sort"]] = {order: params[param]};             
+            }
+          }
+          if (!qdp.type) {
+            body[qdp.field] = params[param]; 
+
+          }
+
+        }
+        else if (qdp.context == "must_not" ) {
+          // console.log("qdp",qdp)
+          //Hide products and purchases
+          if (!body.query.bool.must_not) {
+            body.query.bool.must_not = [];
+          }
+          if (qdp.type == "hide_by_id") {
+            body.query.bool.must_not.push({
+              "terms": {
+                "id.keyword": params[param].split(",")
+              }
+            })
+          }
+          
+        }        
+        else {
+          if (qdp.type == "match" || qdp.type == "match_phrase" || qdp.type == "fuzzy") {
+            if (qdp.field) {
+              if (params[param].map) {
+                values = params[param];
+              }
+              else {
+                values = [params[param]]
+              }
+              
+              values.map( value => {
+                if (qdp.launder ) {
+                  value = laundry.launder(value);
+                }
+          
+                body.query.bool[qdp.context].push({[qdp.type]: { [qdp.field]: value}});             
+              })
+            }
+          }
+          else if (qdp.type == "multi_match") {
+            body.query.bool[qdp.context].push(
+              {
+                [qdp.type]: { 
+                  query: params[param], 
+                  type: qdp.match || "phrase" , 
+                  fields: qdp.fields,
+                  // "analyzer": "spanish"
+                }
+              }
+            );             
+          }
+          else if (qdp.type == "function_score") {
+            let function_score = {[qdp.type]: { functions: [] }}
+
+            if (qdp.field) {
+              params[param] = params[param].split(",");
+              if (params[param].map) {
+                values = params[param];
+              }
+              else {
+                values = [params[param]]
+              }
+              
+              values.map( (value, index) => {
+                // console.log("function_score",value,index,qdp.field)
+                if (qdp.launder ) {
+                  value = laundry.launder(value);
+                }
+          
+                function_score[qdp.type].functions.push({ weight: ((100000000000000+values.length)-index), filter: { match: { [qdp.field]: value }}});             
+              })
+            }
+            body.query.bool[qdp.context].push(function_score);
+          }
+          else if (qdp.type == "function_score_sort") {
+            let function_score = {["function_score"]: { functions: [],
+              "score_mode": "max",
+              "boost_mode": "sum"
+            }}
+
+            params[param] = params[param].split(/,|\%\2\5\2\C/);
+            if (params[param].map) {
+              values = params[param];
+            }
+            else {
+              values = [params[param]]
+            }
+            
+            values.map( (value, index) => {
+              // console.log("function_score",value,index,qdp.field)
+              if (qdp.launder ) {
+                value = laundry.launder(value);
+              }
+        
+              function_score["function_score"].functions.push({ field_value_factor: { field: value, factor: 1+(values.length-index)/10, missing: 0 }});             
+            })
+            body.query.bool[qdp.context].push(function_score);
+          }          
+          if (qdp.min) {
+            body.query.bool.minimum_should_match = qdp.min;
+          }
+
+          if (qdp.type == "range-lte") {
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { lte: params[param] }}} ); 
+          }
+          if (qdp.type == "range-gte") {
+            body.query.bool[qdp.context].push( {range: { [qdp.field]: { gte: params[param] }}} ); 
+          }
+          else {
+            console.error("Unexpected query param definition",param, qdp);
+          }
+        }
+
+  
+      }
+      else {
+        console.error("Unexpected query param",param);
+      }
+    } 
+  })
+  return body; 
+}
+
+function addPrefix(index,prefix) {
+  if (!prefix) {
+    console.log("addPrefix no prefix",index);
+    return index;
+  }
+  let prefixed = prefix+index;
+  if (index.indexOf(",") > -1) {
+    prefixed = index.split(",").map((i) => {
+      return prefix+i;
+    }).join(",");
+  }
+  console.log("addPrefix",prefixed);
+  return prefixed;
+}
+
+async function embed(index,params,results,prefix,debug) {
   // console.log("embed",index,params);
   if (!results.hits) {
     console.error("Embed with no hits",index);
@@ -867,7 +840,7 @@ async function embed(index,params,results,debug) {
         const edi = edis[e];
 
         const searchDocument = {
-          index: edi.index,
+          index: addPrefix(edi.index,prefix),
           body: {size: 5000, aggs: {}, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
           // errorTrace: true
         }
@@ -1003,11 +976,11 @@ async function embed(index,params,results,debug) {
 }
 
 
-async function search (index,params,debug) {
+async function search (index,params,prefix,debug) {
   // console.log("search",params,typeof params);
 
   const searchDocument = {
-    index: index,
+    index: addPrefix(index,prefix),
     body: paramsToBody(params,debug),
     // errorTrace: true
   }
@@ -1185,7 +1158,10 @@ function prepareOutput(body, context, debug) {
     const pageSize = limit || size;
     const pagesNum = Math.ceil((count / pageSize));
 
-    const errorText = (body.error ? body.error : (bodyhits ? bodyhits.error : "Unexpected error"));
+    let errorText = (body.error ? body.error : (bodyhits ? bodyhits.error : "Unexpected error"));
+    if (errorText && errorText.meta && errorText.meta.body.error.type) {
+      errorText = errorText.meta.body.error.type;
+    }
 
     return {
         status: status,
@@ -1249,27 +1225,27 @@ function formatSummary(aggs,debug) {
 }
 
 
-function formatClassifications(buckets) {
-  return buckets.map(bucket => {
-    if (bucket.key_as_string) {
-      bucket.key = bucket.key_as_string.substr(0,4);
-    }
-    let classification = {
-      [bucket.key]: {
-        count: bucket.doc_count
-      }
-    }
-    if (bucket.date) {
-      classification[bucket.key].lastModified = bucket.date.value_as_string;
-    }
-    return classification;
-  }).reduce(function(result, item, index, array) {
-    firstKey = Object.keys(item)[0];
-    result[firstKey] = item[firstKey]; //a, b, c
-    return result;
-  }, {});
+// function formatClassifications(buckets) {
+//   return buckets.map(bucket => {
+//     if (bucket.key_as_string) {
+//       bucket.key = bucket.key_as_string.substr(0,4);
+//     }
+//     let classification = {
+//       [bucket.key]: {
+//         count: bucket.doc_count
+//       }
+//     }
+//     if (bucket.date) {
+//       classification[bucket.key].lastModified = bucket.date.value_as_string;
+//     }
+//     return classification;
+//   }).reduce(function(result, item, index, array) {
+//     firstKey = Object.keys(item)[0];
+//     result[firstKey] = item[firstKey]; //a, b, c
+//     return result;
+//   }, {});
   
-}
+// }
 
 
 /** This code imported from redflags project */
@@ -1359,7 +1335,85 @@ function isDate(d) {
 }
 /** END This code imported from redflags project */
 
+
+
+function packageVersion() {
+  const pjson = require('../package.json');
+  let gitHead = fs.readFileSync(".git/HEAD", 'utf8');
+  if (gitHead.indexOf("refs/") > -1) {
+    gitHead = fs.readFileSync(".git/ORIG_HEAD", 'utf8');
+  }
+  return {
+    version: pjson.version,
+    commit: gitHead,
+    commit_short: gitHead.substr(0,7)
+  }
+}
+
+function elastic_test(retry=0) {
+
+  //Simple test query
+  client.xpack.usage().then(
+    () => {
+      console.log("Connected to elastic node:",elasticNode);
+    }
+  ).catch(e => {
+    if (retry < 3) {
+      console.log("Retry elastic");
+      setTimeout(() => {
+
+        elastic_test(retry+1)
+      },5000*(retry+1))
+    }
+    else {
+
+      console.error("Error connecting to elastic node:",elasticNode,e);
+      if (e.meta && e.meta.body && e.meta.body.error) {
+        console.error("Error body", e.meta.body.error);
+      }
+      process.exit(100);
+    }
+  })
+}
+
+//MAIN
+client.extend('dataformat', ({ makeRequest, ConfigurationError }) => {
+  return function dataformat (params, options, debug) {
+    // build request object
+    const request = {
+      method: params.method || 'GET',
+      path: `/${encodeURIComponent(params.index)}/_data`, //format=${encodeURIComponent(params.querystring.format)}&source_content_type=application/json&source=${encodeURIComponent(JSON.stringify(params.querystring.source))}
+      querystring: {
+        format: params.querystring.format,
+        source_content_type: "application/json",
+        source: JSON.stringify(params.body)
+      },
+      context: params.context
+    }
+
+    // build request options object
+    const requestOptions = {
+      ignore: options.ignore || null,
+      requestTimeout: options.requestTimeout || null,
+      maxRetries: options.maxRetries || null,
+      asStream: options.asStream || false,
+      headers: options.headers || null
+    }
+
+    if (debug) {
+      console.log("makeRequest", request, requestOptions);
+    }
+
+    return makeRequest(request, requestOptions)
+  }
+})
+
+elastic_test();
+
+
 module.exports = {
+    addPrefix,
+    genericController,
     prepareOutput,
     search,
     embed,

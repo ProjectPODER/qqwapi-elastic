@@ -7,9 +7,11 @@ function summaries(context) {
   const entity_id = context.params.query.id;
   if (entity_id) {
     debug = context.req.query.debug;
-  
+    const prefix = context.params.query.db_prefix;
+
     const summaryDocument = {
-      index: "contracts",
+      index: lib.addPrefix("contracts",prefix),
+
       body: {
         "query": {
           "bool": { 

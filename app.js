@@ -85,4 +85,5 @@ async function createServer() {
     });
 }
 
+console.log("QQWAPI",pjson.version);
 createServer();
