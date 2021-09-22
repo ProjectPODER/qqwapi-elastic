@@ -932,7 +932,7 @@ async function embed(index,params,results,prefix,debug) {
                   if (edi.add) {
                     embedResult.body.hits.hits[h]._source = Object.assign({},embedResult.body.hits.hits[h]._source,edi.add);
                   }
-                  embedResult.body.hits.hits[h]._source.type = embedResult.body.hits.hits[h]._index.split("_")[0];
+                  embedResult.body.hits.hits[h]._source.type = get_db_type(embedResult.body.hits.hits[h]._index);
                   results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
                   // console.log("embed foreign one result expanded",results.hits[r]._source);
                 }
@@ -948,7 +948,7 @@ async function embed(index,params,results,prefix,debug) {
                   if (!results.hits.hits[r]._source[edi.location]) { 
                     results.hits.hits[r]._source[edi.location] = [];
                   }                          
-                  embedResult.body.hits.hits[h]._source.type = embedResult.body.hits.hits[h]._index.split("_")[0];
+                  embedResult.body.hits.hits[h]._source.type = get_db_type(embedResult.body.hits.hits[h]._index);
                   results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
 
                 }
@@ -1042,6 +1042,11 @@ async function search (index,params,prefix,debug) {
   }
 }
 
+function get_db_type(index) {
+  let splitindex = index.split("_");
+  return splitindex[splitindex.length-2];
+}
+
 // function prepareOutput(body, offset, limit, embed, objectFormat, debug) {
 function prepareOutput(body, context, debug) {
     let data = {};
@@ -1130,7 +1135,7 @@ function prepareOutput(body, context, debug) {
       count_precission = bodyhits.total.relation;
       data = bodyhits.hits.map(o => { 
         //Add index to results
-        o._source.type = o._index.split("_")[0]; 
+        o._source.type = get_db_type(o._index); 
         return  o._source 
       } );
       size = data.length;

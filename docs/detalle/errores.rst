@@ -97,7 +97,21 @@ Ejemplo:
     }
 
 
+Error interno
+-------------
+Este error se presenta cuando la API tuvo problemas para consultar a la base de datos y se ve de la siguiente forma:
+
+::
+    {
+        "Internal error": "search_phase_execution_exception"
+    }
+
+Si este error se presenta, por favor infórmelo junto con la dirección URL de la solicitud que lo generó.
+
+
 Otros errores 
 -------------
+
+
 
 Si la API presenta un mensaje de error no explicado en esta sección, por favor cargue un issue en el repositorio para que podamos revisarlo: https://github.com/ProjectPODER/qqwapi-elastic/issues/new

@@ -513,7 +513,19 @@ function summaries(context) {
       console.log("summaries searchDocument body",JSON.stringify(summaryDocument.body))
     }
   
-    return lib.client.search(summaryDocument).then(formatSummaries)
+    try {
+      return lib.client.search(summaryDocument)
+        .catch(e => {
+          console.error("summaries ERROR",e.meta.body.error.root_cause)
+        })
+        .then(formatSummaries)
+        .catch(e => {
+          return {"error": "Summaries error"};
+        })        
+    }
+    catch(e) {
+      return {error: e}
+    }
   }
   else {
     return {
