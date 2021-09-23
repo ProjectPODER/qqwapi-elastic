@@ -503,8 +503,8 @@ const embed_definitions = {
   products: [ product_related_embed, product_contracts_embed ],
   contracts: [
     {
-      id: "id",
-      foreign_key: "id",
+      id: "ocid",
+      foreign_key: "ocid",
       index: "contract_flags",
       location: "flags"
     }
