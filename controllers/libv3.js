@@ -510,11 +510,11 @@ const embed_definitions = {
     }
 
   ],
-  contract_flags: [
+  "contract_flags": [
     {
 
-      id: "id",
-      foreign_key: "contracts.id",
+      id: "ocid",
+      foreign_key: "ocid",
       index: "contracts",
       location: "contracts"
     }
