@@ -354,16 +354,18 @@ const party_flags_embed = {
   }
 }
 
-const products_buyer_embed = {
-  id: "id",
-  foreign_key: "buyer.id",
-  index: "contracts",
-  location: "products",
-  aggs: {
-    
-  }
 
-}
+//Discared, not necesary #27
+// const products_buyer_embed = {
+//   id: "id",
+//   foreign_key: "buyer.id",
+//   index: "contracts",
+//   location: "products",
+//   aggs: {
+    
+//   }
+
+// }
 
 const product_related_embed = {
   must: ["cbmei.clave1_grupo_id","cbmei.clave2_especifico_id"],
@@ -499,7 +501,7 @@ const product_contracts_embed = {
 const embed_definitions = { 
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
-  organizations: [ ... membership_embed, products_buyer_embed, party_flags_embed ],
+  organizations: [ ... membership_embed, party_flags_embed ],
   products: [ product_related_embed, product_contracts_embed ],
   contracts: [
     {
