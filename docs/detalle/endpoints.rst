@@ -5,6 +5,8 @@ Endpoints de consulta
 URL base de la API: https://api.quienesuquien.wiki/v3/ 
 ```
 
+Esta documentación puede estar desactualizada. Para ver la versión actual revise la consola swagger disponible aquí: https://api.quienesuquien.wiki/v3/docs
+
 /companies
 ----------
 
@@ -233,7 +235,7 @@ subclassification
 
 classification
 ^^^^^^^
-
+Classification a way to differentiate several types of entities
 
 source 
 ^^^^^^^
@@ -454,6 +456,7 @@ devolver múltiples contratos. Tipo de dato: string.
 
 name
 ^^^^
+Partial or complete name of the entity.
 
 title
 ^^^^^
@@ -465,11 +468,13 @@ expression.
 
 id
 ^^
+Unique identifier for entity. Procedure number in source.
 
 .. _ids-3:
 
 ids
 ^^^
+Comma-separated series of unique identifiers for entity.
 
 .. _source-2:
 
@@ -479,29 +484,35 @@ source
 El nombre de la fuente desde la cual fue importada la información. Tipo
 de dato: string.
 
-currency (no implementado)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-La moneda utilizada para especificar los importes de los procesos de
-contratación. Tipo de dato: string. 
+classification
+^^^^^^^^^^^^^^
+Classification a way to differentiate several types of entities.
+- "purchase" son las compras de medicamentos
+- "contract" son los contratos públicos
+
+La razón para diferenciarlos es que los purchase están agrupador por producto, por lo que un mismo contrato peude aparecer repetido varias veces. Además no es posible identificar los contratos para cada purchase, por lo que es imposible unificarlos para evitar el doble conteo.
+
 
 format 
 ^^^^^^^
+The format in whith results will be returned. Available values : csv, xls, xlsx.
 
 supplier_name 
 ^^^^^^^
+Name of a supplier (company or person) participating in a contracting process.
 
 buyer_name 
 ^^^^^^^
+Name of a buyer participating in a contracting process.
 
 contact_point_name 
 ^^^^^^^
-
-buyer_id 
-^^^^^^^
+Name of a contact point participating in a contracting process.
 
 funder_name 
 ^^^^^^^
+Name of a funder participating in a contracting process.
 
 amount_max
 ^^^^^^^
@@ -527,21 +538,45 @@ posibles: open, selective, limited, direct. Default: vacío.
 start_date_min
 ^^^^^^^^^^^^^^
 
-contracts.period.startDate 
+contracts.period.startDate. Mimimum beginning date of contract execution
 
 start_date_max
 ^^^^^^^
 
-contracts.period.startDate 
+contracts.period.startDate. Maximum beginning date of contract execution
 
 sort 
 ^^^^^^^
+Sort by given field.
 
 sort_direction 
 ^^^^^^^
+Sort direction. Available values : asc, desc
+
+rank 
+^^^^
+Rank results by multiple field values (only numeric fields).
 
 country
 ^^^^^^^
+Country name or ISO 3166-1 alpha-2 code of the entity.
+
+state 
+^^^^^
+State id in the from of country(2chars)-state(3chars).
+
+city 
+^^^
+City id in the from of country(2chars)-state(3chars)-city.
+
+months_summary
+^^^^^^^
+
+string Show an additional summary of contracts, count and amount per month.
+
+product_name
+^^^^^^^
+Filter purchases by product name or id
 
 
 /record
@@ -591,6 +626,7 @@ ids
 
 classification
 ~~~~~~~~~~~~~~
+Classification a way to differentiate several types of entities
 
 .. _country-3:
 
@@ -652,6 +688,7 @@ name
 
 classification
 ~~~~~~~~~~~~~~
+Classification a way to differentiate several types of entities
 
 .. _subclassification-1:
 
@@ -708,6 +745,7 @@ name
 
 classification
 ^^^^^^^^^^^^^^
+Classification a way to differentiate several types of entities
 
 .. _subclassification-2:
 
@@ -771,6 +809,7 @@ name
 
 classification
 ^^^^^^^^^^^^^^
+Classification a way to differentiate several types of entities
 
 .. _subclassification-3:
 

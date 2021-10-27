@@ -1479,7 +1479,7 @@
             "classification": {
                 "in": "query",
                 "name": "classification",
-                "description": "Classification for persons and areas. And organizations.",
+                "description": "Classification a way to differentiate several types of entities.",
                 "schema":{
                     "type": "string",
                     "enum": [
@@ -1550,151 +1550,6 @@
                 ],
                 "properties": {
                     "message": {
-                        "type": "string"
-                    }
-                }
-            },
-            "Distinct": {
-                "required": [
-                    "data"
-                ],
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "Address": {
-                "properties": {
-                    "street": {
-                        "type": "string",
-                        "maxLength": 100
-                    },
-                    "zone": {
-                        "type": "string",
-                        "maxLength": 50
-                    },
-                    "city": {
-                        "type": "string",
-                        "maxLength": 50
-                    },
-                    "state": {
-                        "type": "string",
-                        "maxLength": 50
-                    },
-                    "postal_code": {
-                        "type": "string",
-                        "maxLength": 50
-                    },
-                    "country": {
-                        "type": "string"
-                    },
-                    "phones": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "maxLength": 50
-                        }
-                    },
-                    "emails": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "format": "email",
-                            "pattern": "/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/"
-                        }
-                    },
-                    "website": {
-                        "type": "string",
-                        "format": "url",
-                        "maxLength": 50
-                    },
-                    "ocdid": {
-                        "type": "string",
-                        "maxLength": 110
-                    }
-                }
-            },
-            "Company": {
-                "properties": {
-                    "sector": {
-                        "type": "string"
-                    },
-                    "classification": {
-                        "type": "string"
-                    },
-                    "tickers": {
-                        "type": "string"
-                    },
-                    "employees": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "assets": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "current_assets": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "liabilities": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "current_ratio": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "quick_ratio": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "revenue": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "c_o_g_s": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "gross_profit": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "grossprofit_margin": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "market_cap": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "total_dept": {
-                        "type": "number",
-                        "format": "float"
-                    }
-                }
-            },
-            "Reference": {
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "url": {
-                        "type": "string"
-                    },
-                    "author": {
-                        "type": "string"
-                    },
-                    "publication_date": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "publication_place": {
                         "type": "string"
                     }
                 }
@@ -1798,33 +1653,6 @@
                     },
                     "contract_count": {
                         "type": "integer"
-                    },
-                    "address": {
-                        "$ref": "#/components/schemas/Address"
-                    },
-                    "references": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Reference"
-                        }
-                    },
-                    "board": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Membership"
-                        }
-                    },
-                    "shares": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Membership"
-                        }
-                    },
-                    "suppliesContract": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Contract"
-                        }
                     }
                 }
             },
@@ -1851,12 +1679,6 @@
                             "party"
                         ]
                     },
-                    "address": {
-                        "$ref": "#/components/schemas/Address"
-                    },
-                    "company": {
-                        "$ref": "#/components/schemas/Company"
-                    },
                     "initials": {
                         "type": "string"
                     },
@@ -1879,46 +1701,6 @@
                     },
                     "contract_count": {
                         "type": "integer"
-                    },
-                    "memberships": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "items": {
-                            "$ref": "#/components/schemas/Membership"
-                        }
-                    },
-                    "board": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "items": {
-                            "$ref": "#/components/schemas/Membership"
-                        }
-                    },
-                    "shares": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "items": {
-                            "$ref": "#/components/schemas/Membership"
-                        }
-                    },
-                    "shareholders": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "items": {
-                            "$ref": "#/components/schemas/Membership"
-                        }
-                    },
-                    "contracts": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "items": {
-                            "$ref": "#/components/schemas/Contract"
-                        }
                     }
                 }
             },
@@ -1973,12 +1755,6 @@
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
-                    },
-                    "references": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Reference"
                         }
                     },
                     "department": {

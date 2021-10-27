@@ -51,6 +51,18 @@ formato alternativo disponible es “csv”. Si no se especifica se devuelve
 en json. Para cada tipo de entidad se generan diferentes tablas con los
 campos disponbles.
 
+source 
+------
+
+El identificador de una fuente, esto sirve para filtrar sólo las entidades
+que provengan de esta fuente. Para saber cuáles existen puede revisar el 
+endpoint /sourcesList
+
+db_prefix
+---------
+Este parámetro está sólo para motivos de pruebas internas, no existe ningún
+valor que retorne resultados.
+
 ..
     omit (no implementado)
     ----------------------
