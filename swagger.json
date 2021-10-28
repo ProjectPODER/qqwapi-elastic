@@ -1483,11 +1483,11 @@
                 "schema":{
                     "type": "string",
                     "enum": [
-
                         "shareholder", 
                         "boardmember", 
                         "proveedor", 
                         "funcionario",
+                        "funcionario%2Cproveedor",
                         "company", 
                         "institution",
                         "state",
@@ -1500,7 +1500,6 @@
                         "Ropa%20y%20Telas",
                         "Medicinas%20y%20vacunas",
                         "Mobiliario"
-                  
                     ]
                 }
             },     
