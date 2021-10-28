@@ -790,7 +790,8 @@ function paramsToBody(paramsObject, debug) {
             body.query.bool[qdp.context].push( {range: { [qdp.field]: { gte: params[param] }}} ); 
           }
           else {
-            console.error("Unexpected query param definition",param, qdp);
+            //TODO: This throws some errors.
+            // console.error("Unexpected query param definition",param, qdp);
           }
         }
 
@@ -806,7 +807,7 @@ function paramsToBody(paramsObject, debug) {
 
 function addPrefix(index,prefix) {
   if (!prefix) {
-    console.log("addPrefix no prefix",index);
+    // console.log("addPrefix no prefix",index);
     return index;
   }
   let prefixed = prefix+index;
@@ -815,7 +816,7 @@ function addPrefix(index,prefix) {
       return prefix+i;
     }).join(",");
   }
-  console.log("addPrefix",prefixed);
+  // console.log("addPrefix",prefixed);
   return prefixed;
 }
 
