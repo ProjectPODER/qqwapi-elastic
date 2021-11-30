@@ -347,13 +347,56 @@ const party_flags_embed = {
   id: "id",
   foreign_key: "party.id",
   index: "party_flags",
-  location: "flags",
-  condition: {
-    field: "classification",
-    negativeValue: "company"
-  }
+  location: "flags"
 }
 
+const party_flags_max_embed = {
+  index: "party_flags",
+  size: 0,
+  aggs: [
+    {
+      location: "max_conf",
+      definition: {
+        "max": {
+          field: "node_categories.conf"
+        }
+      }
+    },
+    {
+      location: "max_trans",
+      definition: {
+        "max": {
+          field: "contract_categories.trans"
+        }
+      }
+    },
+    {
+      location: "max_temp",
+      definition: {
+        "max": {
+          field: "contract_categories.temp"
+        }
+      }
+    },
+    {
+      location: "max_comp",
+      definition: {
+        "max": {
+          field: "node_categories.comp"
+        }
+      }
+    },
+    {
+      location: "max_traz",
+      definition: {
+        "max": {
+          field: "node_categories.traz"
+        }
+      }
+    }
+
+  ]
+}
 
 //Discared, not necesary #27
 // const products_buyer_embed = {
@@ -501,7 +544,7 @@ const product_contracts_embed = {
 const embed_definitions = { 
   areas: membership_embed,
   persons: [... membership_embed, party_flags_embed ],
-  organizations: [ ... membership_embed, party_flags_embed ],
+  organizations: [ ... membership_embed, party_flags_embed, party_flags_max_embed ],
   products: [ product_related_embed, product_contracts_embed ],
   contracts: [
     {
@@ -844,7 +887,7 @@ async function embed(index,params,results,prefix,debug) {
 
         const searchDocument = {
           index: addPrefix(edi.index,prefix),
-          body: {size: 5000, aggs: {}, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
+          body: {size: edi.size || 5000, aggs: {}, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
           // errorTrace: true
         }
 
@@ -1046,7 +1089,16 @@ async function search (index,params,prefix,debug) {
 }
 
 function get_db_type(index) {
+  console.log("get_db_type",index);
   let splitindex = index.split("_");
+
+  //Fix for complex index name
+  if (index.indexOf("cr_party_flags") == 0) {
+    return "party_flags";
+  }
+  if (index.indexOf("cr_contract_flags") == 0) {
+    return "contract_flags";
+  }
   return splitindex[splitindex.length-2];
 }
 
