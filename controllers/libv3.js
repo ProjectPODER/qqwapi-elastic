@@ -352,6 +352,7 @@ const party_flags_embed = {
 
 const party_flags_max_embed = {
   index: "party_flags",
+  location: "party_max",
   size: 0,
   aggs: [
     {
@@ -542,8 +543,8 @@ const product_contracts_embed = {
 }
 
 const embed_definitions = { 
-  areas: membership_embed,
-  persons: [... membership_embed, party_flags_embed ],
+  areas: [... membership_embed, party_flags_embed, party_flags_max_embed],
+  persons: [... membership_embed, party_flags_embed, party_flags_max_embed ],
   organizations: [ ... membership_embed, party_flags_embed, party_flags_max_embed ],
   products: [ product_related_embed, product_contracts_embed ],
   contracts: [
@@ -887,7 +888,7 @@ async function embed(index,params,results,prefix,debug) {
 
         const searchDocument = {
           index: addPrefix(edi.index,prefix),
-          body: {size: edi.size || 5000, aggs: {}, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
+          body: {size: 5000, aggs: {}, query: {bool: {should: [], must: [], minimum_should_match: 1}}},
           // errorTrace: true
         }
 
@@ -912,6 +913,12 @@ async function embed(index,params,results,prefix,debug) {
             if (edi.id) {
               const foreignKeyword = edi.foreign_key+".keyword";
               searchDocument.body.query.bool.should.push({match_phrase: {[foreignKeyword]: result._source[edi.id]}})
+            }
+
+            // console.log("edi",edi);
+            if (edi.hasOwnProperty("size")) {
+              searchDocument.body.size = edi.size;
+              // process.exit();
             }
 
             function addFieldValue(type,field) {
@@ -949,14 +956,14 @@ async function embed(index,params,results,prefix,debug) {
         }
       
         try {
-          if (searchDocument.body.query.bool.should.length == 0 && searchDocument.body.query.bool.must.length == 0) {
+          if (searchDocument.body.query.bool.should.length == 0 && searchDocument.body.query.bool.must.length == 0 && edi.size != 0) {
             console.log("Embed","Empty search document in index: ",index,"location:",edi.location,edi.id);
             return results;
           }
           // console.log("embed",edi);
           const embedResult = await client.search(searchDocument);
       
-          // console.log("embed results",embedResult.body);
+          // console.log("embed results",edi,embedResult.body.hits.hits);
           if (embedResult.body.aggregations) {
             //TODO: We're adding the aggregations to the first result instead of specifying which one. This would fail for queries multiple results.
             results.hits.hits[0]._source[edi.location + "_summaries"] = formatSummary(embedResult.body.aggregations, debug);
@@ -983,7 +990,7 @@ async function embed(index,params,results,prefix,debug) {
                   // console.log("embed foreign one result expanded",results.hits[r]._source);
                 }
               }
-              if (edi.must || edi.should) {
+              else if (edi.must || edi.should) {
                 let resultValidEmbed = true;
                 if (edi.dontRepeatSelf && results.hits.hits[r]._source.id == embedResult.body.hits.hits[h]._source.id) {
                   resultValidEmbed = false;
@@ -999,6 +1006,15 @@ async function embed(index,params,results,prefix,debug) {
 
                 }
                 
+              }
+
+              //This case is for edis without foreing key that are size-0 only-aggs.
+              else if (edi.size == 0) {
+                console.log("This case is for edis without foreing key that are size-0 only-aggs.",edi)
+                if (!results.hits.hits[r]._source[edi.location]) { 
+                  results.hits.hits[r]._source[edi.location] = [];
+                }                          
+                results.hits.hits[r]._source[edi.location].push(embedResult.body.hits.hits[h]._source);
               }
             }
 
@@ -1089,7 +1105,7 @@ async function search (index,params,prefix,debug) {
 }
 
 function get_db_type(index) {
-  console.log("get_db_type",index);
+  // console.log("get_db_type",index);
   let splitindex = index.split("_");
 
   //Fix for complex index name
@@ -1219,7 +1235,7 @@ function prepareOutput(body, context, debug) {
     const pagesNum = Math.ceil((count / pageSize));
 
     let errorText = (body.error ? body.error : (bodyhits ? bodyhits.error : "Unexpected error"));
-    if (errorText && errorText.meta && errorText.meta.body.error.type) {
+    if (errorText && errorText.meta && errorText.meta.body && errorText.meta.body.error && errorText.meta.body.error.type) {
       errorText = errorText.meta.body.error.type;
     }
 
