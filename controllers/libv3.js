@@ -559,8 +559,8 @@ const embed_definitions = {
   "contract_flags": [
     {
 
-      id: "ocid",
-      foreign_key: "ocid",
+      id: "id",
+      foreign_key: "id",
       index: "contracts",
       location: "contracts"
     }
