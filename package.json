@@ -1,6 +1,6 @@
 {
   "name": "qqwapi-elastic",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "private": true,
   "description": "APIv3 for QuienEsQuien.wiki based swagger-node, integrated with ElasticSearch database",
   "main": "app.js",
@@ -19,9 +19,9 @@
     "@elastic/elasticsearch": "^7.9.0",
     "company-laundry": "git+https://github.com/ProjectPODER/lavanderia-empresarial",
     "deep-extend": "^0.6.0",
-    "exegesis-express": "^2.0.0",
-    "exegesis-plugin-swagger-ui-express": "^1.0.7",
-    "express": "^4.17.1",
+    "exegesis-express": "^4.0.0",
+    "exegesis-plugin-swagger-ui-express": "^1.0.9",
+    "express": "^4.17.2",
     "i18n-iso-countries": "^6.0.0",
     "monk": "^7.3.2",
     "morgan": "~1.9.1"

@@ -3,7 +3,7 @@
     "info": {
         "description": "QuienEsQuien.Wiki APIv3. [DOCS](https://qqwapi-elastic.readthedocs.io/).  [Source](https://github.com/ProjectPODER/qqwapi-elastic).",
         "title": "API de QuienEsQuien.Wiki",
-        "version": "3.0.0-beta",
+        "version": "3.1.1",
         "contact": {
             "name": "Programa de Tecnologías para la Transparencia (PODER)",
             "url": "https://www.quienesquien.wiki/contacto",
