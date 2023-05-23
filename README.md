@@ -31,3 +31,4 @@ Use the compainion [node-qqw](https://github.com/ProjectPODER/node-qqw/) client 
 * Set ELASTIC_URI environment variable (ex: `ELASTIC_URI=https://user:pass@domain:port`)
 * Set `NODE_ENV=production`
 * Run docker container. Only one instance is needed.
+* 
